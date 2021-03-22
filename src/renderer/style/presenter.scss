@@ -1,0 +1,120 @@
+.sku-data-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid lightgray;
+    flex: 0 0 45%;
+}
+
+.sd-btn-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 10%;
+    justify-content: center;
+
+    & div {
+        cursor:pointer;
+        margin: auto 0;
+        width:25%;
+        text-align: center;
+    }
+
+    & div>p {
+        height: 1em;
+        width: 100%;
+        text-align: center;
+    }
+
+    & .sd-btn-active {
+        background-color: #cc0000;
+        color: white;
+
+        &:hover,
+        &:focus {
+            background-color : darkred;
+        }
+    }
+
+    & .sd-btn-inactive {
+        border: 1px solid lightgray;
+
+        &:hover,
+        &:focus {
+            background-color : lightgray;
+        }
+    }
+}
+
+.conditional-block {
+    height: 85%;
+    overflow-y: auto;
+}
+
+.its-container {
+    display: flex;
+    flex-direction: row;
+    width:90%;
+    margin: auto;
+    justify-content: center;
+
+    &>div {
+        border: 2px solid lightgray;
+        width: 18%;
+        text-align: center;
+    }
+}
+
+.title-card {
+    margin: 1em auto;
+    padding: 0.5px;
+    width: 95%;
+    min-height: 24%;
+    box-shadow: 0px 1px 5px 1px gray;
+    
+}
+
+.title-card-top {
+    display:flex;
+    flex-direction: row;
+    margin: 1em 1.5em;
+    height: 2em;
+
+    &>div {
+        margin: 0 0.75em;
+    }
+}
+
+.SkuName {
+    margin: 0.5em 1.25em;
+    height: 2.5em;
+}
+
+.title-card-bottom {
+    display:flex;
+    flex-direction: row;
+    margin: 1em 1.5em;
+    height: 2em;
+
+    &>div {
+        margin: 0 0.75em;
+    }
+}
+
+.extra-container {
+    margin: auto;
+    width: 95%;
+
+    &>div {
+        margin:0.5em 0;
+    }
+}
+
+.full-sku {
+    width: 95%;
+    margin: auto;
+    
+    & pre {
+        white-space: pre-wrap;
+        word-break: keep-all;
+    }
+}

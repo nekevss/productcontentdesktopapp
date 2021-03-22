@@ -1,0 +1,31 @@
+.search-suggestions {
+    position:fixed;
+    display: flex;
+    background-color: white;
+    z-index:2;
+    flex-direction: column;
+    border-left: 2px solid lightgray;
+    border-right: 2px solid lightgray;
+    border-bottom: 2px solid lightgray;
+    box-shadow: 2px 3px 3px 1px  gray;
+
+    &>.match-node {
+        cursor:pointer;
+        min-height:2em;
+        border-bottom: 1px solid lightgray;
+
+        &>p {
+            width: 97%;
+            margin: 0.5em auto;
+        }
+    }
+
+    &>.match-node:hover {
+        background-color: lightgray;
+    }
+
+    &>.match-node:focus {
+        background-color: lightgray;
+        outline: none;
+    }
+}

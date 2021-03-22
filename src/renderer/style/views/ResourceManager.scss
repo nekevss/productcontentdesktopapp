@@ -1,0 +1,72 @@
+.resource-container {
+    margin-top:4em;
+    display:flex;
+    flex-direction:column;
+
+    &>.path-display {
+        display:flex;
+        flex-direction:row;
+        height:3.5em;
+        width: 50%;
+        margin: 1em auto;
+        border: 1px solid lightgray;
+
+        &>.title {
+            width:8em;
+            margin: 1.25em 0.25em auto 2em;
+            text-align:right;
+        }
+
+        &>input {
+            width: 40%;
+            height: 1.75em;
+            margin: 1.1em 0.5em;
+        }
+
+        &>.btns {
+            margin: 1.25em 0.75em;
+            width: 5em;
+        }
+    }
+}
+
+.resources-interface {
+    width:90%;
+    margin: 1em auto;
+    display:flex;
+    flex-direction:column;
+
+    &>.resource-block {
+        display:flex;
+        flex-direction: row;
+        width: 80%;
+        height: 6em;
+        margin: 1em auto;
+        border: 1px solid lightgray;
+
+        &>.title {
+            width:40%;
+            margin-top:2.5em;
+            text-align:center;
+        }
+
+        &>.btn {
+            cursor:pointer;
+            background-color: #cc0000;
+            width: 7em;
+            height: 3.5em;
+            margin: 1.25em 1em;
+            text-align:center;
+            border-radius: 0.5em;
+
+            &>p {
+                color:white;
+                margin-top:1.25em;
+            }
+        }
+
+        &>.btn:hover {
+            background-color: darkred;
+        }
+    }
+}

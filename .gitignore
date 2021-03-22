@@ -1,0 +1,6 @@
+dist/
+node_modules/
+src/resources/current.json
+src/resources/SNGdev.json
+src/resources/SNGs.json
+src/resources/StyleGuide.json

@@ -1,0 +1,39 @@
+.legacy-view {
+    margin-top: 6em;
+}
+
+.legacy-table-container {
+    margin: 0 2em;
+
+    & table {
+        border-collapse: collapse;
+    }
+
+    & thead th {
+        border: 2px solid lightgray;
+    }
+
+    & th:nth-child(2) {
+        min-width: 5em;
+    }
+
+    & th:nth-child(3) {
+        min-width: 25em;
+    }
+
+    & table td {
+        border: 2px solid lightgray;
+    }
+
+    & td {
+        padding: 1em;
+    }
+
+    & td:nth-child(2) {
+        min-width: 5em;
+    }
+
+    & td:nth-child(3) {
+        min-width: 25em;
+    }
+}

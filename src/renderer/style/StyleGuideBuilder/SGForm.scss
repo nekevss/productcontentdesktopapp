@@ -1,0 +1,75 @@
+.sg-form-container {
+    z-index:100;
+    width:100%;
+    height:100%;
+    top: 4em;
+    padding-top:12em;
+    background-color: rgba(gray, 0.7);
+    position: fixed;
+    justify-content: center;
+
+    &>.sg-form {
+        background-color: rgba(255,255,255,1);
+        margin:auto;
+        min-width:525px;
+        width: 40%;
+        height: 35vh;
+    }
+}
+
+.sg-form {
+    justify-content: center;
+
+    &>div {
+        margin:auto;
+        height:80%;
+    }
+
+    &>button {
+        float:right;
+        margin-right:3em;
+    }
+}
+
+.input-container {
+    display:flex;
+    flex-direction: column;
+    width: 90%;
+    
+    &>div {
+        height:2.5em;
+        padding-right: 3em;
+        padding-left: 5em;
+    }
+}
+
+.text-container {
+    display:flex;
+    flex-direction: row;
+    margin-top: 4em;
+
+    &>div {
+        margin-top: 0.25em;
+    }
+}
+
+.text-container input {
+    margin-left:0.75em;
+    width: 14em;
+    height: 1.75em;
+}
+
+.select-container {
+    display:flex;
+    flex-direction: row;
+
+    &>div {
+        margin-top:0.25em;
+    }
+
+    &>select {
+        margin-left: 0.75em;
+        width: 12em;
+        height: 1.75em;
+    }
+}

@@ -1,0 +1,46 @@
+.report-container {
+    width:95%;
+    margin:auto;
+
+    & table td, table th {
+        border: 1px solid gray;
+    }
+
+    & table {
+        width:100%;
+        border-collapse: collapse;
+    }
+
+    & tr {
+        min-height:2.5em;
+    }
+
+    & td {
+        padding:0.25em;
+    }
+
+    &>.passed {
+        width:15em;
+        margin: 1em auto;
+    }
+}
+
+.col-1 {
+    width: 25%;
+}
+
+.col-2 {
+    width: 75%;
+}
+
+
+.attribute-table {
+    margin: 1.5em auto;
+
+    & thead {
+
+        &>tr,>tr>th {
+            width: 100%;
+        }
+    }
+}

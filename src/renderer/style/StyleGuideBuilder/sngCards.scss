@@ -1,0 +1,130 @@
+.start-node {
+    margin: 2em auto 0;
+    width:70%;
+    padding:0.25em;
+    min-width: 7.5em;
+    height: 4.5em;
+    background-color: white;
+    justify-content: center;
+    border: 1px solid gray;
+    box-shadow: 0 1px 3px 1px gray;
+
+    &>div {
+        margin:0.5em 0.75em;
+        width:90%;
+        height: 1.5em;
+        min-width: 5em;
+        text-align: center;
+    }
+}
+
+.default-node {
+    margin: 2em auto 0;
+    width:70%;
+    padding:0.25em;
+    min-width: 7.5em;
+    height: 6em;
+    background-color: white;
+    justify-content: center;
+    border: 2px solid gray;
+    box-shadow: 0 1px 3px 1px gray;
+
+    &>.default-node-container {
+        display:flex;
+        flex-direction: row;
+        width: 90%;
+        margin: 1.5em auto;
+
+        &>.default-title {
+            width:80%;
+            margin:auto;
+
+            &>p {
+                cursor:default;
+                text-align: center;
+            }
+        }
+
+        &>.default-controls {
+            width:15%;
+            margin:auto;
+
+            &>* {
+                margin: auto;
+            }
+    
+            &>.f-x p {
+                margin:0;
+                padding:0.25em;
+                font-size:1.25em;
+            }
+        }
+    }
+}
+
+
+.input-node {
+    display:flex;
+    flex-direction: row;
+    margin: 2em auto 0;
+    width:70%;
+    padding:0.25em;
+    min-width: 7.5em;
+    height: 12em;
+    background-color: white;
+    justify-content: center;
+    border: 2px solid gray;
+    box-shadow: 0 1px 3px 1px gray;
+}
+
+.input-form {
+    display:flex;
+    flex-direction: row;
+    width: 12em;
+    height: 8em;
+    min-width: 3.5em;
+    text-align: center;
+
+    &>.inputs-column {
+        margin:auto;
+        display:flex;
+        flex-direction: column;
+
+        &>div {
+            display: flex;
+            flex-direction: row;
+        }
+    }
+
+    &>.input-controls {
+        width: 20%;
+        height: 100%;
+
+        &>* {
+            margin: 1.25em auto 0;
+        }
+
+        &>.f-x {
+            height:2em;
+        }
+
+        &>.f-x p {
+            margin:0;
+            padding:0.25em;
+            font-size:1.25em;
+        }
+    }
+}
+
+.f-x p:hover {
+    cursor:default;
+    background-color: lightgray;
+}
+
+.save-staple img {
+    width: 2.5em;
+}
+
+.save-staple:hover {
+    background-color: lightgray;
+}

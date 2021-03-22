@@ -1,0 +1,84 @@
+.workspace-body {
+    width: 100%;
+    margin-top:10em;
+    height: calc(100vh - 12em);
+}
+
+.top-level-drawer {
+    position:fixed;
+    min-width: 40em;
+    top:10em;
+    height: calc(100vh - 10em);
+    z-index:10;
+    border-right: 1px solid gray;
+    box-shadow: 8px 0 6px -6px gray;
+
+    &>.drawer-header {
+        top:0;
+        left:0;
+        height:3.5em;
+        width:100%;
+        background-color: #cc0000;
+    }
+}
+
+.minimize-div {
+    margin: 0.75em;
+    justify-content: center;
+    float:right;
+}
+
+.minimize-div:hover {
+    background-color: darkred;
+}
+
+.div-connector {
+    position: absolute;
+    top: 0;
+    left:0;
+    z-index: -1;
+}
+
+.hidden-drawer {
+    position: fixed;
+    top:10em;
+    left:0;
+    height: calc(100vh - 10em);
+    border-right: 1px solid gray;
+    box-shadow: 8px 0 6px -6px gray;
+
+    &>.hidden-top {
+        top:0;
+        padding:0.1px;
+        height:3.5em;
+        width:100%;
+        background-color: #cc0000;
+    }
+
+    &>.hidden-spacer {
+        height:calc(100% - 3.5em);
+        background-color:white;
+        
+    }
+
+    &>.hidden-top>div {
+        margin: 0.55em 0.5em;
+        justify-content: center;
+    }
+
+    &>.hidden-top>div:hover {
+        background-color: darkred;
+    }
+}
+
+.hidden-top>div>img {
+    transform: rotate(90deg);
+}
+
+.welcome-container {
+    padding-top:1em;
+
+    &>* {
+        margin:1.5em 3em;
+    }
+}

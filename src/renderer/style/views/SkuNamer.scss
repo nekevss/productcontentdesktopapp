@@ -1,0 +1,180 @@
+.central-container {
+    display:flex;
+    flex-direction: row;
+    margin-top: 4em;
+    margin-left: 13em;
+    height: calc(100vh - 4em);
+
+    &>.load-container {
+        width:85%;
+        padding: 1.5em;
+
+        &>h1 {
+            width: 80%;
+            margin: auto;
+            text-align: center;
+        }
+    }
+
+    &>.tables-container {
+        display:flex;
+        flex-direction:row;
+        width:95%;
+        margin: 1.5em;
+
+        & tr {
+            height:3.5em;
+        }
+
+        & td {
+            padding: 0.5em;
+        }
+
+        &>.first-table {
+            width: 35%;
+
+            & table, & td, & th {
+                border: 2px solid lightgray;
+                border-collapse: collapse;
+            }
+
+            &>table {
+                width:100%;
+            }
+        }
+
+        &>.second-table {
+            width: 65%;
+
+            & table, & td, & th {
+                border: 2px solid lightgray;
+                border-collapse: collapse;
+            }
+
+            &>table {
+                width:100%;
+
+                & *+td {
+                    width: 12%;
+                    text-align:center;
+                }
+            }
+        }
+    }
+
+    &>.report-container{
+        display:flex;
+        flex-direction:row;
+        width:100%;
+        height: calc(100vh - 4em);
+
+        &>.reports-stack {
+            width:17.5%;
+            height:100%;
+            background-color:gray;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            &>.stack-tab {
+                cursor:pointer;
+                width:100%;
+                height:4em;
+                padding: 0.05px;
+
+                &>p {
+                    margin:1.5em auto;
+                    text-align:center;
+                }
+
+                &.active{
+                    background-color: darkgray;
+                }
+
+                &.inactive {
+                    background-color:gray;
+                }
+            }
+        }
+
+        &>.report-display {
+            width:100%;
+            height: calc(100vh - 4em);
+            overflow-y:auto;
+
+            & table, & td, & th {
+                border: 1px solid gray;
+                border-collapse: collapse;
+            }
+
+            &>table {
+                width:90%;
+                margin: 1.5em auto;
+            }
+
+            & td {
+                padding: 0.75em 0.5em;
+            }
+
+            & *+td {
+                text-align:center;
+            }
+
+            &>.error-message{
+                width:85%;
+                margin: 3em auto;
+                text-align:center;
+            }
+        }
+    }
+}
+
+.controls-panel {
+    position: fixed;
+    background-color:white;
+    z-index:5em;
+    top:4em;
+    left:0;
+    height: calc(100vh - 4em);
+    width: 13em;
+    padding-top:0.5em;
+    border-right: 2px solid gray;
+
+    &.normal {
+        box-shadow: 3px 0 10px 2px gray;
+    }
+
+    &>div {
+        cursor:pointer;
+        background-color: #cc0000;
+        margin: 1em auto;
+        width: 70%;
+        height: 3.5em;
+        border: 2px solid #cc0000;
+        border-radius: 0.5em;
+
+        &>div {
+            width:90%;
+            margin:1.25em auto;
+            color:white;
+            text-align:center;
+        }
+
+        &>div:active {
+            color:darkred;
+        }
+    }
+
+    &>div:hover {
+        background-color: darkred;
+        border:2px solid darkred;
+        box-shadow: 2px 2px 6px 1px lightgray;
+    }
+
+    
+}
+
+.react-loader {
+    width: 80%;
+    height: 60%;
+    margin: 5em auto;
+}

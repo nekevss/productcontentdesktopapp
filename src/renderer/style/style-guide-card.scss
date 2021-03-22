@@ -1,0 +1,14 @@
+.sg-container {
+    width:95%;
+    margin:auto;
+    min-height:10em;
+    overflow-y:auto;
+
+    &>div {
+        margin-top: 0.5em;
+
+        &>div {
+            margin-top: 0.5em;
+        }
+    }
+}

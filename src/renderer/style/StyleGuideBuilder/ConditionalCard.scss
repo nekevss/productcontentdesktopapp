@@ -1,0 +1,297 @@
+.condition-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &>.root-node {
+        background-color: white;
+        width: 90%;
+        max-width:30em;
+        height: 7.5em;
+        margin: 1.25em auto 1em 7.5em;
+        border: 1px solid black;
+        box-shadow: 0 1px 8px 1px gray;
+
+        &>.input-section {
+            display:flex;
+            flex-direction: column;
+            height: 70%;
+
+            &>.condition-row {
+                display:flex;
+                flex-direction: row;
+                height:2em;
+                width:85%;
+                margin: auto;
+
+                &.text {
+                    &>div {
+                        width: 30%;
+                        margin:auto 0.5em auto 1em;
+                    }
+                    
+                    &>input{
+                        width:65%;
+                    }
+                }
+            }
+        }
+
+        &>.button-section {
+            display:flex;
+            flex-direction: row;
+            width:90%;
+            margin:auto;
+            height: 30%;
+
+            &>.condition-row {
+                display:flex;
+                flex-direction: row;
+                height:2em;
+                width:55%;
+                margin: auto;
+
+                &.checkbox {
+                    &>div {
+                        text-align:right;
+                        width: 60%;
+                        margin:auto 0.25em auto auto;
+                    }
+
+                    &>input {
+                        margin:auto 0.25em auto;
+                    }
+                }
+            }
+
+            &>button {
+                height:1.75em;
+                margin:auto 0.25em;
+            }
+        }
+    }
+}
+
+.condition-node {
+    &>.condition-form {
+        background-color:#c7caca;
+        width:30em;
+        height:9em;
+        margin-top:0.5em;
+        border: 1px solid gray;
+        box-shadow: 0 1px 3px 1px gray;
+
+        &>.inputs-section {
+            display:flex;
+            flex-direction: column;
+            height: 70%;
+
+            &>.inputs-row {
+                display: flex;
+                flex-direction: row;
+                width: 95%;
+                height:2em;
+                margin: 1em auto 0;
+            }
+        }
+
+        &>.buttons-section {
+            height:30%;
+            display:flex;
+            flex-direction:row;
+            width:90%;
+            margin:auto;
+
+            &>button {
+                height:1.75em;
+                margin:auto 0.25em;
+            }
+        }
+    } 
+}
+
+.input-row-node {
+    display:flex;
+    flex-direction: row;
+    width: auto 0.5em;
+    
+    &.type {
+        width:40%;
+    }
+
+    &.input {
+        width:55%;
+    }
+
+    &>.type-title, &>.nested-title {
+        width: 25%;
+        margin: auto 0.25em auto 0.75em;
+        text-align: right;
+    }
+
+    &>.row-title, &>.values-title {
+        width:35%;
+        margin: auto 0.25em auto 0.75em;
+        text-align: right;
+    }
+
+    &>select {
+        width: 45%;
+        height:1.75em;
+        margin: auto 0.25em;
+    }
+
+    &>input {
+        height: 1.75em;
+        margin: auto 0.25em;
+    }
+}
+
+.output-section {
+    width: 100%;
+
+    &>.output-card {
+        display: flex;
+        flex-direction: column;
+        width: 24em;
+        margin: 0.5em auto;
+        border: 1px solid lightgray;
+        box-shadow: 0 1px 3px 1px gray;
+
+        &.type-select {
+            height: 6em;
+
+            &>.inputs-section {
+                height:65%;
+
+                &>.input-row {
+                    display:flex;
+                    flex-direction: row;
+                    width: 75%;
+                    margin: 1.5em auto 0;
+                }
+            }
+
+            &>.buttons-section {
+                height:35%;
+                width: 90%;
+                margin: auto;
+
+                &>button {
+                    margin: 0.25em 0.25em;
+                }
+            }
+        }
+
+        &.attribute {
+            height: 10em;
+
+            &>.inputs-section {
+                height:80%;
+
+                &>.input-row {
+                    display:flex;
+                    flex-direction: row;
+                    width: 80%;
+                    margin: 1em auto 0;
+
+                    &>div{
+                        margin-top:0.125em;
+                        margin-right:0.25em;
+                        width:30%;
+                        text-align:right;
+                    }
+
+                    &>input {
+                        height: 1.25em;
+                        width: 67%;
+                    }
+                }
+            }
+
+            &>.buttons-section {
+                height:20%;
+                width: 90%;
+                margin: auto;
+
+                &>button {
+                    margin: 0.25em 0.25em;
+                }
+            }
+        }
+
+        &.string {
+            height:6em;
+
+            &>.inputs-section {
+                height:65%;
+
+                &>.input-row {
+                    display:flex;
+                    flex-direction: row;
+                    width: 70%;
+                    margin: 1.5em auto 0;
+
+                    &>div{
+                        margin-top:0.125em;
+                        margin-right:0.25em;
+                        width:18%;
+                        text-align:right;
+                    }
+
+                    &>input {
+                        height: 1.25em;
+                        width: 75%;
+                    }
+                }
+            }
+
+            &>.buttons-section {
+                height:35%;
+                width: 90%;
+                margin: auto;
+
+                &>button {
+                    margin: 0.25em 0.25em;
+                }
+            }
+        }
+
+        &.replace {
+            height: 15em;
+
+            &>.inputs-section {
+                height:85%;
+
+                &>.input-row {
+                    display:flex;
+                    flex-direction: row;
+                    width: 80%;
+                    margin: 1em auto 0;
+
+                    &>div{
+                        margin-top:0.125em;
+                        margin-right:0.25em;
+                        width:28%;
+                        text-align: right;
+                    }
+
+                    &>input {
+                        height: 1.25em;
+                        width: 70%;
+                    }
+                }
+            }
+
+            &>.buttons-section {
+                height:15%;
+                width: 90%;
+                margin: auto;
+
+                &>button {
+                    margin: 0.25em 0.25em;
+                }
+            }
+        }
+    }
+}

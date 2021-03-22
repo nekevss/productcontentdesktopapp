@@ -1,0 +1,41 @@
+.importer-interface {
+    margin-top: 5em;
+
+    &>div {
+        margin:auto;
+        width: 90%;
+    }
+}
+
+.attribution-container {
+    height: 10em;
+    display:flex;
+    flex-direction:column;
+
+    &>.attribution-display {
+        display:flex;
+        flex-direction: row;
+
+        &>div {
+            width: 12em;
+            overflow: hidden;
+        }
+        
+        &>button {
+            margin:auto 0.75em;
+        }
+    }
+
+    &>.buttons {
+        width:25em;
+        height: 3em;
+
+        &>button {
+            width: 4em;
+            margin: 0.25em 2em;
+            float:right;
+        }
+    }
+    
+}
+

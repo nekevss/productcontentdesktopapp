@@ -1,0 +1,19 @@
+.suggest-search-container {
+    display:flex;
+    flex-direction:row;
+    width: 95%;
+    height: 4em;
+    margin: 0 auto;
+    justify-content: center;
+
+    &>input[type="search"] {
+        width: 20em;
+        height: 2em;
+        margin-top:1.75em;
+    }
+        
+    &>button {
+        height: 2em;
+        margin: 1.75em 0.5em auto;
+    }
+}

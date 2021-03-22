@@ -1,0 +1,105 @@
+.secondary-body {
+    margin-top:5em;
+
+    &>.resource-display {
+        display:flex;
+        flex-direction: column;
+        width: 95%;
+        margin: 1em auto;
+
+        &>.metadata-display {
+            width: 90%;
+            margin: 0.5em auto;
+            display:flex;
+            flex-direction:column;
+            height:4em;
+            border: 1px solid lightgray;
+
+            &>.metadata-row {
+                display:flex;
+                flex-direction: row;
+                width: 40%;
+                margin:0.5em auto;
+                justify-content: center;
+
+                &>div {
+                    margin: auto 0.25em;
+                }
+            }
+        }
+
+        &>.data-display {
+            margin: 0.5em auto;
+            width: 95%;
+
+            &>h2 {
+                text-align:center;
+            }
+
+            & tr {
+                min-height: 2em;
+            }
+
+            & table, td, th {
+                border:1px solid lightgray;
+                border-collapse: collapse;
+            }
+            & td {
+                padding: 0.25em;
+            }
+        }
+
+        &>.report-display {
+            display:flex;
+            flex-direction: column;
+            width: 95%;
+            margin: 1em auto;
+
+            &>h3 {
+                text-align:center;
+            }
+
+            &>.sample-size-container {
+                height: 1.75em;
+                width: 90%;
+                margin: 0.5em auto 0.25em;
+            }
+
+            & table {
+                width: 90%;
+                margin: auto;
+            }
+
+            & tr {
+                min-height: 2em;
+            }
+
+            & table, td, th {
+                border:1px solid lightgray;
+                border-collapse: collapse;
+            }
+            & td {
+                padding: 0.5em;
+            }
+
+            & td.percentage-cell {
+                text-align:right;
+            }
+        }
+
+        &>.generator-display {
+            width: 95%;
+            margin: 1.5em auto;
+
+            &>h3 {
+                text-align:center;
+            }
+        }
+    }
+}
+
+.react-loader {
+    width:20%;
+    margin: 2em auto;
+    justify-content: center;
+}
