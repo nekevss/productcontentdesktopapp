@@ -157,6 +157,8 @@ async function fetchStateAndData() {
                 dialog.showMessageBox(activeWindow, options)
             }
         } else {
+            //if they file name doesn't exist, then change the type to current
+            state.type = "current";
             try {
                 let currentJSON = await fsp.readFile(resourcesPath + '/current.json', "utf-8");
                 return {
@@ -177,7 +179,7 @@ async function fetchStateAndData() {
         try {
             let currentJSON = await fsp.readFile(resourcesPath + '/current.json', "utf-8");
             return {
-                state: "current",
+                state: state,
                 json: JSON.parse(currentJSON)
             };
         } catch(err) {
