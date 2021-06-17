@@ -171,7 +171,7 @@ function createWindow() {
     win.setIcon(appIcon)
 
     //for production...
-    win.loadURL(path.join(__dirname, "/dist/index.html"))
+    win.loadURL(path.join(__dirname, "/public/index.html"))
     //for development...
     //win.loadURL('http://localhost:8080/');
 

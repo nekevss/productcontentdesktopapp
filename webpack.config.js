@@ -7,7 +7,7 @@ module.exports = {
         secondary: './src/renderer/secondary.js'
     },
     output: {
-        path: path.join(__dirname, '/src/dist/src/'),
+        path: path.join(__dirname, '/src/public/src/'),
         filename: '[name].bundle.js'
     },
     module: {
@@ -46,7 +46,7 @@ module.exports = {
     ]
     },
     devServer: {
-        contentBase: path.join(__dirname, '/src/dist'),
+        contentBase: path.join(__dirname, '/src/public'),
         compress: true,
         port: 8080
     }
