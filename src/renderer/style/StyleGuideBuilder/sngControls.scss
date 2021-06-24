@@ -70,41 +70,9 @@
     }
 }
 
+
+
 .third-controls {
-    display: flex;
-    flex-direction: row;
-    margin-top:0.5em;
-    padding: 0 0.5em;
-    width: 10em;
-    height: 5em;
-    border-right: 2px solid gray;
-
-    &>.top-level-controls {
-        display:flex;
-        flex-direction: column;
-        background-color: #c7caca;
-        margin: 0.25em auto;
-        width: 90%;
-        height: 4.5em;
-        
-        &>div {
-            cursor:default;
-            height: 2.25em;
-            text-align: center;
-        }
-
-        &>div p {
-            margin-top:0.5em;
-        }
-
-        &>div:hover {
-            background-color: gray;
-        }
-    
-    }
-}
-
-.fourth-controls {
     display: flex;
     flex-direction: row;
     margin-top:0.5em;
@@ -128,7 +96,7 @@
     }
 }
 
-.fifth-controls {
+.fourth-controls {
     display: flex;
     flex-direction: row;
     margin-top:0.5em;

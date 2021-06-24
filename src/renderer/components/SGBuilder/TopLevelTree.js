@@ -1,5 +1,7 @@
 import React from 'react';
 import '../../style/StyleGuideBuilder/treedrawer.scss';
+import RecursiveInputNode from "./TopLevelConditionCard.js";
+import DefaultGeneratorCard from './TopLevelDefaultCard';
 
 export default function TreeDrawer(props) {
     const [TopLevelClass, setTopLevelClass] = React.useState(props.StyleGuide.class);
@@ -49,11 +51,12 @@ export default function TreeDrawer(props) {
             console.log("Logging the top level array before mapping");
             console.log(props.StyleGuide.returnGenerator);
             console.log(TopLevelArray);
-            _ComponentArray = TopLevelArray.map((thisObject, index)=>{
+            TopLevelArray.forEach((thisObject, index, arr)=>{
                 console.log(`Here's the object being mapped at index ${index}`)
                 console.log(thisObject);
+                
                 if (thisObject.type == 'else') {
-                    return (
+                    _ComponentArray.push(
                         <DefaultGeneratorCard key={"default"}
                             currentCondition={thisObject}
                             OpenStyleGuide={(g,l,i)=>props.OpenStyleGuide(g,l,i)}
@@ -63,7 +66,7 @@ export default function TreeDrawer(props) {
                         />
                     )
                 } else {
-                    return (
+                    _ComponentArray.push(
                         <RecursiveInputNode 
                             key={"input"+index}
                             currentCondition={thisObject}
@@ -75,9 +78,28 @@ export default function TreeDrawer(props) {
                             parentLevel={0}
                             parentStyle={styleRef} />
                     )
-                }
-                
+                    _ComponentArray.push(
+                        <AddTopLevelNode
+                            key={"add-top-level"+index} 
+                            pushInputToStack={(i, j)=>pushInputToStack(i, j)} 
+                            defaultPresent={arr[arr.length - 1].type == "else" ? true : false}
+                            suggestDefault={arr.length - 1 === index} 
+                            index={index+1}
+                            />
+                    )
+                } 
             });
+
+            //adding our initial nodes ot stack
+            _ComponentArray.unshift(
+                <AddTopLevelNode
+                    key={"add-top-level-0"}
+                    pushInputToStack={(i, j)=>pushInputToStack(i, j)}
+                    defaultPresent = {TopLevelArray[TopLevelArray.length - 1].type == "else" ? true : false}
+                    suggestDefault={false} 
+                    index={0}
+                    />
+            )
             _ComponentArray.unshift(
                 <InitNode key={"init"}
                     thisClass={TopLevelClass}
@@ -122,6 +144,54 @@ export default function TreeDrawer(props) {
         props.updateValidationState("none");
     }
 
+    const pushInputToStack = (typeValue, addIndex) => {
+
+        console.log("Logging current Style Guide Object in callStackPush:")
+        console.log(props.StyleGuide)
+
+        let _returnGenerator = TopLevelArray;
+        console.log("Here's the current Return Generator Array")
+        console.log(_returnGenerator);
+        if (_returnGenerator.length == 0) {
+            window.api.alert("send-alert","Please initialize Style Guide before adding conditional")
+        } else {
+            const newCondition = typeValue == 'conditional' 
+                ? {
+                    type : "if",
+                    spec: "",
+                    ifCalled: [""],
+                    nestedType: "",
+                    nestedConditions: []
+                }
+                : {
+                    type : "else",
+                }
+            
+            let newReturnGenerator = [];
+
+            if (addIndex == _returnGenerator.length) {
+                newReturnGenerator = newReturnGenerator.concat(_returnGenerator);
+                newReturnGenerator.push(newCondition);
+            } else {
+                for (let i in _returnGenerator) {
+                    if (i == addIndex) {
+                        newReturnGenerator.push(newCondition);
+                    }
+                    newReturnGenerator.push(_returnGenerator[i]);                        
+                }   
+            } 
+
+            const newStyleGuide = {
+                class: props.StyleGuide.class,
+                type: props.StyleGuide.type,
+                returnGenerator: newReturnGenerator
+            }
+
+            props.updateStyleGuide(newStyleGuide);
+        }
+        console.log(`Finished pushing ${typeValue} to stack`)
+    }
+
     return (
         <div className="drawer-body">
             {ComponentArray}
@@ -142,325 +212,56 @@ function InitNode(props) {
     )
 }
 
-//Below is the code for the basic recursive element
-
-function RecursiveInputNode(props) {
-    const [thisCondition, setThisCondition] = React.useState(props.currentCondition);
-    const [thisIndex, setThisIndex] = React.useState(props.index);
-    const [thisLevel, setThisLevel] = React.useState(props.parentLevel + 1);
-    const [childCount, setChildCount] = React.useState(props.currentCondition.nestedConditions.length);
-    const [children, setChildren] = React.useState([]);
-    const [thisStyle, setThisStyle] = React.useState({});
-
-    //Use Effects for handling value updates
-
-    React.useEffect(()=> {
-        let drawerBody = document.getElementsByClassName("drawer-body")[0];
-        let parentWidth = drawerBody.offsetWidth;
-        let nodeWidth = (parentWidth * 0.9)/16;
-        let widthcheck = drawerBody.scrollHeight > drawerBody.clientHeight;
-        let marginCalculation = 1.5+(1.25*thisLevel);
-        let thisWidth = widthcheck ? nodeWidth - marginCalculation : nodeWidth - marginCalculation
-        let _style = {
-            marginLeft: marginCalculation +'em',
-            width: thisWidth +'em'
-        }
-        console.log("Logging the style object")
-        console.log(_style);
-        setThisStyle(_style);
-    }, [])
-
-    React.useEffect(()=>{
-        setThisCondition(props.currentCondition)
-        setThisIndex(props.index)
-        setThisLevel(props.parentLevel + 1)
-        setChildCount(props.currentCondition.nestedConditions.length)
-    }, [props.currentCondition])
-
-    React.useEffect(()=> {
-        let _thisNested = thisCondition.nestedConditions;
-        let _children = [];
-        
-        if (_thisNested.length > 0) {
-            _children = _thisNested.map((value, index)=>{
-                return (
-                <RecursiveInputNode 
-                    key={"level-"+thisLevel+"-index-"+index}
-                    updateValidationState={(v)=>props.updateValidationState(v)}
-                    OpenStyleGuide={(g,l,i)=>props.OpenStyleGuide(g,l,i)}
-                    currentCondition={value}
-                    parentLevel={thisLevel}
-                    parentStyle={props.parentStyle}
-                    remove={(i)=>{RemoveItem(i)}}
-                    index={index} />
-                )
-            })
-        }
-
-        console.log("Logging children after creating components");
-        console.log(_children);
-        setChildren(_children);
-        
-    }, [thisCondition.nestedConditions.length])
-
-    //button handlers
-
-    const addChild = () => {
-        console.log("Logging Condition before adding child");
-        console.log(thisCondition);
-        let _thisCondition = thisCondition;
-        _thisCondition.nestedConditions.push({
-            type : "if",
-            spec: "",
-            ifCalled: [""],
-            nestedType: "",
-            nestedConditions: []
-        })
-        _thisCondition.nestedType = _thisCondition.nestedType == "" ? "AND" : _thisCondition.nestedType;
-        setThisCondition(_thisCondition);
-        setChildCount(_thisCondition.nestedConditions.length);
-        console.log('Logging the new condition after adding a child')
-        console.log(thisCondition);
-        props.updateValidationState("none")
+function AddTopLevelNode(props) {
+    const [addType, setAddType] = React.useState("conditional");
+    const [cardDisplay, setCardDisplay] = React.useState("svg");
+    
+    //double check all methods below this point as they were yank/pasted
+    const handleSVGClick = () => {
+        setCardDisplay('card')
+    }
+    const handleSelectChange = (event) => {
+        setAddType(event.target.value)
     }
 
-    const RemoveItem = (indexToRemove)=>{
-        console.log(`Received a request to remove an item at index ${indexToRemove}`)
-        let _thisCondition = thisCondition;
-        _thisCondition.nestedConditions = _thisCondition.nestedConditions.filter((value, index)=>{return index !== indexToRemove})
-        setThisCondition(_thisCondition);
-        setChildCount(_thisCondition.nestedConditions.length);
-        console.log("Logging StyleGuide after removing item");
-        console.log(props.StyleGuide);
-        props.updateValidationState("none")
+    const closeCard = () => {
+        setCardDisplay('svg');
     }
 
-    const OpenSG = () => {
-        console.log("Receieved a request to open the below condition");
-        console.log(thisCondition);
-        if (thisCondition.hasOwnProperty("thenReturn")) {
-            props.OpenStyleGuide(thisCondition, thisLevel, thisIndex);
-        } else {
-            let _Condition = thisCondition;
-            _Condition["thenReturn"] = [];
-            setThisCondition(_Condition);
-            props.OpenStyleGuide(_Condition, thisLevel, thisIndex);
-        }
-    }
-
+    const pushAddType = () => {
+        console.log(`Received a request to add ${addType} to the Top Level`);
+        props.pushInputToStack(addType, props.index);
+        closeCard();
+    }     
+    
     return (
-        <div className={"input-node"}>
-            <div className ="input-form" style={thisStyle}>
-                <div className="inputs-section">
-                    <div className="input-form-row">
-                        <TypeSelection {...props}
-                            thisLevel={thisLevel}
-                            thisCondition={thisCondition} />
-                        <AttributeInput {...props}
-                            thisCondition={thisCondition} />
-                    </div>
-                    <div className="input-form-row">
-                        <NestedTypeSelection {...props}
-                            childCount={childCount}
-                            thisCondition={thisCondition} />
-                        <ValuesInput {...props}
-                            thisCondition={thisCondition} />
-                    </div>
-                    
-                </div>
-                <TopLevelControls 
-                    OpenSG={()=>{OpenSG()}}
-                    addChild={()=>addChild()}
-                    remove={(i)=>props.remove(i)}
-                    index={thisIndex}
-                    children={childCount} />
-            </div>
-            {childCount > 0 
-            ? children
-            :null}
-        </div>
-    )
-}
-
-//interior Components for the Recursive Input Node
-
-function TypeSelection(props) {
-    const [thisCondition, setThisCondition] = React.useState(props.thisCondition)
-    const [thisType, setThisType] = React.useState(props.thisCondition.type)
-
-    React.useEffect(()=>{
-        setThisCondition(props.thisCondition)
-        setThisType(props.thisCondition.type)
-    }, [props.thisCondition])
-
-    const handleTypeChange = (event) => {
-        let _Condition = thisCondition;
-        let _thisType = event.target.value;
-        _Condition.type = event.target.value;
-        setThisType(_thisType);
-        setThisCondition(_Condition);
-    }
-
-    return (
-        <div className="input-form-column">
-            <div className="row-title">Type:</div>
-            <select className="type-input" value={thisType} onChange={handleTypeChange}>
-                <option value={"if"}>If</option>
-                {props.thisLevel > 1
-                ? <option value={"else"}>Else</option>
-                :null}
-                <option value={"ifNot"}>If Not</option>
-                <option value={"includes"}>Includes</option>
-                <option value={"equals"}>Equals</option>
-                <option value={"notEquals"}>Not Equal</option>
-            </select>
-        </div>
-    )
-}
-
-function NestedTypeSelection(props) {
-    const [thisCondition, setThisCondition] = React.useState(props.thisCondition)
-    const [nestedType, setNestedType] = React.useState(props.thisCondition.nestedType)
-
-    React.useEffect(()=>{
-        setThisCondition(props.thisCondition)
-        setNestedType(props.thisCondition.nestedType)
-    }, [props.thisCondition])
-
-    const handleNestedTypeChange = (event) => {
-        let _Condition = thisCondition;
-        let _nestedType = event.target.value;
-        _Condition.nestedType = event.target.value;
-        setNestedType(_nestedType);
-        setThisCondition(_Condition);
-    }
-
-    return (
-        <div className="input-form-column" >
-            <div className="row-title">Nested:</div> 
-            <select className="type-input" value={nestedType} onChange={handleNestedTypeChange}>
-                {props.childCount == 0
-                ? <option value={""}>NULL</option>
-                : null
-                }
-                {props.childCount > 0 
-                ? <option value={"AND"}>AND</option>
-                : null
-                }
-                {props.childCount > 0 
-                ? <option value={"OR"}>OR</option>
-                : null
-                }
-            </select>  
-        </div>
-    )
-}
-
-function AttributeInput(props) {
-    const [thisCondition, setThisCondition] = React.useState(props.thisCondition)
-    const [thisAttribute, setThisAttribute] = React.useState(props.thisCondition.spec)
-
-    React.useEffect(()=>{
-        setThisCondition(props.thisCondition)
-        setThisAttribute(props.thisCondition.spec);
-    }, [props.thisCondition])
-
-    const handleSpecChange = (event) => {
-        let _Condition = thisCondition;
-        let _thisAttribute = event.target.value;
-        _Condition.spec = event.target.value;
-        setThisAttribute(_thisAttribute);
-        setThisCondition(_Condition);
-    }
-
-    return (
-        <div className="input-form-column">
-            <div className="row-title">Spec:</div>
-            <input value={thisAttribute} onChange={handleSpecChange} placeholder="Enter Spec Here" />
-        </div>
-    )
-}
-
-function ValuesInput(props) {
-    const [thisCondition, setThisCondition] = React.useState(props.thisCondition)
-    const [ifCalledString, setIfCalledString] = React.useState("")
-
-    React.useEffect(()=>{
-        setThisCondition(props.thisCondition);
-        const ifCalled = props.thisCondition.ifCalled;
-        let ifCalledString = ifCalled.join("&&")
-        setIfCalledString(ifCalledString)
-    }, [props.thisCondition])
-
-    const handleValuesChange = (event) => {
-        let _Condition = thisCondition;
-        const regex = /\s\&\&\s/g;
-        const regex2 = /\&\&/g;
-        let val = event.target.value;
-        let _ifCalled = regex.test(val) ? val.split(regex) : regex2.test(val) ? val.split(regex2) : [event.target.value];
-        _Condition.ifCalled = _ifCalled;
-        setIfCalledString(event.target.value);
-        setThisCondition(_Condition);
-    }
-
-    return (
-        <div className="input-form-column">
-            <div className="row-title">Value(s):</div>
-            <input value={ifCalledString} onChange={handleValuesChange} placeholder="Enter Values Here" />
-        </div>
-    )
-}
-
-function TopLevelControls(props) {
-
-    const remove = () => {
-        console.log("Recieved a request to remove a component");
-        props.remove(props.index);
-    }
-
-    return(
-        <div className="input-controls">
-            <button title="Add a child element to node" onClick={()=>props.addChild()}>Add Child</button>
-            <button title="Remove this element" onClick={()=>{remove()}}>Remove</button>
-            {props.children == 0
-            ?<button title="Open style guide formula in workbench" className="f-x" onClick={()=>{props.OpenSG()}}>Open Formula</button>
-            : null}
-            
-        </div>
-    )
-}
-
-//Default Generator Card
-
-function DefaultGeneratorCard(props) {
-    const [thisCondition, setThisCondition] = React.useState(props.currentCondition)
-
-    const OpenSG = () => {
-        let _Condition = thisCondition;
-        if (thisCondition.hasOwnProperty("thenReturn")) {
-            props.OpenStyleGuide(thisCondition, 1, props.index);
-        } else {
-            _Condition["thenReturn"] = [];
-            setThisCondition(_Condition);
-            props.OpenStyleGuide(_Condition, 1, props.index)
-        }   
-    }
-
-    const remove = () => {
-        props.remove(props.index);
-    }
-
-    return (
-        <div className="default-node">
-            <div className="default-node-container">
-                <div className="default-title"><p>Default Formula</p></div>
-                <div className="default-controls">
-                    <button title="Open style guide formula in workbench" className="f-x" onClick={()=>{OpenSG()}}>Open Formula</button>
-                    {props.TopLevelType == "complex"
-                    ? <button title="Remove default generator" onClick={()=>{remove()}}>Remove</button>
-                    :null}
+        <div className="add-top-container">
+            {cardDisplay == "svg"
+            ?<div className="add-svg-card">
+                <div className="add-level-button">
+                    <svg width="1.7em" height="1.7em" onClick={()=>handleSVGClick()}>
+                        <circle cx="0.85em" cy="0.85em" r="0.75em"  />
+                        <line x1="0.85em" y1="0.15em" x2="0.85em" y2="1.55em" />
+                        <line x1="0.15em" y1="0.85em" x2="1.55em" y2="0.85em" />
+                    </svg>
                 </div>
             </div>
+            :<div className="add-selection-card">
+                <div className="add-call-input">
+                    <div>Select new type:</div>
+                    <select value={addType} onChange={handleSelectChange}>
+                        <option value="conditional">Add Conditional</option>
+                        {!props.defaultPresent && props.suggestDefault
+                        ? <option value="default">Add Default</option>
+                        : null}
+                    </select>
+                </div>
+                <div className="add-selection-buttons">
+                    <button onClick={()=>{pushAddType()}}>Add</button>
+                    <button onClick={()=>{closeCard()}}>Cancel</button>
+                </div>
+            </div>}
+
         </div>
     )
 }

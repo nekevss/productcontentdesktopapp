@@ -161,3 +161,77 @@
         }
     }
 }
+
+.add-top-container {
+    max-width:30em;
+    width: 90%;
+    margin: 0.5em auto;
+
+    &>.add-svg-card {
+        width: 3em;
+        height: 3em;
+        margin: 0.25em auto;
+        border: 1px solid gray;
+        box-shadow: 0 1px 8px 1px gray;
+
+        &>.add-level-button {
+            width:2em;
+            height:2em;
+            margin: 0.5em auto;
+        
+            &>svg {
+                margin:0.15em;
+            }
+        
+            &>svg>circle {
+                fill:none;
+            }
+        
+            &>svg>* {
+                stroke:rgb(128,128,128);
+                stroke-width: 2;
+            }
+        
+            &:hover {
+                &>svg>* {
+                    stroke-width:2.5;
+                    stroke:#cc0000;
+                }
+            }
+        }
+    }
+}
+
+.add-selection-card {
+    width: 90%;
+    height: 6.5em;
+    margin: auto;
+    border: 1px solid gray;
+
+    &>.add-call-input {
+        display:flex;
+        flex-direction: row;
+        height:2.5em;
+        width: 80%;
+        margin: 1em auto 0;
+
+        &>* {
+            margin: auto 0.25em;
+        }
+
+        &>select {
+            height:2em;
+            width:12em;
+        }
+    }
+
+    &>.add-selection-buttons {
+        float:right;
+        height: 1.5em;
+        margin: 0.5em 1em;
+
+        &>button {
+            margin: auto 0.25em;
+        }
+    }
+}

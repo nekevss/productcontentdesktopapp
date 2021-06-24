@@ -214,7 +214,7 @@ function createSecondaryWindow() {
 
     second.setIcon(appIcon);
 
-    second.loadURL(path.join(__dirname, "/dist/secondary.html"))
+    second.loadURL(path.join(__dirname, "/public/secondary.html"))
 
     second.on('closed', () => {
         secondaryWindow = null;

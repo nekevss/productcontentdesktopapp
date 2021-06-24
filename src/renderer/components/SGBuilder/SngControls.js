@@ -20,44 +20,6 @@ export default function SngControls(props) {
         }
     }
 
-    const pushInputToStack = (typeValue) => {
-
-        console.log("Logging current Style Guide Object in callStackPush:")
-        console.log(props.StyleGuide)
-
-        let _returnGenerator = props.StyleGuide.returnGenerator;
-        console.log("Here's the current Return Generator Array")
-        console.log(_returnGenerator);
-        if (_returnGenerator.length == 0) {
-            window.api.alert("send-alert","Please initialize Style Guide before adding conditional")
-        } else {
-            //Checking if last element in top stack is the default
-            if (_returnGenerator[_returnGenerator.length - 1].type == "else"){
-                window.api.alert("send-alert","Cannot add conditional after default")
-            } else {
-                const newCondition = typeValue == 'if' 
-                    ? {
-                        type : "if",
-                        spec: "",
-                        ifCalled: [""],
-                        nestedType: "",
-                        nestedConditions: []
-                    }
-                    : {
-                        type : "else",
-                    }
-                const newStyleGuide = {
-                    class: props.StyleGuide.class,
-                    type: props.StyleGuide.type,
-                    returnGenerator: [..._returnGenerator, newCondition]
-                }
-
-                props.updateStyleGuide(newStyleGuide);
-            }
-        }
-        console.log(`Finished pushing ${typeValue} to stack`)
-    }
-
     const validate = () => {
         console.log("Opening validation overlay")
         let StyleGuide = props.StyleGuide;
@@ -124,19 +86,13 @@ export default function SngControls(props) {
                     <div className="rename" onClick={()=>{rename()}}><p>Rename Style Guide</p></div>
                 </div>
                 <div className="third-controls">
-                    <div className="top-level-controls">
-                        <div className="topStack-input-push" onClick={()=>{pushInputToStack("if")}}><p>Add Conditional</p></div>
-                        <div className="topStack-else-push" onClick={()=>{pushInputToStack("else")}}><p>Add Default</p></div>
-                    </div>
-                </div>
-                <div className="fourth-controls">
                     <div className="" onClick={()=>{validate()}}><p>Run Validation</p></div>
                     <div className="" onClick={()=>{exposeAssets()}}><p>Expose Assets</p></div>
                     <div className="" onClick={()=>{runExport("formula")}}><p>Export Formula</p></div>
                     <div className="" onClick={()=>{runExport("builder")}}><p>Export Builder</p></div>
                     <div className="" onClick={()=>{runExport("all")}}><p>Export Assets</p></div>
                 </div>
-                <div className="fifth-controls">
+                <div className="fourth-controls">
                 <div className="delete" onClick={()=>{deleteCurrentStyleGuide()}}><p>Delete Current Style Guide</p></div>
                 </div>
             </div>
