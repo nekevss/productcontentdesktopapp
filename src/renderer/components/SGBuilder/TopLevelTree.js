@@ -146,49 +146,41 @@ export default function TreeDrawer(props) {
 
     const pushInputToStack = (typeValue, addIndex) => {
 
-        console.log("Logging current Style Guide Object in callStackPush:")
-        console.log(props.StyleGuide)
-
         let _returnGenerator = TopLevelArray;
-        console.log("Here's the current Return Generator Array")
-        console.log(_returnGenerator);
-        if (_returnGenerator.length == 0) {
-            window.api.alert("send-alert","Please initialize Style Guide before adding conditional")
-        } else {
-            const newCondition = typeValue == 'conditional' 
-                ? {
-                    type : "if",
-                    spec: "",
-                    ifCalled: [""],
-                    nestedType: "",
-                    nestedConditions: []
-                }
-                : {
-                    type : "else",
-                }
-            
-            let newReturnGenerator = [];
+        let newReturnGenerator = [];
 
-            if (addIndex == _returnGenerator.length) {
-                newReturnGenerator = newReturnGenerator.concat(_returnGenerator);
-                newReturnGenerator.push(newCondition);
-            } else {
-                for (let i in _returnGenerator) {
-                    if (i == addIndex) {
-                        newReturnGenerator.push(newCondition);
-                    }
-                    newReturnGenerator.push(_returnGenerator[i]);                        
-                }   
-            } 
-
-            const newStyleGuide = {
-                class: props.StyleGuide.class,
-                type: props.StyleGuide.type,
-                returnGenerator: newReturnGenerator
+        const newCondition = typeValue == 'conditional' 
+            ? {
+                type : "if",
+                spec: "",
+                ifCalled: [""],
+                nestedType: "",
+                nestedConditions: []
             }
+            : {
+                type : "else",
+            }
+        
+        if (addIndex == _returnGenerator.length) {
+            newReturnGenerator = newReturnGenerator.concat(_returnGenerator);
+            newReturnGenerator.push(newCondition);
+        } else {
+            for (let i in _returnGenerator) {
+                if (i == addIndex) {
+                    newReturnGenerator.push(newCondition);
+                }
+                newReturnGenerator.push(_returnGenerator[i]);                        
+            }   
+        } 
 
-            props.updateStyleGuide(newStyleGuide);
+        const newStyleGuide = {
+            class: props.StyleGuide.class,
+            type: props.StyleGuide.type,
+            returnGenerator: newReturnGenerator
         }
+
+        props.updateStyleGuide(newStyleGuide);
+    
         console.log(`Finished pushing ${typeValue} to stack`)
     }
 
