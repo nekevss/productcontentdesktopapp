@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../style/StyleGuideBuilder/treedrawer.scss';
 import RecursiveInputNode from "./TopLevelConditionCard.js";
-import DefaultGeneratorCard from './TopLevelDefaultCard';
+import DefaultGeneratorCard from './TopLevelDefaultCard.js';
 
 export default function TreeDrawer(props) {
     const [TopLevelClass, setTopLevelClass] = React.useState(props.StyleGuide.class);

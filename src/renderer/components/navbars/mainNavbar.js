@@ -3,11 +3,14 @@ import '../../style/nav.scss'
 
 
 export default function MainNavbar(props) {
-    console.log("Logging state length value in Main Navbar")
-    console.log(props.length)
+    const [skuSetLength, setSkuSetLength] = React.useState(props.length);
 
     React.useEffect(()=>{
-        window.addEventListener("keydown", checkKeyPress, false)
+        setSkuSetLength(props.length)
+    }, [props])
+
+    React.useEffect(()=>{
+        window.addEventListener("keydown", checkKeyPress, true)
 
         return () => {
             window.removeEventListener("keydown", checkKeyPress)
@@ -15,11 +18,11 @@ export default function MainNavbar(props) {
     }, [])
 
     const checkKeyPress = (evt) => {
-        if (evt.key == "ArrowRight") {
-            props.setSkuPosition(props.position + 1);
+        if (evt.key === "ArrowRight") {
+            props.handlePositionChange("increment")
         }
-        if (evt.key == "ArrowLeft") {
-            props.setSkuPosition(props.position - 1);
+        if (evt.key === "ArrowLeft") {
+            props.handlePositionChange("decrement")
         }
 
     }

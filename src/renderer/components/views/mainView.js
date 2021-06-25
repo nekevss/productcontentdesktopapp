@@ -36,6 +36,7 @@ export default class MainInterface extends React.Component {
         this.setprimaryimage = this.setprimaryimage.bind(this);
         this.returnDataAndState = this.returnDataAndState.bind(this);
         this.escapeHistory = this.escapeHistory.bind(this);
+        this.handlePositionChange = this.handlePositionChange.bind(this);
     }
 
     async componentDidMount() {
@@ -137,6 +138,17 @@ export default class MainInterface extends React.Component {
         }, () => console.log(this.state))
     }
 
+    handlePositionChange(request) {
+        if (request == "increment" && this.state.position < this.state.length - 1 && this.state.length !== 1) {
+            console.log("Incrementing by 1")
+            this.setSkuPosition(this.state.position + 1)
+        }
+        if (request == "decrement" && this.state.position > 0 && this.state.length !== 1) {
+            console.log("Decrementing by 1")
+            this.setSkuPosition(this.state.position - 1)
+        }
+    }
+
     setprimaryimage(newImage) {
         this.setState((prevState)=>{
             return {
@@ -187,6 +199,7 @@ export default class MainInterface extends React.Component {
             : null}
             <MainNavbar {...this.state} 
                     toggleSkuMenu = {this.toggleSkuMenu}
+                    handlePositionChange ={this.handlePositionChange}
                     setSkuPosition = {this.setSkuPosition}
                     escapeHistory = {this.escapeHistory}
             />
