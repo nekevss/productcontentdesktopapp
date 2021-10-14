@@ -1,6 +1,6 @@
 import React from 'react';
 import ConditionalAttribute from './ConditionalCard.js';
-import '../../style/StyleGuideBuilder/buildspace.scss';
+import './style/buildspace.scss';
 
 export default function StyleGuideBuildSpace(props) {
     const [currentGenerator, setCurrentGenerator] = React.useState(props.activeGenerator);

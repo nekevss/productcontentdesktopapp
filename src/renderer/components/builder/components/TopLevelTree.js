@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/treedrawer.scss';
+import './style/treedrawer.scss';
 import RecursiveInputNode from "./TopLevelConditionCard.js";
 import DefaultGeneratorCard from './TopLevelDefaultCard.js';
 

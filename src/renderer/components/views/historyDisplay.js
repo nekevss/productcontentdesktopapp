@@ -2,7 +2,7 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
 import BlankNavbar from '../navbars/blankNav.js';
-import '../../style/views/history.scss';
+import './style/history.scss';
 
 export default function HistoryDisplay(props) {
     const [nodeData, setNodeData] = React.useState([]);

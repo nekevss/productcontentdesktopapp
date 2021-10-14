@@ -1,7 +1,7 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/sngWorkspace.scss';
+import './style/sngWorkspace.scss';
 import StyleGuideBuildSpace from './BuildSpace.js';
-import TreeDrawer from './TopLevelTree.js';
+import TreeDrawer from './components/TopLevelTree.js';
 
 export default function SngWorkspace(props) {
     const [currentClass, setCurrentClass] = React.useState()

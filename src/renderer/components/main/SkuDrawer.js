@@ -2,7 +2,7 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React, { useState, useEffect } from 'react';
 import ReactLoading from 'react-loading';
-import '../../style/drawer.scss'
+import './style/drawer.scss'
 
 
 export default function SkuDrawer(props) {

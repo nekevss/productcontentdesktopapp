@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/nav.scss';
+import './style/nav.scss';
 
 
 export default function SecondaryNavbar(props) {

@@ -119,6 +119,8 @@ function constructDate() {
 //can determine if we need to open a file in history or
 //open current.json
 async function fetchStateAndData() {
+    //Gotta be honest, this should be BrowserWindow.activeWindow()...but the active window 
+    //is always going to be ID 1, so it feels better to be declarative here
     const activeWindow = BrowserWindow.fromId(1);
     const cachePath = resourcesPath + "/cache";
     let state;
@@ -175,6 +177,8 @@ async function fetchStateAndData() {
                 dialog.showMessageBox(activeWindow, options)
             }
         }       
+    } else if (state.type == "custom") {
+        //this block will implement the custom/filtered SKU set fetch
     } else {
         try {
             let currentJSON = await fsp.readFile(resourcesPath + '/current.json', "utf-8");

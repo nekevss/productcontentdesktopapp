@@ -1,6 +1,6 @@
 import React from 'react';
 import SearchSuggestions from './SearchSuggestions';
-import '../../style/SuggestSearchBar.scss';
+import './style/SuggestSearchBar.scss';
 
 export default function SuggestSearchBar(props) {
     const searchRef = React.createRef()

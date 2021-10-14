@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/ConditionalCard.scss';
+import './style/ConditionalCard.scss';
 
 export default function ConditionalAttribute(props) {
     const [thisStyleGuide, setStyleGuide] = React.useState(props.styleGuide);

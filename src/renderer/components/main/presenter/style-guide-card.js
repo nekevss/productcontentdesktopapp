@@ -1,6 +1,6 @@
 import React from 'react';
 import GeneratedName from './generated-name-box.js';
-import '../../../style/style-guide-card.scss';
+import './style/style-guide-card.scss';
 
 export default function StyleGuideCard(props) {
     return (

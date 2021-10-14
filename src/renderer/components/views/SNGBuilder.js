@@ -1,15 +1,15 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import SngControls from '../SGBuilder/SngControls.js';
-import SngWorkspace from '../SGBuilder/SngWorkspace.js';
+import SngControls from '../builder/componenets/SngControls.js';
+import SngWorkspace from '../builder/SngWorkspace.js';
 import BlankNavbar from '../navbars/blankNav.js';
-import ValidationOverlay from '../SGBuilder/ValidationOverlay.js';
-import ImportOverlay from '../SGBuilder/importOverlay.js';
-import AssetOverlay from '../SGBuilder/AssetOverlay.js';
-import RenameOverlay from '../SGBuilder/RenameOverlay.js';
-import SGForm from '../SGBuilder/SGForm.js';
-import '../../style/views/SNGBuilder.scss';
+import ValidationOverlay from '../builder/overlays/ValidationOverlay.js';
+import ImportOverlay from '../builder/overlays/importOverlay.js';
+import AssetOverlay from '../builder/overlays/AssetOverlay.js';
+import RenameOverlay from '../builder/overlays/RenameOverlay.js';
+import SGForm from '../builder/components/SGForm.js';
+import './style/SNGBuilder.scss';
 
 //NOTE: I am worried about improperly managing the state throughout the Style Guide Builder.
 // This all being said, the current implementation does function, and so far no major issues 

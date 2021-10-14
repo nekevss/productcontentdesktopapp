@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/treedrawer.scss';
+import './style/treedrawer.scss';
 
 
 //Below is the code for the basic recursive element

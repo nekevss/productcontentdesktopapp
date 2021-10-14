@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/sngCards.scss';
+import './style/sngCards.scss';
 
 
 export function InitNodeCard(props) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/SearchSuggestions.scss'
+import './style/SearchSuggestions.scss'
 
 
 export default function SearchSuggestions(props) {

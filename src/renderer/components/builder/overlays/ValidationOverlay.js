@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/SGValidation.scss';
+import './style/SGValidation.scss';
 
 export default function ValidationOverlay(props) {
     const [validationLog, setValidationLog] = React.useState([]);

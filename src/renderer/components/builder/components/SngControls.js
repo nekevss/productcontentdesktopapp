@@ -1,6 +1,6 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/sngControls.scss';
-import GenerateFormula from './GenerateFormula';
+import './style/sngControls.scss';
+import GenerateFormula from '../utils/GenerateFormula.js';
 
 export default function SngControls(props) {
     

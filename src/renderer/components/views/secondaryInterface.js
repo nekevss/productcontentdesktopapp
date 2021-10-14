@@ -1,7 +1,7 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import '../../style/views/secondInterface.scss';
+import './style/secondInterface.scss';
 import SuggestSearchBar from '../search/SuggestSearchBar.js';
 
 

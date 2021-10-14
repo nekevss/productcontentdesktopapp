@@ -2,7 +2,7 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
 import BlankNavbar from '../navbars/blankNav.js';
-import '../../style/views/config.scss';
+import './style/config.scss';
 
 export default function ConfigurationViewer(props) {
     const [config, setConfig] = React.useState({});

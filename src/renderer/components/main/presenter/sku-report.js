@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../../style/sku-report.scss';
+import './style/sku-report.scss';
 
 export default function SkuDataReport(props) {
     console.log(props.report)

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/RenameOverlay.scss';
+import './style/RenameOverlay.scss';
 
 export default function RenameOverlay(props) {
     const [renameValue, setRenameValue] = React.useState('');

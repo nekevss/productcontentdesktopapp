@@ -3,7 +3,7 @@ require("core-js/stable");
 import React from 'react';
 import BlankNavbar from '../navbars/blankNav.js';
 import ReactLoading from 'react-loading';
-import '../../style/views/ResourceManager.scss';
+import './style//ResourceManager.scss';
 
 export default function ResourceManager(props) {
     const [isLoading, setIsLoading] = React.useState(true);

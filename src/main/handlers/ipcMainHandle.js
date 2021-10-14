@@ -33,6 +33,7 @@ ipcMain.handle('open-file-dialog', async(event, arg)=>{
     return !dialogReturn.canceled ? dialogReturn.filePaths[0] : null;
 })
 
+//main function for determining application state and returning SKU
 ipcMain.handle('request-sku-and-state', async(event, arg) => {
     const cachePath = resourcesPath + "/cache";
     const frame = await fetchStateAndData();

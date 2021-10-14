@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import '../../style/body.scss';
+import './style/body.scss';
 import ImageGrid from './Imagegrid.js';
 import DataPresenter from './presenter/presenter.js';
 //switch to functional with hooks

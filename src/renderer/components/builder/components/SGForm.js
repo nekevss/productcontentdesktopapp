@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../style/StyleGuideBuilder/SGForm.scss';
+import './style/SGForm.scss';
 
 export default function SGForm(props) {
     const [sgType, setSgType] = React.useState("")

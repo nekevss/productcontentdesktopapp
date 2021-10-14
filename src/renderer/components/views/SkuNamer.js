@@ -3,7 +3,7 @@ require("core-js/stable");
 import React from 'react';
 import ReactLoading from 'react-loading';
 import BlankNavbar from '../navbars/blankNav.js';
-import '../../style/views/SkuNamer.scss';
+import './style/SkuNamer.scss';
 
 export default function BulkSkuNamer(props) {
     const [isLoading, setIsLoading] = React.useState(false);

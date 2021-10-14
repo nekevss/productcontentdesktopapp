@@ -3,7 +3,7 @@ require("core-js/stable");
 import React from 'react';
 import BlankNavbar from '../navbars/blankNav.js';
 import ImportLoading from '../importer/import-loading.js';
-import '../../style/views/importer.scss';
+import './style/importer.scss';
 
 export default function Importer(props) {
     const [isRunning, setIsRunning] = React.useState(false);
