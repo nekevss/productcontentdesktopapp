@@ -200,7 +200,7 @@ const evaluateGenerator = (incomingGen, pre) => {
             if (value.endString || value.leadString) {
                 thisValue += " ("
                 //separating these out for the addition of value.startString
-                thisValue += 'If returned,'
+                thisValue += 'If Applicable,'
                 thisValue += value.leadString ? ' include "' + value.leadString + '" before' : "";
                 thisValue += value.leadString && value.endString ? " and" : "";
                 thisValue += value.endString ? ' include "' + value.endString + '" after' : "";
@@ -216,7 +216,8 @@ const evaluateGenerator = (incomingGen, pre) => {
                 let conditionString = evaluateCondition(condition, "top", "");
                 thisValue += conditionString
             })
-            thisValue = thisValue.trim() + ")&gt;"
+            thisValue = thisValue.trim() + ")&gt;";
+            thisValue = thisValue.replace(".)&gt;", ")&gt;");
             output += thisValue;
         } else {
             console.log("There was an unexpected sub-generator type")
@@ -242,7 +243,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
@@ -256,7 +256,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
@@ -272,7 +271,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
@@ -287,7 +285,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
@@ -302,7 +299,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
@@ -317,7 +313,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
@@ -332,12 +327,11 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn)
             conditionString += tempString;
         }
     } else if (condition.type == "else") {
-        let tempString = condition.call ? "Else &lt;" + condition.call + "&gt; = All Other Values" : " Else All Other Values";
+        let tempString = condition.call ? "If &lt;" + condition.call + "&gt; = All Other Values" : " If All Other Values";
         if (condition.nestedType == "AND" || condition.nestedType == "OR") {
             let nestedConditions = condition.nestedConditions;
             nestedConditions.forEach((value, index)=>{
@@ -346,7 +340,6 @@ const evaluateCondition = (condition, level, pre) => {
                 conditionString += evaluateCondition(value, "lower", nestedTemp);
             })
         } else {
-            tempString += ", then return ";
             tempString += parseReturnObject(condition.thenReturn);
             conditionString += tempString;
         }
@@ -362,14 +355,14 @@ const parseReturnObject = (returnObject) => {
     let returnObjectString = "";
     if (!returnObject) {console.log("There was an error!!!"); return "*ERROR*"}
     if (returnObject.type == "returnString") {
-        returnObjectString = returnObject.string !== "" ? '"' + returnObject.string + '". ' : "Blank. ";
+        returnObjectString = returnObject.string !== "" ? ', include "' + returnObject.string + '". ' : ", Leave Blank. ";
     } else if (returnObject.type == "returnSpec") {
-        returnObjectString = "&lt;" + returnObject.call + '&gt;';
+        returnObjectString = ", return &lt;" + returnObject.call + '&gt;';
         returnObjectString += returnObject.leadString ? ' include "' + returnObject.leadString + '" before' : "";
         returnObjectString += returnObject.leadString && returnObject.endString ? " and" : "";
         returnObjectString += returnObject.endString !== "" ? ' include "' + returnObject.endString + '" after. '  : ". ";
     } else if (returnObject.type == "returnNull") {
-        returnObjectString = "null. ";
+        returnObjectString = ", return error. ";
     } else {
         console.log(`Unexpected returnObject type found: ${returnObject.type}`)
     }

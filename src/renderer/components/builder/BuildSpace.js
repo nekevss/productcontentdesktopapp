@@ -1,5 +1,5 @@
 import React from 'react';
-import ConditionalAttribute from './ConditionalCard.js';
+import ConditionalAttribute from './components/ConditionalCard.js';
 import './style/buildspace.scss';
 
 export default function StyleGuideBuildSpace(props) {

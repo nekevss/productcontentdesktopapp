@@ -3,7 +3,7 @@ require("core-js/stable");
 import React, { useState } from 'react';
 import StyleGuideCard from './style-guide-card.js';
 import SkuDataReport from './sku-report.js';
-import './style/style/presenter.scss';
+import './style/presenter.scss';
 
 //Change name to TopsideDisplay ???
 export default function DataPresenter(props) {

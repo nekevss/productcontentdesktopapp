@@ -9,8 +9,6 @@ require('./main/handlers/ipcMainHandle.js');
 require('./main/ipcMainOn.js');
 require('./main/handlers/builderHandlers.js');
 
-//Unanswered questions
-//TODO: handle logs when in production
 
 //Roadmap to Stable Environment
 //1. Create Settings/Configuration handler --> complete

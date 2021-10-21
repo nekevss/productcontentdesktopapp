@@ -1,7 +1,7 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import SngControls from '../builder/componenets/SngControls.js';
+import SngControls from '../builder/components/SngControls.js';
 import SngWorkspace from '../builder/SngWorkspace.js';
 import BlankNavbar from '../navbars/blankNav.js';
 import ValidationOverlay from '../builder/overlays/ValidationOverlay.js';

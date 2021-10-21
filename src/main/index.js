@@ -11,7 +11,7 @@ const path = require('path');
 const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
 const resourcesPath = userDataPath + "/Resources";
 
-//a simple function for running post requests
+//a super simple function for running post requests
 function post(url, data) {
     return fetch(url, {method:'POST', body: JSON.stringify(data)})
 }
