@@ -1,6 +1,6 @@
 import React from 'react';
 import './style/AssetOverlay.scss';
-import GenerateFormula from '../utils/GenerateFormula.js';
+import GenerateFormula from '../formula/GenerateFormula.js';
 
 
 export default function AssetOverlay(props) {
