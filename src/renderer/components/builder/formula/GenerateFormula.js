@@ -128,7 +128,7 @@ const evaluateGenerator = (incomingGen, pre) => {
             let thisValue = "&lt;" + value.forAttribute + " ("
             let conditions = value.conditions;
             conditions.forEach((condition, index)=>{
-                let conditionString = evaluateCondition(condition, "top", "");
+                let conditionString = evaluateCondition(condition, value.forAttribute, "top", "");
                 thisValue += conditionString
             })
             thisValue = thisValue.trim() + ")&gt;";
@@ -142,7 +142,7 @@ const evaluateGenerator = (incomingGen, pre) => {
     return output;
 }
 
-const evaluateCondition = (condition, level, pre) => {
+const evaluateCondition = (condition, parentAttribute, level, pre) => {
     let conditionString = pre;
 
     let valid_ops = Object.keys(formulaTypes);
@@ -152,15 +152,17 @@ const evaluateCondition = (condition, level, pre) => {
         console.log("Here's the operation values")
         console.log(opValues);
         if (condition.type != "else") {
-            let tempString = level == "top" 
-                ? "If &lt;" + condition.call + "&gt; " + opValues.operand
-                : "&lt;" + condition.call + "&gt; " + opValues.operand;
-            tempString +=  condition.expectedValue.join(opValues.condtionJoinClause);
+            let tempString = parentAttribute == condition.call
+                ? "If" + opValues.parentOp
+                : level == "top" 
+                    ? "If &lt;" + condition.call + "&gt; " + opValues.operand
+                    : "&lt;" + condition.call + "&gt; " + opValues.operand;
+            tempString +=  condition.expectedValue.join(opValues.conditionJoinClause);
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
-                    nestedTemp = condition.nestedType == "AND" ? tempString + " and " : tempString + " or "; ;
+                    nestedTemp = condition.nestedType == "AND" ? tempString + " AND " : tempString + " OR "; ;
                     conditionString += evaluateCondition(value, "lower", nestedTemp);
                 })
             } else {
@@ -170,18 +172,22 @@ const evaluateCondition = (condition, level, pre) => {
         } else {
             //if condition.type is else
             let tempString = condition.call 
-                ? "If &lt;" + condition.call + "&gt;" + opValues.operand
-                : " If All Other Values";
+                ? parentAttribute == condition.call
+                    ? "If" + opValues.parentOp
+                    :"If &lt;" + condition.call + "&gt;" + opValues.operand
+                : "If All Other Values";
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
-                    nestedTemp = condition.nestedType == "AND" ? tempString + " and " : tempString + " or "; ;
+                    nestedTemp = condition.nestedType == "AND" ? tempString + " AND " : tempString + " OR "; ;
                     conditionString += evaluateCondition(value, "lower", nestedTemp);
                 })
             } else {
-                tempString += parseReturnObject(condition.thenReturn);
-                conditionString += tempString;
+                if (condition.thenReturn.type != "returnSpec" && condition.thenReturn.call != parentAttribute) {
+                    tempString += parseReturnObject(condition.thenReturn);
+                    conditionString += tempString;    
+                }
             }
         }
     } else {
