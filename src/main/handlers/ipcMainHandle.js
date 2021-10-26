@@ -8,7 +8,7 @@ const os = require('os');
 const path = require('path');
 const { post, StreamData, constructDate, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent } = require('../index.js');
 const { pleaseSirAGenerator } = require('../lib/StyleGuideRunner.js');
-const { generatorEngine } = require('../lib/GeneratorEngine.js');
+const { builderEngine } = require('../lib/BuilderEngine.js');
 const { reportRunner, basicContentSearch, recommendedContentSearch } = require('../lib/report-runner.js');
 const { runAttributeImport } = require('../lib/attribute-mapper.js');
 const { fetchAttributesData } = require('../lib/fetch-attributes.js');
@@ -174,7 +174,7 @@ ipcMain.handle('request-class-details', async(event, arg) => {
 
 
 ipcMain.handle("request-name", (event, package)=>{
-    const output = generatorEngine(package.sku, package.generator, package.config);
+    const output = builderEngine(package.sku, package.generator, package.config);
     return output
 })
 
@@ -431,7 +431,7 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
         for (let i = 0; i < batchData.length; ++i) {
             let sku = batchData[i];
             gen = pleaseSirAGenerator(SngArray, sku[config["Excel Mapping"]["Sku Class"]], sku);
-            let generatorReturn = generatorEngine(sku, gen, config)
+            let generatorReturn = builderEngine(sku, gen, config)
             rendererData.push({
                 pyramidId: sku[config["Excel Mapping"]["Pyramid Id"]],
                 skuClass: sku[config["Excel Mapping"]["Sku Class"]],
