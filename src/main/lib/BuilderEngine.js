@@ -297,7 +297,6 @@ function GetSkuCallValue (sku, generatorCall, config) {
     }
 }
 
-//to be implemented
 //run test -> return bool of test result
 const conditionTests = {
     "if" : (specValue, expectedArray, thisSku={}, config={}) => {

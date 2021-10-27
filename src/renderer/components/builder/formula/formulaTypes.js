@@ -42,7 +42,7 @@ export let formulaTypes = {
         returnGenJoinClause: "&gt; or &lt;"
     },
     "else": {
-        operand: " = All Other Values",
-        parentOp: " All Other Values",
+        operand: " = All other values",
+        parentOp: " All other values",
     },
 }

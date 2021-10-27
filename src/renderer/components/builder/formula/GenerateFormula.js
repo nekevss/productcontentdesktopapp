@@ -144,15 +144,16 @@ const evaluateGenerator = (incomingGen, pre) => {
 
 const evaluateCondition = (condition, parentAttribute, level, pre) => {
     let conditionString = pre;
-
+    let tempString = "";
     let valid_ops = Object.keys(formulaTypes);
+    
 
     if (valid_ops.includes(condition.type)) {
         let opValues = formulaTypes[condition.type];
         console.log("Here's the operation values")
         console.log(opValues);
         if (condition.type != "else") {
-            let tempString = parentAttribute == condition.call
+            tempString = parentAttribute == condition.call
                 ? "If" + opValues.parentOp
                 : level == "top" 
                     ? "If &lt;" + condition.call + "&gt; " + opValues.operand
@@ -163,30 +164,36 @@ const evaluateCondition = (condition, parentAttribute, level, pre) => {
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
                     nestedTemp = condition.nestedType == "AND" ? tempString + " AND " : tempString + " OR "; ;
-                    conditionString += evaluateCondition(value, "lower", nestedTemp);
+                    conditionString += evaluateCondition(value, parentAttribute, "lower", nestedTemp);
                 })
             } else {
-                tempString += parseReturnObject(condition.thenReturn)
+                tempString += parseReturnObject(condition.thenReturn, parentAttribute)
                 conditionString += tempString;
             }
         } else {
             //if condition.type is else
-            let tempString = condition.call 
-                ? parentAttribute == condition.call
+            tempString = parentAttribute == condition.call
                     ? "If" + opValues.parentOp
-                    :"If &lt;" + condition.call + "&gt;" + opValues.operand
-                : "If All Other Values";
+                    : level == "top" 
+                        ? "If &lt;" + condition.call + "&gt;" + opValues.operand
+                        : " &lt;" + condition.call + "&gt;" + opValues.operand;
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
                     nestedTemp = condition.nestedType == "AND" ? tempString + " AND " : tempString + " OR "; ;
-                    conditionString += evaluateCondition(value, "lower", nestedTemp);
+                    conditionString += evaluateCondition(value, parentAttribute, "lower", nestedTemp);
                 })
             } else {
-                if (condition.thenReturn.type != "returnSpec" && condition.thenReturn.call != parentAttribute) {
-                    tempString += parseReturnObject(condition.thenReturn);
-                    conditionString += tempString;    
+                if (condition.thenReturn.type == "returnSpec" && condition.thenReturn.call == parentAttribute) {
+                    if (condition.thenReturn.endString.length !== 0 || condition.thenReturn.leadString.length !== 0) {
+                        //Yes, this is nested. But have to validate this is a returnSpec to check endString and leadString
+                        tempString += parseReturnObject(condition.thenReturn, parentAttribute);
+                        conditionString += tempString;
+                    }
+                } else {
+                    tempString += parseReturnObject(condition.thenReturn, parentAttribute);
+                    conditionString += tempString;  
                 }
             }
         }
@@ -199,16 +206,26 @@ const evaluateCondition = (condition, parentAttribute, level, pre) => {
 }
 
 
-const parseReturnObject = (returnObject) => {
+const parseReturnObject = (returnObject, parentAttribute) => {
     let returnObjectString = "";
     if (!returnObject) {console.log("There was an error!!!"); return "*ERROR*"}
     if (returnObject.type == "returnString") {
-        returnObjectString = returnObject.string !== "" ? ', include "' + returnObject.string + '". ' : ", Leave Blank. ";
+        returnObjectString = returnObject.string !== "" 
+            ? ', include "' + returnObject.string + '". ' 
+            : ", Leave Blank. ";
     } else if (returnObject.type == "returnSpec") {
-        returnObjectString = ", return &lt;" + returnObject.call + '&gt;';
-        returnObjectString += returnObject.leadString ? ' include "' + returnObject.leadString + '" before' : "";
-        returnObjectString += returnObject.leadString && returnObject.endString ? " and" : "";
-        returnObjectString += returnObject.endString !== "" ? ' include "' + returnObject.endString + '" after. '  : ". ";
+        returnObjectString = parentAttribute === returnObject.call 
+            ? "," 
+            : ", return &lt;" + returnObject.call + '&gt;';
+        returnObjectString += returnObject.leadString 
+            ? ' include "' + returnObject.leadString + '" before' 
+            : "";
+        returnObjectString += returnObject.leadString && returnObject.endString 
+            ? " and" 
+            : "";
+        returnObjectString += returnObject.endString !== "" 
+            ? ' include "' + returnObject.endString + '" after. ' 
+            : ". ";
     } else if (returnObject.type == "returnNull") {
         returnObjectString = ", return error. ";
     } else {
