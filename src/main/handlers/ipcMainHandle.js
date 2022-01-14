@@ -35,6 +35,7 @@ ipcMain.handle('open-file-dialog', async(event, arg)=>{
 
 //main function for determining application state and returning SKU
 ipcMain.handle('request-sku-and-state', async(event, arg) => {
+    console.log("Making it into the request handler");
     const cachePath = resourcesPath + "/cache";
     const frame = await fetchStateAndData();
 

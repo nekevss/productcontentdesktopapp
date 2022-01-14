@@ -66,7 +66,7 @@ export default class MainInterface extends React.Component {
         this.config = activeConfig;
         
         //run fetch here
-        const responseState = await window.api.invoke('request-sku-and-state', newPosition)
+        const responseState = await window.api.invoke("request-sku-and-state", newPosition);
         //invoke this separate, because it only needs to be invoked when
         //a class is updated
         console.log("Logging the config");

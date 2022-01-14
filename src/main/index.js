@@ -133,7 +133,7 @@ async function fetchStateAndData() {
             type: "none",
             buttons: ["Okay"],
             title: "Read File Error",
-            message: err
+            message: "Read file error:" + err
         }
         dialog.showMessageBox(activeWindow, options)
     }

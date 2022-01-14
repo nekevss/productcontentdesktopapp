@@ -156,7 +156,8 @@ function createWindow() {
     console.log("I've receieved a message to create a window!\n")
 
     let win = new BrowserWindow({
-        show: false,
+        show: true,
+        paintWhenInitiallyHidden:true,
         webPreferences: {
             nodeIntegration:false,
             contextIsolation: true,
@@ -169,7 +170,7 @@ function createWindow() {
     win.setIcon(appIcon)
 
     //for production...
-    win.loadURL(path.join(__dirname, "/public/index.html"))
+    win.loadFile(path.join(__dirname, "/public/index.html"))
     //for development...
     //win.loadURL('http://localhost:8080/');
 
@@ -212,7 +213,7 @@ function createSecondaryWindow() {
 
     second.setIcon(appIcon);
 
-    second.loadURL(path.join(__dirname, "/public/secondary.html"))
+    second.loadFile(path.join(__dirname, "/public/secondary.html"))
 
     second.on('closed', () => {
         secondaryWindow = null;
@@ -258,7 +259,7 @@ const isMac = process.platform === 'darwin'
 const template = [
     // { role: 'appMenu' }
     ...(isMac ? [{
-      label: app.name,
+      label: "Product Content App",
       submenu: [
         { role: 'about' },
         { type: 'separator' },
@@ -467,14 +468,15 @@ app.on('window-all-closed', () => {
     }
 })
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        mainWindow = createWindow();
-    }
-})
-
-app.on('ready', () => {
+app.whenReady().then(()=>{
     mainWindow = createWindow();
+    
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            mainWindow = createWindow();
+        }
+    })
 })
