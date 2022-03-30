@@ -1,19 +1,37 @@
-import {formulaTypes} from "./formulaTypes.js"
+// GenerateFormula is going to be the first and ideally only instance of a context object.
+// 
+// I've avoided using context where possible in favor of passing a config, because while it 
+// seems to be the standard from what I've been able to tell over the course of some open 
+// source contributions. I find it too abstract and always needing some type of context in 
+// and of itself. When your context needs context, you're being too abstract. You know the 
+// application config is global, but is a context scoped locally or globally? Who knows.
+// I typically don't. I also didn't get a degree in comp sci...so I could just be wrong. 
 
-export default function GenerateFormula(thisStyleGuide) {
+// Context below refers to an object to be passed in with two distinct values
+// {"Style Guide Builder": {...}, formulaTypes:{...}}
+//
+// Style Guide Builder should just carry over the values of the config object,
+// so that's easy, but Formula Types will need to be looped over the config object
+// and reassembled into nested objects...should be fun :)
+
+export default function GenerateFormula(context, thisStyleGuide) {
     let returnGenerator = thisStyleGuide.returnGenerator;
     let lastCall = "";
     let formula = "";
 
+
+    console.log("Here's the context for this formula generation")
+    console.log(context);
+
     if (thisStyleGuide.type == "simple") {
         let thisGenerator = returnGenerator[0].thenReturn;
-        formula = evaluateGenerator(thisGenerator, "");
+        formula = evaluateBuilder(context, thisGenerator, "");
     } else if (thisStyleGuide.type == "complex") {
         returnGenerator.forEach((value, index)=>{
             console.log(`Logging current formula for iteration: ${index}`)
             console.log(formula);
             console.log(value);
-            let evaluatedObject = evaluateReturnGenerator(value, "top", "", lastCall)
+            let evaluatedObject = walkReturnGenerator(context, value, true, "", lastCall)
             lastCall = evaluatedObject.last;
             let evaluatedValue = evaluatedObject.output;
             formula += evaluatedValue;
@@ -25,40 +43,51 @@ export default function GenerateFormula(thisStyleGuide) {
     return formula;
 }
 
-const evaluateReturnGenerator = (incomingReturnGenerator, level, pre, last) => {
+const walkReturnGenerator = (context, incomingReturnGenerator, isFirstLevel, pre, last) => {
     let output = "";
     let lastCall = last;
     let evaluatedObject = {};
-    console.log(`Here's last call in the lower level: ${last}`);
+    const formulaValues = context["Style Guide Builder"];
+    const formulaTypes = context.formulaTypes;
+
+    // console.log(`Here's last call in the lower level: ${last}`);
 
     let valid_ops = Object.keys(formulaTypes);
 
     if (valid_ops.includes(incomingReturnGenerator.type)) {
-        let opValues = formulaTypes[incomingReturnGenerator.type];
+        let operationValues = formulaTypes[incomingReturnGenerator.type];
 
         if (incomingReturnGenerator.type != "else") {
-            let tempString = level == "top" 
-                ? "[IF &lt;" + incomingReturnGenerator.spec + "&gt;" + opValues.operand 
-                :  pre + "&lt;" + incomingReturnGenerator.spec + "&gt;" + opValues.operand;
-            tempString += '"' + incomingReturnGenerator.ifCalled.join(opValues.returnGenJoinClause) + '"';
+            let tempString = isFirstLevel 
+                ? formulaValues["Conditional SG Open"] + " " + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operand 
+                :  pre + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operand;
+            
+            const SpecToSpec = ["equals", "notEquals","contains"];
+            if (SpecToSpec.includes(incomingReturnGenerator.type)){
+                tempString += formulaValues["Call Open"] + incomingReturnGenerator.ifCalled.join(formulaValues["Call Close"] + operationValues.returnGenJoinClause + formulaValues["Call Open"]) + formulaValues["Call Close"];
+            } else {
+                tempString += '"' + incomingReturnGenerator.ifCalled.join('"' + operationValues.returnGenJoinClause+'"') + '"';
+            }
+            
             if (incomingReturnGenerator.thenReturn) {
-                tempString += "]: ";
+                tempString += formulaValues["Conditional SG Close"] + " ";
                 lastCall = incomingReturnGenerator.spec;
-                output += evaluateGenerator(incomingReturnGenerator.thenReturn, tempString);
+                output += evaluateBuilder(context, incomingReturnGenerator.thenReturn, tempString);
                 output += "<br><br>";
             } else if (!incomingReturnGenerator.nestedType && !incomingReturnGenerator.thenReturn) {
                 //meant to verify if a leaf exists, but has not style guide on the end
                 console.log("Found an empty Style Guide.")
                 console.log(output)
-                output += tempString + "]: "
+                output += tempString + formulaValues["Conditional SG Close"] + " ";
             } else {
                 let nestedConditions = incomingReturnGenerator.nestedConditions;
                 tempString += incomingReturnGenerator.nestedType == "AND" ? " and " : " or ";
-                console.log(`Here's the output: ${output}`)
-                console.log(`Here's the pre: ${pre}`)
-                console.log(`Here's the tempString: ${tempString}`)
+                // Debug prints. Keeping in case needed in the future
+                //console.log(`Here's the output: ${output}`)
+                //console.log(`Here's the pre: ${pre}`)
+                //console.log(`Here's the tempString: ${tempString}`)
                 nestedConditions.forEach((value)=>{
-                    evaluatedObject = evaluateReturnGenerator(value, "lower", tempString, incomingReturnGenerator.spec)
+                    evaluatedObject = walkReturnGenerator(context, value, false, tempString, incomingReturnGenerator.spec)
                     lastCall = evaluatedObject.last
                     output += evaluatedObject.output
                 })
@@ -66,28 +95,29 @@ const evaluateReturnGenerator = (incomingReturnGenerator, level, pre, last) => {
         } else {
             //handles "else" type
 
-            let tempString = level == "top" 
+            let tempString = isFirstLevel
                 ? incomingReturnGenerator.spec
-                    ? "[If &lt;" + incomingReturnGenerator.spec + "&gt;" + opValues.operand
-                    : "[If &lt;" + lastCall + "&gt;" + opValues.operand
+                    ? formulaValues["Conditional SG Open"] + " " + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operand
+                    : formulaValues["Conditional SG Open"] + " " + formulaValues["Call Open"] + lastCall + formulaValues["Call Close"] + operationValues.operand
                 : incomingReturnGenerator.spec
-                    ? pre + "&lt;" + incomingReturnGenerator.spec + "&gt;" + opValues.operand
-                    : pre + "&lt;" + lastCall + "&gt;" + opValues.operand;
+                    ? pre + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operand
+                    : pre + formulaValues["Call Open"] + lastCall + formulaValues["Call Close"] + operationValues.operand;
             if (incomingReturnGenerator.thenReturn) {
-                tempString += "]: ";
-                output += evaluateGenerator(incomingReturnGenerator.thenReturn, tempString);
+                tempString += formulaValues["Conditional SG Close"] + " ";
+                output += evaluateBuilder(context, incomingReturnGenerator.thenReturn, tempString);
                 output += "<br><br>";
             } else if (!incomingReturnGenerator.nestedType && !incomingReturnGenerator.thenReturn) {
                 //meant to verify if a leaf exists, but has not style guide on the end
-                output += tempString + "]: "
+                output += tempString + formulaValues["Conditional SG Close"] + " ";
             } else {
                 let nestedConditions = incomingReturnGenerator.nestedConditions;
                 tempString += incomingReturnGenerator.nestedType == "AND" ? " and " : " or ";
-                console.log(`Here's the output: ${output}`)
-                console.log(`Here's the pre: ${pre}`)
-                console.log(`Here's the tempString: ${tempString}`)
+                // Debug prints. Keeping in case needed in the future
+                //console.log(`Here's the output: ${output}`)
+                //console.log(`Here's the pre: ${pre}`)
+                //console.log(`Here's the tempString: ${tempString}`)
                 nestedConditions.forEach((value)=>{
-                    evaluatedObject = evaluateReturnGenerator(value, "lower", tempString, incomingReturnGenerator.spec)
+                    evaluatedObject = walkReturnGenerator(context, value, false, tempString, incomingReturnGenerator.spec)
                     lastCall = evaluatedObject.last
                     output += evaluatedObject.output
                 })
@@ -103,7 +133,7 @@ const evaluateReturnGenerator = (incomingReturnGenerator, level, pre, last) => {
 
 
 
-const evaluateGenerator = (incomingGen, pre) => {
+const evaluateBuilder = (context, incomingGen, pre) => {
     let output = pre;
 
     incomingGen.forEach((value, index)=>{
@@ -111,28 +141,27 @@ const evaluateGenerator = (incomingGen, pre) => {
             output += value.string;
         } else if (value.type == "spec") {
             let thisValue = "";
-            thisValue = "&lt;" + value.spec;
+            thisValue = context["Style Guide Builder"]["Call Open"] + value.spec;
             if (value.endString || value.leadString) {
-                thisValue += " ("
+                thisValue += " " + context["Style Guide Builder"]["Condition Phrase Open"];
                 //separating these out for the addition of value.startString
-                thisValue += 'If Applicable,'
-                thisValue += value.leadString ? ' include "' + value.leadString + '" before' : "";
+                thisValue += context["Style Guide Builder"]["Present Attribute Phrase"]
+                thisValue += value.leadString ? context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"] : "";
                 thisValue += value.leadString && value.endString ? " and" : "";
-                thisValue += value.endString ? ' include "' + value.endString + '" after' : "";
-                thisValue += ")"
+                thisValue += value.endString ? context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.endString + '" ' + context["Style Guide Builder"]["Subsequent String Keyword"] : "";
+                thisValue += context["Style Guide Builder"]["Conditional Phrase Close"]
             }
 
-            thisValue += "&gt;";
+            thisValue += context["Style Guide Builder"]["Call Close"];
             output += thisValue
         } else if (value.type == "function") {
-            let thisValue = "&lt;" + value.forAttribute + " ("
+            let thisValue = context["Style Guide Builder"]["Call Open"] + value.forAttribute + " " + context["Style Guide Builder"]["Condition Phrase Open"]
             let conditions = value.conditions;
             conditions.forEach((condition, index)=>{
-                let conditionString = evaluateCondition(condition, value.forAttribute, "top", "");
+                let conditionString = evaluateCondition(context, condition, value.forAttribute, true, "");
                 thisValue += conditionString
             })
-            thisValue = thisValue.trim() + ")&gt;";
-            thisValue = thisValue.replace(".)&gt;", ")&gt;");
+            thisValue = thisValue.trim() + context["Style Guide Builder"]["Conditional Phrase Close"] + context["Style Guide Builder"]["Call Close"];
             output += thisValue;
         } else {
             console.log("There was an unexpected sub-generator type")
@@ -142,57 +171,72 @@ const evaluateGenerator = (incomingGen, pre) => {
     return output;
 }
 
-const evaluateCondition = (condition, parentAttribute, level, pre) => {
+// Need a setup that allows us to pass conditional strings down and return values we expect
+const evaluateCondition = (context, condition, parentAttribute, isFirstLevel, pre) => {
     let conditionString = pre;
     let tempString = "";
+    const formulaTypes = context.formulaTypes;
     let valid_ops = Object.keys(formulaTypes);
     
 
     if (valid_ops.includes(condition.type)) {
-        let opValues = formulaTypes[condition.type];
-        console.log("Here's the operation values")
-        console.log(opValues);
+
+        let operationValues = formulaTypes[condition.type];
+        //console.log("Here's the operation values")
+        //console.log(operationValues);
         if (condition.type != "else") {
-            tempString = parentAttribute == condition.call
-                ? "If" + opValues.parentOp
-                : level == "top" 
-                    ? "If &lt;" + condition.call + "&gt; " + opValues.operand
-                    : "&lt;" + condition.call + "&gt; " + opValues.operand;
-            tempString +=  condition.expectedValue.join(opValues.conditionJoinClause);
+            // Initiate the temporary string that stores the initial value of this evaluation
+            tempString = parentAttribute === condition.call && context["Style Guide Builder"]["Assumptive Formula"]
+                ? context["Style Guide Builder"]["Conditional Statement Keyword"] + operationValues.parentOp
+                : isFirstLevel 
+                    ? context["Style Guide Builder"]["Conditional Statement Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operand
+                    : context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operand;
+
+            const SpecToSpec = ["equals", "notEquals","contains"];
+
+            // Add expected values to the temporary string that will be evaluated for
+            // Will need to check if spec-spec comparison vs spec-value comparison 
+            if (SpecToSpec.includes(condition.type)){
+                tempString += context["Style Guide Builder"]["Call Open"] + condition.expectedValue.join(context["Style Guide Builder"]["Call Open"] + operationValues.conditionJoinClause + context["Style Guide Builder"]["Call Close"]) + context["Style Guide Builder"]["Call Close"];
+            } else {
+                tempString += condition.expectedValue.join(operationValues.conditionJoinClause);
+            }
+            
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
                     nestedTemp = condition.nestedType == "AND" ? tempString + " AND " : tempString + " OR "; ;
-                    conditionString += evaluateCondition(value, parentAttribute, "lower", nestedTemp);
+                    conditionString += evaluateCondition(context, value, parentAttribute, false, nestedTemp);
                 })
             } else {
-                tempString += parseReturnObject(condition.thenReturn, parentAttribute)
+                tempString += parseReturnObject(context, condition.thenReturn, parentAttribute)
                 conditionString += tempString;
             }
         } else {
             //if condition.type is else
-            tempString = parentAttribute == condition.call
-                    ? "If" + opValues.parentOp
-                    : level == "top" 
-                        ? "If &lt;" + condition.call + "&gt;" + opValues.operand
-                        : " &lt;" + condition.call + "&gt;" + opValues.operand;
+            tempString = parentAttribute == condition.call && context["Style Guide Builder"]["Assumptive Formula"]
+                    ? context["Style Guide Builder"]["Conditional Statement Keyword"] + " " + operationValues.parentOp
+                    : isFirstLevel 
+                        ? context["Style Guide Builder"]["Conditional Statement Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operand
+                        : context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operand;
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
                     nestedTemp = condition.nestedType == "AND" ? tempString + " AND " : tempString + " OR "; ;
-                    conditionString += evaluateCondition(value, parentAttribute, "lower", nestedTemp);
+                    conditionString += evaluateCondition(context, value, parentAttribute, false, nestedTemp);
                 })
             } else {
-                if (condition.thenReturn.type == "returnSpec" && condition.thenReturn.call == parentAttribute) {
+                if (condition.thenReturn.type == "returnSpec" && condition.thenReturn.call == parentAttribute && isFirstLevel) {
                     if (condition.thenReturn.endString.length !== 0 || condition.thenReturn.leadString.length !== 0) {
-                        //Yes, this is nested. But have to validate this is a returnSpec to check endString and leadString
-                        tempString += parseReturnObject(condition.thenReturn, parentAttribute);
+                        // Yes, this is nested. But have to validate this is a returnSpec to check endString and leadString
+                        tempString += parseReturnObject(context, condition.thenReturn, parentAttribute);
                         conditionString += tempString;
                     }
                 } else {
-                    tempString += parseReturnObject(condition.thenReturn, parentAttribute);
+                    // May have to validate whether parseReturnObject is a valid addition
+                    tempString += parseReturnObject(context, condition.thenReturn, parentAttribute);
                     conditionString += tempString;  
                 }
             }
@@ -206,28 +250,29 @@ const evaluateCondition = (condition, parentAttribute, level, pre) => {
 }
 
 
-const parseReturnObject = (returnObject, parentAttribute) => {
+const parseReturnObject = (context, returnObject, parentAttribute) => {
     let returnObjectString = "";
+
     if (!returnObject) {console.log("There was an error!!!"); return "*ERROR*"}
     if (returnObject.type == "returnString") {
         returnObjectString = returnObject.string !== "" 
-            ? ', include "' + returnObject.string + '". ' 
-            : ", Leave Blank. ";
+            ? context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.string + '"' + context["Style Guide Builder"]["Statement Separator"] + " " 
+            : context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Return Blank Keyword"] + context["Style Guide Builder"]["Statement Separator"] + " ";
     } else if (returnObject.type == "returnSpec") {
-        returnObjectString = parentAttribute === returnObject.call 
-            ? "," 
-            : ", return &lt;" + returnObject.call + '&gt;';
+        returnObjectString = parentAttribute === returnObject.call && context["Style Guide Builder"]["Assumptive Formula"]
+            ? context["Style Guide Builder"]["Conditional Clause Separator"] + " "+ context["Style Guide Builder"]["Assumptive Phrase"]
+            : context["Style Guide Builder"]["Conditional Clause Separator"] + " "+ context["Style Guide Builder"]["Return Call Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + returnObject.call + context["Style Guide Builder"]["Call Close"];
         returnObjectString += returnObject.leadString 
-            ? ' include "' + returnObject.leadString + '" before' 
+            ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"] 
             : "";
         returnObjectString += returnObject.leadString && returnObject.endString 
             ? " and" 
             : "";
         returnObjectString += returnObject.endString !== "" 
-            ? ' include "' + returnObject.endString + '" after. ' 
-            : ". ";
+            ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.endString + '" '+ context["Style Guide Builder"]["Subsequent String Keyword"] + context["Style Guide Builder"]["Statement Separator"] + " "
+            : context["Style Guide Builder"]["Statement Separator"] + " ";
     } else if (returnObject.type == "returnNull") {
-        returnObjectString = ", return error. ";
+        returnObjectString = context["Style Guide Builder"]["Conditional Clause Separator"] + " "+ context["Style Guide Builder"]["Error Phrase"] + context["Style Guide Builder"]["Statement Separator"] + " ";
     } else {
         console.log(`Unexpected returnObject type found: ${returnObject.type}`)
     }

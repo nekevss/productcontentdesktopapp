@@ -519,7 +519,7 @@ function OutputSelectType(props) {
                         <option value="returnSpec">Return Attribute</option>
                         <option value="returnString">Return String</option>
                         <option value="replaceAndReturn">Return Find/Replace</option>
-                        <option value="returnNull">Return Null</option>
+                        <option value="returnNull">Return Error</option>
                     </select>
                 </div>
             </div>
@@ -629,7 +629,7 @@ function OutputReturnNullCard(props) {
         <div className="output-card null">
             <div className="inputs-section">
                 <div className="input-row">
-                    <div className="spec-title">Return null</div>
+                    <div className="spec-title" style="margin:auto;">Return Error</div>
                 </div>
             </div>
             <div className="buttons-section">

@@ -26,10 +26,12 @@ export default class LegacyInterface extends React.Component {
 
     render() {
         return (
-            <div className="legacy-view">
+            <>
                 <BlankNavbar />
-                <LegacySkuTable {...this.props} skuset={this.state.skuset} config={this.state.config} />
-            </div>
+                <div className="legacy-view">
+                    <LegacySkuTable {...this.props} skuset={this.state.skuset} config={this.state.config} />
+                </div>
+            </>
         );
     }
 }

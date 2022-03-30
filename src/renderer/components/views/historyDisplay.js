@@ -23,16 +23,17 @@ export default function HistoryDisplay(props) {
     }
 
     return (
-        <div className="history-container">
+        <>
             <BlankNavbar />
-            <div className="history-display">
+            <div className="history-container">
                 {nodeData.length > 0
                 ? nodeData.map((value, index)=>{
                     return <HistoryNode key={"history-node-"+index} node={value} run={runDisplay} />
                 })
                 : null}
             </div>
-        </div>
+        </>
+
     )
 }
 

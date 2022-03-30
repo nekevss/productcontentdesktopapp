@@ -71,6 +71,11 @@ export default class MainInterface extends React.Component {
         //a class is updated
         console.log("Logging the config");
         console.log(this.config);
+
+        // There is a bug here. Sometimes when switching from Legacy view to Default view
+        // the response sku will be undefined. No way to replicate so far. Seems to be with
+        // the generic sheet post Pyramid software update 2/21/2022
+        
         let noStyleGuideClasses = activeConfig["Functional Data"]["No Style Guide Classes"]
         let skuClass = responseState.sku[activeConfig["Excel Mapping"]["Sku Class"]];
         
@@ -185,39 +190,44 @@ export default class MainInterface extends React.Component {
         })
     }
 
+    // Was <div className = "mainView">
+
     render() {
         return (
-        <div className = "mainView">
-            {this.state.skumenu 
-            ? <SkuDrawer {...this.state}
-                config = {this.config}
-                sku={this.sku}
-                source ={this.source}
-                toggleSkuMenu={this.toggleSkuMenu}
-                setSkuPosition = {this.setSkuPosition}
-                /> 
-            : null}
+        <>
             <MainNavbar {...this.state} 
-                    toggleSkuMenu = {this.toggleSkuMenu}
-                    handlePositionChange ={this.handlePositionChange}
-                    setSkuPosition = {this.setSkuPosition}
-                    escapeHistory = {this.escapeHistory}
+                toggleSkuMenu = {this.toggleSkuMenu}
+                handlePositionChange ={this.handlePositionChange}
+                setSkuPosition = {this.setSkuPosition}
+                escapeHistory = {this.escapeHistory}
             />
-            {!this.state.isLoaded
-            ? <div className="load-container">
-                    <ReactLoading className="react-loader" type={"bars"} color={"gray"} width={"12em"} height={"12em"} />
-            </div>
-            :<MainBody {...this.state}
-                    config= {this.config}
+            <div className = "main-view-container">
+                {this.state.skumenu 
+                ? <SkuDrawer {...this.state}
+                    config = {this.config}
                     sku={this.sku}
-                    gen={this.gen}
-                    attributes={this.attributes}
-                    styleGuide={this.styleGuide}
-                    skuset={this.skuset}
-                    source = {this.source}
-                    setprimaryimage = {(data) => {this.setprimaryimage(data)}} 
-                    />
-            }
-        </div>
+                    source ={this.source}
+                    toggleSkuMenu={this.toggleSkuMenu}
+                    setSkuPosition = {this.setSkuPosition}
+                    /> 
+                : null}
+                {!this.state.isLoaded
+                ? <div className="load-container">
+                        <ReactLoading className="react-loader" type={"bars"} color={"gray"} width={"12em"} height={"12em"} />
+                </div>
+                :<MainBody {...this.state}
+                        config= {this.config}
+                        sku={this.sku}
+                        gen={this.gen}
+                        attributes={this.attributes}
+                        styleGuide={this.styleGuide}
+                        skuset={this.skuset}
+                        source = {this.source}
+                        setprimaryimage = {(data) => {this.setprimaryimage(data)}} 
+                        />
+                }
+            </div>
+        </>
+            
     )}
 }

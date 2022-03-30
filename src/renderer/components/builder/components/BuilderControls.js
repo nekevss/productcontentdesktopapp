@@ -1,8 +1,8 @@
 import React from 'react';
-import './style/sngControls.scss';
+import './style/BuilderControls.scss';
 import GenerateFormula from '../formula/GenerateFormula.js';
 
-export default function SngControls(props) {
+export default function BuilderControls(props) {
     
     const assetImport = () => {
         if (props.active) {
@@ -77,23 +77,25 @@ export default function SngControls(props) {
     return (
         <div className="controls-container">
             <div className="workspace-controls">
-                <div className="first-controls">
+                <div className="state-controls">
                     <div className="import-sg" onClick={()=>{assetImport()}}><p>Import Asset</p></div>
                     <div className="create-new" onClick={()=>{createBlank()}}><p>New Style Guide</p></div>
                     <div className="reset" onClick={()=>{props.reset()}}><p>Clear Builder</p></div>
                 </div>
+                <div className="validation-controls">
+                    <div className="" onClick={()=>{validate()}}><p>Run Validation</p></div>
+                    <div className="" onClick={()=>{exposeAssets()}}><p>Expose Assets</p></div>
+                </div>
+                <div className='sandbox-export-controls'>
+                    <div className="" onClick={()=>{runExport("builder")}}><p>Export Builder</p></div>
+                    <div className="" onClick={()=>{runExport("formula")}}><p>Export Formula</p></div>
+                    <div className="" onClick={()=>{runExport("all")}}><p>Export Assets</p></div>
+                </div>
                 <div className="secondary-controls">
                     <div className="rename" onClick={()=>{rename()}}><p>Rename Style Guide</p></div>
                 </div>
-                <div className="third-controls">
-                    <div className="" onClick={()=>{validate()}}><p>Run Validation</p></div>
-                    <div className="" onClick={()=>{exposeAssets()}}><p>Expose Assets</p></div>
-                    <div className="" onClick={()=>{runExport("formula")}}><p>Export Formula</p></div>
-                    <div className="" onClick={()=>{runExport("builder")}}><p>Export Builder</p></div>
-                    <div className="" onClick={()=>{runExport("all")}}><p>Export Assets</p></div>
-                </div>
-                <div className="fourth-controls">
-                <div className="delete" onClick={()=>{deleteCurrentStyleGuide()}}><p>Delete Current Style Guide</p></div>
+                <div className="fifth-controls">
+                    <div className="delete" onClick={()=>{deleteCurrentStyleGuide()}}><p>Delete Current Style Guide</p></div>
                 </div>
             </div>
         </div>

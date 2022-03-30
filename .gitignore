@@ -1,5 +1,11 @@
+#disto folder
 dist/
+
+#dependencies/packages
 node_modules/
+.yarn/
+
+#internal docs
 src/resources/current.json
 src/resources/SNGdev.json
 src/resources/SNGs.json

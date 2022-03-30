@@ -17,7 +17,7 @@
     margin: auto;
 }
 
-.first-controls {
+.state-controls {
     display: flex;
     flex-direction: row;
     margin-top:0.5em;
@@ -72,12 +72,12 @@
 
 
 
-.third-controls {
+.validation-controls {
     display: flex;
     flex-direction: row;
     margin-top:0.5em;
     padding: 0 0.5em;
-    width: 25em;
+    width: 12em;
     height: 5em;
     border-right: 2px solid gray;
 
@@ -96,7 +96,31 @@
     }
 }
 
-.fourth-controls {
+.sandbox-export-controls {
+    display: flex;
+    flex-direction: row;
+    margin-top:0.5em;
+    padding: 0 0.5em;
+    width: 16em;
+    height: 5em;
+    border-right: 2px solid gray;
+
+    &>div{
+        cursor:default;
+        margin: 0.25em auto;
+        text-align: center;
+
+        &>p {
+            margin: 1.25em 0.5em;
+        }
+    }
+
+    &>div:hover {
+        background-color: gray;
+    }
+}
+
+.fifth-controls {
     display: flex;
     flex-direction: row;
     margin-top:0.5em;

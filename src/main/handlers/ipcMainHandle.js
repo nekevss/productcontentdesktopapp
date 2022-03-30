@@ -322,6 +322,7 @@ ipcMain.handle("post-local", async(event, package)=>{
     let options = {
         type: "none",
         buttons: ["Yes, confirmed!","No, not confirmed."],
+        cancelId: 1,
         title: "Local Assets Post Confirmation",
         message: `Please confirm that you would like to post the local sources to: ${fullPath}`
     }
@@ -424,6 +425,17 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     let rendererData = [];
     let gen;
     let report = {};
+    let activeClass = "";
+    // find class of the first SKU since over a batch job finding the right class is going to get expensive.
+    let firstSku = SkuData[0];
+    let pph = firstSku[config["Excel Mapping"]["Web Path"]];
+    let pphArray = pph.split(/(?<=\w)\/(?=\w)/gi);
+    for (let i=pphArray.length-1; i>=0; i=i-1) {
+        if (pphArray[i].includes("Items")) {
+            activeClass = pphArray[i-1];
+            break;
+        }
+    }
 
     do {
         let batchData = SkuData.length > 500 ? SkuData.splice(0, 500) : SkuData.splice(0, SkuData.length);
@@ -431,16 +443,26 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
         //running for pure speed
         for (let i = 0; i < batchData.length; ++i) {
             let sku = batchData[i];
-            gen = pleaseSirAGenerator(SngArray, sku[config["Excel Mapping"]["Sku Class"]], sku);
+            // Check if the activeClass is different. If so, we have to determine the class.
+            if (!activeClass.includes(sku[config["Excel Mapping"]["Sku Class"]])) {
+                let pph = sku[config["Excel Mapping"]["Web Path"]];
+                let pphArray = pph.split(/(?<=\w)\/(?=\w)/gi);
+                for (let i=pphArray.length-1; i>=0; i=i-1) {
+                    if (pphArray[i].includes("Items")) {
+                        activeClass = pphArray[i-1];
+                        break;
+                    }
+                }
+            }
+            gen = pleaseSirAGenerator(SngArray, activeClass, sku);
             let generatorReturn = builderEngine(sku, gen, config)
             rendererData.push({
                 pyramidId: sku[config["Excel Mapping"]["Pyramid Id"]],
-                skuClass: sku[config["Excel Mapping"]["Sku Class"]],
+                skuClass: activeClass,
                 generatedName: generatorReturn.name,
                 check: generatorReturn.check
             })
             //calculate for the report
-            let activeClass = sku[config["Excel Mapping"]["Sku Class"]];
             if (report[activeClass]) {
                 let currentReport = report[activeClass].report;
                 let amount = report[activeClass].SkuAmount;
@@ -548,7 +570,7 @@ ipcMain.handle('fetch-configuration', async(event, arg)=>{
 
 ipcMain.handle('post-configuration', async(event, arg)=>{
     let activeWindow = BrowserWindow.fromId(1);
-    fs.writeFile(path.join(resourcesPath, '/config.json'), JSON.stringify(arg), "utf-8", (err) => {
+    fs.writeFile(path.join(resourcesPath, '/config.json'), JSON.stringify(arg, null, 4), "utf-8", (err) => {
         if (err) {console.log(err)};
     })
 

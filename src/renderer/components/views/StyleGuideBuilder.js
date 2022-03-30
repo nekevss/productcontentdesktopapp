@@ -1,8 +1,8 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import SngControls from '../builder/components/SngControls.js';
-import SngWorkspace from '../builder/SngWorkspace.js';
+import BuilderControls from '../builder/components/BuilderControls.js';
+import BuilderWorkspace from '../builder/BuilderWorkspace.js';
 import BlankNavbar from '../navbars/blankNav.js';
 import ValidationOverlay from '../builder/overlays/ValidationOverlay.js';
 import ImportOverlay from '../builder/overlays/importOverlay.js';
@@ -11,11 +11,18 @@ import RenameOverlay from '../builder/overlays/RenameOverlay.js';
 import SGForm from '../builder/components/SGForm.js';
 import './style/SNGBuilder.scss';
 
-//NOTE: I am worried about improperly managing the state throughout the Style Guide Builder.
+// NOTE: I am worried about improperly managing the state throughout the Style Guide Builder.
+//
+// Essentially each step down receives a React hook that links to the props before hand, which
+// quite honestly may not be the best solution and in some small cases could cause bugs. But
+// it works and we avoid bringing in some monstrocity of a state manager that could actually
+// over complicate the situation.
+//
 // This all being said, the current implementation does function, and so far no major issues 
-// have been found. --> maybe integrate redux or something of the sort
+// have been found. --> maybe integrate redux or something of the sort if a good option is
+// available.
 
-export default class SNGBuilder extends React.Component {
+export default class StyleGuideBuilder extends React.Component {
     constructor() {
         super()
         let saved = JSON.parse(localStorage.getItem("savedStyleGuide")) 
@@ -45,7 +52,7 @@ export default class SNGBuilder extends React.Component {
             formula: this.initialState.formula
         }
 
-        //do the below really need to bind this? might not be best practice
+        // do the below really need to bind this? might not be best practice
         this.updateStyleGuide = this.updateStyleGuide.bind(this);
         this.toggleActive = this.toggleActive.bind(this);
         this.reset = this.reset.bind(this);
@@ -280,25 +287,25 @@ export default class SNGBuilder extends React.Component {
     //should the nav bar be removed?
     render() {
         return (
-            <div className="sng-builder-view">
+            <>
                 <BlankNavbar />
-                <div className= "sng-container">
-                    {this.renderOverlay(this.state.overlay)}
-                    <SngControls {...this.state}
-                        updateFormula= {(v)=>{this.updateFormula(v)}}
-                        updateStyleGuide={(v)=>{this.updateStyleGuide(v)}}
-                        setOverlay={(v)=>{this.setOverlay(v)}}
-                        export={(v)=>this.export(v)}
-                        reset={()=>{this.reset()}}
-                        />
-                    <SngWorkspace {...this.state}
+                <BuilderControls {...this.state}
+                    updateFormula= {(v)=>{this.updateFormula(v)}}
+                    updateStyleGuide={(v)=>{this.updateStyleGuide(v)}}
+                    setOverlay={(v)=>{this.setOverlay(v)}}
+                    export={(v)=>this.export(v)}
+                    reset={()=>{this.reset()}}
+                    />
+                {this.renderOverlay(this.state.overlay)}
+                <div className= "builder-container">  
+                    <BuilderWorkspace {...this.state}
                         updateValidationState={(v)=>{this.updateValidationState(v)}}
                         updateStyleGuide={(v)=>{this.updateStyleGuide(v)}}
                         activeClass={this.activeClass}
                         activeType={this.activeType} 
                         />
                 </div>
-            </div>
+            </>
         );
     }
 }

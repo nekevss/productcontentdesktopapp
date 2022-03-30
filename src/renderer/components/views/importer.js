@@ -27,9 +27,9 @@ export default function Importer(props) {
     }, [])
 
     return (
-        <div className="importer-container">
+        <>
             <BlankNavbar />
-            <div className="importer-interface">
+            <div className="importer-container">
                 <AttributionImporter setIsRunning={setIsRunning} />
             </div>
             <div style={{width:"90%", margin:"2em auto"}}>
@@ -37,9 +37,8 @@ export default function Importer(props) {
                 ? <ImportLoading percentage={percentage} statusMessage={message} />
                 : null
                 }
-            </div>
-            
-        </div>
+            </div>    
+        </>
     )
 }
 

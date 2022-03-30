@@ -181,21 +181,23 @@ function createWindow() {
         mainWindow = null;
     })
 
+    /*
     //below is a bit of a hack since the 'ready-to-show' event firing is inconsistent
     //should look into switching back to electron@v9.3.1
     win.webContents.on('did-finish-load', ()=> {
         console.log("Webcontents finished loading!\n")
-        //win.maximize()
-        //win.show()
+        win.maximize()
+        win.show()
     })
 
     //below is proper form. But it is very inconsistent
     win.once('ready-to-show', () => {
         console.log("Recieved the message that the window is ready to show!\n")
-        win.maximize()
-        win.show()
+        //win.maximize()
+        //win.show()
     })
-
+    */
+   
     return win
 }
 
@@ -330,7 +332,7 @@ const template = [
             {
                 label: "Build",
                 click: function() {
-                    mainWindow.webContents.send("change-interface", 'sng-builder')
+                    mainWindow.webContents.send("change-interface", 'style-guide-builder')
                 }
             }
         ]

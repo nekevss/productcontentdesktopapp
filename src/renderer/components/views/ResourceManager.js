@@ -25,13 +25,13 @@ export default function ResourceManager(props) {
     }
 
     return(
-        <div className="resource-manager">
+        <>
             <BlankNavbar />
             {isLoading
             ? <ReactLoading className="react-loader" type={"bars"} color={"gray"} width={"12em"} height={"12em"} />
             : <ResourceManagerBody config={config} path={storagePath} />}
             
-        </div>
+        </>
     )
 }
 

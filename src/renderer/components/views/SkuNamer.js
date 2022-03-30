@@ -92,28 +92,51 @@ export default function BulkSkuNamer(props) {
     const CopyValues = () => {
         if (isRan) {
             let el = document.getElementById("results-table")
-            let body = document.body, range, sel;
+            let clipboard = navigator.clipboard;
+            let body = document.body;
+            let range;
+            let selection;
+
             if (document.createRange && window.getSelection) {
                 range = document.createRange();
-                sel = window.getSelection();
-                sel.removeAllRanges();
+                selection = window.getSelection();
+                selection.removeAllRanges();
                 try {
                     range.selectNodeContents(el)
                     //console.log("Running 1")
-                    sel.addRange(range);
+                    selection.addRange(range);
                 } catch (e) {
                     console.log("Running 2")
                     //range.selectNode(el);
-                    sel.addRange(range);
+                    selection.addRange(range);
                 }
-                document.execCommand("copy");
-    
+                        
+                // Might not be handling this the best...but I think since
+                // this is mostly being done in the framework we should be fine
+                if (clipboard) {
+                    console.log("Clipboard is present");
+                    console.log(range);
+                    navigator.clipboard.writeText(selection)
+                }
+                
+                // The below is the other copy command
+                //document.execCommand('copy');    
             } else if (body.createTextRange) {
                 //console.log("Running 3")
                 range = body.createTextRange();
                 range.moveToElementText(el);
                 range.select();
-                range.execCommand("copy");
+                
+                // Might not be handling this the best...but I think since
+                // this is mostly being done in the framework we should be fine
+                if (clipboard) {
+                    console.log("Clipboard is present");
+                    console.log(range);
+                    navigator.clipboard.writeText(range)
+                }
+                
+                // The below is the other copy command
+                //document.execCommand('copy');  
             }
         } else {
             window.api.alert("send-alert", "There are no values to copy! Please run bulk namer to copy values.")

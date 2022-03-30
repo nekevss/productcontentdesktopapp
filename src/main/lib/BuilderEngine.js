@@ -123,7 +123,7 @@ function builderEngine(sku, gen, config) {
         }
     })
 
-    //regex and replace land!!!
+    // regex and replace land!!!
     const danglingCommaCheck = new RegExp('\\,\\s*\\(','gi')
     if (danglingCommaCheck.test(name)) {
         name = name.replace(danglingCommaCheck, " (");
@@ -156,6 +156,8 @@ function builderEngine(sku, gen, config) {
 
 function generatorPiston(conditions, thisSku, config) {
     let activeWindow = BrowserWindow.fromId(1);
+    
+    // Implementation of return Specification ReturnObject
     const returnSpec = (sku, call, leadString, endString) => {
         let spec = GetSkuCallValue(sku, call, config);
         if (spec) {
@@ -163,6 +165,8 @@ function generatorPiston(conditions, thisSku, config) {
         }
         return null
     };
+    
+    // Implementation of Replace and Return ReturnObject
     const replaceAndReturn = (sku, call, leadString, endString, findValue, replaceValue) => {
         let spec = GetSkuCallValue(sku, call, config);
         if (spec) {
@@ -172,8 +176,10 @@ function generatorPiston(conditions, thisSku, config) {
         }
         return null
     }
-    //greater than function should be handled by conditional types
-    const conditionalFunctions = {
+
+    // Wrapping card implementations in an object so they can be called using
+    // card types for simplicity
+    const functionCallWrapper = {
         returnSpec,
         replaceAndReturn
     }
@@ -193,11 +199,11 @@ function generatorPiston(conditions, thisSku, config) {
                 return evaluatedObject.string;
             }
             if (evaluatedObject.type == 'returnSpec') {
-                return conditionalFunctions['returnSpec'](thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString)
+                return functionCallWrapper['returnSpec'](thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString)
             }
             //Card needed to be complete
             if (evaluatedObject.type == 'replaceAndReturn') {
-                return conditionalFunctions['replaceAndReturn'](thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString, evaluatedObject.find, evaluatedObject.replace)
+                return functionCallWrapper['replaceAndReturn'](thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString, evaluatedObject.find, evaluatedObject.replace)
             }
             if (evaluatedObject.type == 'returnNull') {
                 return null
@@ -210,7 +216,7 @@ function generatorPiston(conditions, thisSku, config) {
 }
 
 function evaluateConditionals(conditional, thisSku, config, passed=false) {
-    //need to better build out OR case -> test if value is true and send bool that to indicate PASSED
+    // need to better build out OR case -> test if value is true and send bool that to indicate PASSED
     let activeWindow = BrowserWindow.fromId(1);
     let thisType = conditional.type;
 
@@ -230,19 +236,23 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
 
     const passedTest = conditionTests[thisType](spec, conditional.expectedValue, thisSku, config)
 
-    if (passedTest && conditional.nestedType == "AND") {
+    // first we check if the nestedType is OR since we do not care about the passedTest value result for OR
+    if (conditional.nestedType == "OR") {
+        // consolidate the parents passed value with this evals value
+        let consolidatedPassedValues = passedTest === true || passed === true ? true : false;
+        
         let nestedConditions = conditional.nestedConditions;
         for (let nestedCondition of nestedConditions) {
-            let output = evaluateConditionals(nestedCondition, thisSku, config);
+            let output = evaluateConditionals(nestedCondition, thisSku, config, consolidatedPassedValues);
 
             if (output) {
                 return output
             }
         }
-    } else if (passedTest && conditional.nestedType == "OR") {
+    } else if (passedTest && conditional.nestedType == "AND") {
         let nestedConditions = conditional.nestedConditions;
         for (let nestedCondition of nestedConditions) {
-            let output = evaluateConditionals(nestedCondition, thisSku, config, passedTest);
+            let output = evaluateConditionals(nestedCondition, thisSku, config);
 
             if (output) {
                 return output
@@ -258,23 +268,23 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
     }
 }
 
-//should the below be separated into a module and imported into the Style Guide Runner as well...
+// should the below be separated into a module and imported into the Style Guide Runner as well...
 function GetSkuCallValue (sku, generatorCall, config) {
-    //slow af. Think it added like 40 seconds on bulk run of 27k skus.
-    //But safety and utility over speed in this case. If I was worried
-    //about speed, then this should be rebuilt in rust and compiled to wasm.
+    // slow af. Think it added like 40 seconds on bulk run of 27k skus.
+    // But safety and utility over speed in this case. If I was worried
+    // about speed, then this should be rebuilt in rust and compiled to wasm.
     const mappedCalls = config["Functional Data"]["Style Guide Call Mapping"];
     const mappedCallsKeys = Object.keys(mappedCalls);
     let call = "";
 
-    //first determine if the generator call is a mapped call
+    // first determine if the generator call is a mapped call
     if (mappedCallsKeys.includes(generatorCall)) {
         call = mappedCalls[generatorCall];
     } else {
         call = generatorCall;
     }
 
-    //need to make a decision on how to handle brand calls.
+    // need to make a decision on how to handle brand calls.
     if (call == config["Excel Mapping"]["Brand"]) {
         const copyrightedBrands = config["Exempted Brands"]["Copyright Brands"];
         const trademarkBrands = config["Exempted Brands"]["Trademark Brands"];
@@ -290,14 +300,14 @@ function GetSkuCallValue (sku, generatorCall, config) {
             return sku[call];
         }
     } else {
-        //return value of call. Always clean the spec coming from the Specs object of sku.
+        // Return value of call. Always clean the spec coming from the Specs object of sku.
         return sku.hasOwnProperty(call) ? sku[call] : cleanSpec(sku.Specs[call]);
-        //really the above works, but it might be best to check the value and insure that
-        //null is being returned rather than undefined. But Fijis vs. Granny Smiths
+        // Really the above works, but it might be best to check the value and insure that
+        // null is being returned rather than undefined. But Fijis vs. Granny Smiths
     }
 }
 
-//run test -> return bool of test result
+// run test -> return bool of test result
 const conditionTests = {
     "if" : (specValue, expectedArray, thisSku={}, config={}) => {
         return expectedArray.includes(specValue) ? true : false
@@ -306,9 +316,11 @@ const conditionTests = {
         return !expectedArray.includes(specValue) ? true : false
     },
     "includes" : (specValue, expectedArray, thisSku={}, config={}) => {
-        for (let value of expectedArray) {
-            if (specValue.includes(value)) {
-                return true
+        if (specValue) {
+            for (let value of expectedArray) {
+                if (specValue.includes(value)) {
+                    return true
+                }
             }
         }
         return false
@@ -332,10 +344,12 @@ const conditionTests = {
         return false
     },
     "contains" : (specValue, expectedArray, thisSku, config) => {
-        for (let value of expectedArray) {
-            let secondarySpec = GetSkuCallValue(thisSku, value, config)
-            if (specValue.includes(secondarySpec)) {
-                return true
+        if (specValue) {
+            for (let value of expectedArray) {
+                let secondarySpec = GetSkuCallValue(thisSku, value, config)
+                if (specValue.includes(secondarySpec)) {
+                    return true
+                }
             }
         }
         return false

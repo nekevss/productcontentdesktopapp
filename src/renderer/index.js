@@ -4,7 +4,7 @@ import React from "react";
 import reactDOM from "react-dom";
 import MainInterface from "./components/views/mainView.js";
 import LegacyInterface from "./components/views/legacy.js";
-import SNGBuilder from "./components/views/SNGBuilder.js";
+import StyleGuideBuilder from "./components/views/StyleGuideBuilder.js";
 import BulkSkuNamer from "./components/views/SkuNamer.js";
 import ConfigurationViewer from "./components/views/configViewer.js";
 import ResourceManager from "./components/views/ResourceManager.js";
@@ -13,13 +13,13 @@ import Importer from "./components/views/importer.js";
 import './style/app.scss';
 
 
-//rough min-width for entire app: 900
+// rough min-width for entire app: 900
 
-//Partially wish the below was a function with React Hooks, but
-//this is stable for now and manages the listener
+// Partially wish the below was a function with React Hooks, but
+// this is stable for now and manages the listener
 
-//NOTE: class use on app wrapper is okay for now, use functions
-//and React Hooks where possible going forward
+// NOTE: class use on app wrapper is okay for now, use functions
+// and React Hooks where possible going forward
 
 class App extends React.Component {
     constructor() {
@@ -110,9 +110,9 @@ class App extends React.Component {
                 return (
                     <BulkSkuNamer />
                 )
-            case "sng-builder":
+            case "style-guide-builder":
                 return (
-                    <SNGBuilder />
+                    <StyleGuideBuilder />
                 )
             case "history":
                 return (
