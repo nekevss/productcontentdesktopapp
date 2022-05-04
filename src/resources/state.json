@@ -1,5 +1,7 @@
 {
+    "type": "current",
     "name": "Test",
     "time":"12:00",
+    "date": "05/03/2022",
     "length": 1
 }

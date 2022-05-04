@@ -7,10 +7,12 @@
     "dependencies": {
         "core-js": "^3.6.5",
         "csvtojson": "^2.0.10",
+        "prop-types": "^15.8.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-loading": "^2.0.3",
         "regenerator-runtime": "^0.13.7",
+        "xlsx": "file:./vendor/xlsx-latest.tgz",
         "yarn": "^1.22.4"
     },
     "devDependencies": {
@@ -25,7 +27,6 @@
         "electron": "15.0.0",
         "electron-builder": "^22.9.1",
         "file-loader": "^6.2.0",
-        "prop-types": "^15.8.1",
         "sass": "^1.26.10",
         "sass-loader": "^10.0.2",
         "style-loader": "^1.2.1",

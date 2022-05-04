@@ -7170,6 +7170,7 @@ __metadata:
     webpack: ^4.44.1
     webpack-cli: ^3.3.12
     webpack-dev-server: ^4.7.3
+    xlsx: "file:./vendor/xlsx-latest.tgz"
     yarn: ^1.22.4
   languageName: unknown
   linkType: soft
@@ -9508,6 +9509,15 @@ __metadata:
   version: 4.0.0
   resolution: "xdg-basedir@npm:4.0.0"
   checksum: 0073d5b59a37224ed3a5ac0dd2ec1d36f09c49f0afd769008a6e9cd3cd666bd6317bd1c7ce2eab47e1de285a286bad11a9b038196413cd753b79770361855f3c
+  languageName: node
+  linkType: hard
+
+"xlsx@file:./vendor/xlsx-latest.tgz::locator=productcontentdesktopapp%40workspace%3A.":
+  version: 0.18.6
+  resolution: "xlsx@file:./vendor/xlsx-latest.tgz::locator=productcontentdesktopapp%40workspace%3A."
+  bin:
+    xlsx: ./bin/xlsx.njs
+  checksum: 05723c92abaf511fc3a9892fc84c3f8329626bcd8efd70ff3ce553599da745afb4db977e825215c55e6fbe41d1a74feab98d71f8d5bc862444e1c4dc8dd5e47a
   languageName: node
   linkType: hard
 

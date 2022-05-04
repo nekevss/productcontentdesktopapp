@@ -107,12 +107,21 @@ function checkForCurrent(current, last) {
 
 //returns a date string when needed
 function constructDate() {
-    const date = new Date();
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const yyyy = date.getFullYear();
+    const dateTime = new Date();
+    const dd = String(dateTime.getDate()).padStart(2, '0');
+    const mm = String(dateTime.getMonth() + 1).padStart(2, '0');
+    const yyyy = dateTime.getFullYear();
     const dateString = mm + "/" + dd + "/" + yyyy;
     return dateString
+}
+
+function constructTime() {
+    const dateTime = new Date()
+    const hh = String(dateTime.getHours()).padStart(2, "0");
+    const mm = String(dateTime.getMinutes()).padStart(2, "0");
+    const ss = String(dateTime.getSeconds()).padStart(2, "0");
+    const timeString = hh + ":" + mm + ":" + ss;
+    return timeString
 }
 
 //This function opens the state to determine so that we
@@ -216,5 +225,5 @@ async function fetchConfig() {
 }
 
 module.exports = {
-    post, StreamData, constructDate, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent
+    post, StreamData, constructDate, constructTime, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent
 }

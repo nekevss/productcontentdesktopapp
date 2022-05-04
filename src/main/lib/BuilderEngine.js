@@ -1,6 +1,7 @@
 const electron = require('electron');
 const { BrowserWindow } = electron;
-const { cleanSpec } = require("./utils/Cleaner.js");
+const { conditionTests } = require("./condition-tests.js");
+const { GetSkuCallValue } = require('./fetch-sku-value.js');
 
 
 function builderEngine(sku, gen, config) {
@@ -168,7 +169,9 @@ function generatorPiston(conditions, thisSku, config) {
     
     // Implementation of Replace and Return ReturnObject
     const replaceAndReturn = (sku, call, leadString, endString, findValue, replaceValue) => {
+        // TODO: CLEAN THIS UP lol
         let spec = GetSkuCallValue(sku, call, config);
+        // NOTE: is it worth implementing the below as a regex???
         if (spec) {
             return leadString 
                 ? leadString + spec.replace(findValue, replaceValue) + endString 
@@ -266,96 +269,6 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
         activeWindow.webContents.send("console-log","Did not find a valid matching type")
         return null
     }
-}
-
-// should the below be separated into a module and imported into the Style Guide Runner as well...
-function GetSkuCallValue (sku, generatorCall, config) {
-    // slow af. Think it added like 40 seconds on bulk run of 27k skus.
-    // But safety and utility over speed in this case. If I was worried
-    // about speed, then this should be rebuilt in rust and compiled to wasm.
-    const mappedCalls = config["Functional Data"]["Style Guide Call Mapping"];
-    const mappedCallsKeys = Object.keys(mappedCalls);
-    let call = "";
-
-    // first determine if the generator call is a mapped call
-    if (mappedCallsKeys.includes(generatorCall)) {
-        call = mappedCalls[generatorCall];
-    } else {
-        call = generatorCall;
-    }
-
-    // need to make a decision on how to handle brand calls.
-    if (call == config["Excel Mapping"]["Brand"]) {
-        const copyrightedBrands = config["Exempted Brands"]["Copyright Brands"];
-        const trademarkBrands = config["Exempted Brands"]["Trademark Brands"];
-        const registeredBrands = config["Exempted Brands"]["Registered Brands"];
-
-        if (trademarkBrands.includes(sku[call])) {
-            return sku[call] + "&trade;";
-        } else if (copyrightedBrands.includes(sku[call])) {
-            return sku[call] + "&copy;";
-        } else if(registeredBrands.includes(sku[call])) {
-            return sku[call] + "&reg;";
-        } else {
-            return sku[call];
-        }
-    } else {
-        // Return value of call. Always clean the spec coming from the Specs object of sku.
-        return sku.hasOwnProperty(call) ? sku[call] : cleanSpec(sku.Specs[call]);
-        // Really the above works, but it might be best to check the value and insure that
-        // null is being returned rather than undefined. But Fijis vs. Granny Smiths
-    }
-}
-
-// run test -> return bool of test result
-const conditionTests = {
-    "if" : (specValue, expectedArray, thisSku={}, config={}) => {
-        return expectedArray.includes(specValue) ? true : false
-    },
-    "ifNot" : (specValue, expectedArray, thisSku={}, config={}) => {
-        return !expectedArray.includes(specValue) ? true : false
-    },
-    "includes" : (specValue, expectedArray, thisSku={}, config={}) => {
-        if (specValue) {
-            for (let value of expectedArray) {
-                if (specValue.includes(value)) {
-                    return true
-                }
-            }
-        }
-        return false
-    },
-    "equals" : (specValue, expectedArray, thisSku, config) => {
-        for (let value of expectedArray) {
-            let secondarySpec = GetSkuCallValue(thisSku, value, config)
-            if (secondarySpec && specValue == secondarySpec) {
-                return true
-            }
-        }
-        return false
-    },
-    "notEquals" : (specValue, expectedArray, thisSku, config) => {
-        for (let value of expectedArray) {
-            let secondarySpec = GetSkuCallValue(thisSku, value, config)
-            if (secondarySpec && specValue !== secondarySpec) {
-                return true
-            }
-        }
-        return false
-    },
-    "contains" : (specValue, expectedArray, thisSku, config) => {
-        if (specValue) {
-            for (let value of expectedArray) {
-                let secondarySpec = GetSkuCallValue(thisSku, value, config)
-                if (specValue.includes(secondarySpec)) {
-                    return true
-                }
-            }
-        }
-        return false
-    },
-    "else" : (specValue, expectedArray=[], thisSku={}, config={}) => {return specValue ? true : false},
-    "ifNull" : (specValue, expectedArray=[], thisSku={}, config={}) => {return !specValue ? true : false }
 }
 
 module.exports = {

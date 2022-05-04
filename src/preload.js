@@ -42,6 +42,7 @@ contextBridge.exposeInMainWorld(
         receive: (channel, func) => {
             let validChannels = [
                 "change-interface", 
+                "change-overlay",
                 "context-menu",
                 "sku-namer-batch",
                 "sku-namer-finished",
@@ -57,7 +58,8 @@ contextBridge.exposeInMainWorld(
         },
         removeListener: (channel) => {
             let validChannels = [
-                "change-interface", 
+                "change-interface",
+                "change-overlay", 
                 "context-menu",
                 "sku-namer-batch",
                 "sku-namer-finished",

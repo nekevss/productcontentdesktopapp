@@ -1,0 +1,41 @@
+.global-importer {
+    display:flex;
+    flex-direction: row;
+    background-color: rgba(255,255,255,1);
+    margin:3em;
+    height: 80%;
+}
+
+.import-container {
+    padding: 1em;
+    height: 10em;
+    display:flex;
+    flex-direction:column;
+
+    &>.sheet-display {
+        display:flex;
+        flex-direction: row;
+        margin:0.5em;
+
+        &>div {
+            width: 12em;
+            overflow: hidden;
+        }
+        
+        &>button {
+            margin:auto 0.75em;
+        }
+    }
+
+    &>.buttons {
+        width:25em;
+        height: 3em;
+        margin: 0.5em;
+
+        &>button {
+            width: auto;
+            margin: 0.25em 2em;
+        }
+    }
+    
+}

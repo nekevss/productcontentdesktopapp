@@ -1,12 +1,19 @@
 const electron = require('electron');
 const { BrowserWindow } = electron;
 const { cleanSpec } = require("./utils/Cleaner.js");
+const { conditionTests } = require("./condition-tests.js");
+const { GetSkuCallValue } = require('./fetch-sku-value.js');
 
-function pleaseSirAGenerator(SNGsArray, incomingClass, incomingSku) {
+// Okay, I super regret naming these Generators. They're basically just an AST Node
+// stack of sorts, and nowadays we call them Builders.
+
+function pleaseSirAGenerator(config, SNGsArray, incomingClass, incomingSku) {
     let activeWindow = BrowserWindow.fromId(1);
 
     //console.log("Beginning to search for generator\n")
 
+    // YIKES
+    // TODO: update this
     if (incomingClass == "Primary Products") {
         return [{"type": "string", "string" : "Error: No Style Guide exists for Primary Products"}]
     }
@@ -26,7 +33,7 @@ function pleaseSirAGenerator(SNGsArray, incomingClass, incomingSku) {
                 return queryStack[0].thenReturn
             } else {
                 for (let i = 0 ; i <= queryStack.length - 1; i++) {
-                    let foundGen = queryGenerator(incomingSku, queryStack[i]);
+                    let foundGen = queryBuilder(config, incomingSku, queryStack[i]);
                     if (foundGen) {
                         console.log("Found the Generator!")
                         //console.log(foundGen)
@@ -34,357 +41,68 @@ function pleaseSirAGenerator(SNGsArray, incomingClass, incomingSku) {
                     };
                 }
                 console.log("No generator found throwing error")
-                return [{"type": "string", "string" : "Error: There was an issue when querying for generator. Null value returned."}];
+                return [{"type": "string", "string" : "Error: Null value returned for determining attribute."}];
             }
         }
     }
-    return [{"type": "string", "string" : "Error: A SNG was not found for this class"}];
+    return [{"type": "string", "string" : "Error: A Builder was not found for this class"}];
 }
 
+// FML why did I call the one value ifCalled and spec
 
-function queryGenerator(sku, thisQuery, passed=false) {
-    let activeWindow = BrowserWindow.fromId(1);
-    let specValue = sku.hasOwnProperty(thisQuery.spec) ? sku[thisQuery.spec] : cleanSpec(sku.Specs[thisQuery.spec]);
-    
-    //handle error type from excel parser
-    if (thisQuery.type == "error") {
-        const error = [{ "string" : thisQuery.errorMessage}]
+function queryBuilder(config, sku, condition, passed=false) {
+    const specValue = GetSkuCallValue(sku, condition.spec, config);
+    // handle error types
+    if (condition.type == "error") {
+        const error = [{ "string" : condition.errorMessage}]
         return error
     };
 
-    //handle already passed --> only true on OR statements
-    if (passed && thisQuery.thenReturn) {
-        return thisQuery.thenReturn;
+    // Here we are checking if the type is else and there is no spec call and whether 
+    // the returnGenerator is present. These should all only occur when there is a simple
+    // Style Guide Builder
+    if (condition.type === "else" && !condition.spec && condition.thenReturn) {
+        return condition.thenReturn
     }
 
-    //base case --> else
-    if (thisQuery.type == "else") {
-        //There are two types of else queries possible:
-        //1. The default generator which should be {type: "else", thenReturn: {}}
-        //2. The else condition card which should be {type: "else", spec: "random call", thenReturn: {}}
-        //Here we need to account for both cases.
+    // check if passed has already been evaluated as true and if there is a return
+    if (passed && condition.thenReturn) {
+        return condition.thenReturn
+    }
 
-        //Quick note: this should probably be fixed. There might be some else cases where
-        //nested conditions are needed. Haven't really fully thought through.
-        if (thisQuery.spec) {
-            if (specValue) {
-                activeWindow.webContents.send("console-log", `${specValue} exists in else call`)
-                if (thisQuery.thenReturn) {
-                    return thisQuery.thenReturn
-                } else {
-                    //nestedConditions should exists in all cases where thenReturn does not.
-                    //Should probably check, but leaving as is. Could be potential bug if not
-                    //properly checked for in validation
-                    let nestedConditions = thisQuery.nestedConditions;
-                    for (let nestedCondition of nestedConditions){
-                        let output = queryGenerator(sku, nestedCondition);
-                        
-                        if (output) {
-                            return output;
-                        }
-                    }
-                }
-            }
-        } else {
-            if (thisQuery.thenReturn) {
-                return thisQuery.thenReturn
-            }
-        }
+    const passedTest = conditionTests[condition.type](specValue, condition.ifCalled, sku, config);
+
+    if (condition.nestedType == "OR") {
+        let consolidatedPassedValue = passedTest === true || passed === true ? true : false;
         
-        return null
-    };
-
-    if (!specValue) {
-        //check the whether specValue is valid before continuing into the below logic
-        //All below logic types require specValue to be a valid return
-        activeWindow.webContents.send("console-log",`Here's specValue ${specValue} and Spec Call ${thisQuery.spec}`)
-        return null
-    }
-
-    if (thisQuery.type == "if") {
-        let expectedValues = thisQuery.ifCalled;
-
-        if (thisQuery.nestedType == "AND") {
-            //handle tree traversal
-            if (expectedValues.includes(specValue)) {
-                let nestedConditions = thisQuery.nestedConditions;
-                for (let nestedCondition of nestedConditions){
-                    let output = queryGenerator(sku, nestedCondition);
-                    
-                    if (output) {
-                        return output;
-                    }
-                }
-            }
-            return null
-        }
-        if (thisQuery.nestedType == "OR") {
-            let passedTest = passed;
-            if (expectedValues.includes(specValue)) {
-                activeWindow.webContents.send("console-log","SpecValue was found in the expected values!!!")
-                passedTest = true;
-            }
-
-            let nestedConditions = thisQuery.nestedConditions;
-            for (let nestedCondition of nestedConditions){
-                let output = queryGenerator(sku, nestedCondition, passedTest);
-                
-                if (output) {
-                    return output;
-                }
-            }
-        }
-
-        if (expectedValues.includes(specValue)) {
-            activeWindow.webContents.send("console-log","SpecValue was found in the expected values!!!")
-            return thisQuery.thenReturn
-        }
-
-        return null
-    }
-
-    if (thisQuery.type == "ifNot") {
-        let expectedValues = thisQuery.ifCalled;
-
-        if (thisQuery.nestedType == "AND") {
-            //handle tree traversal
-            if (!expectedValues.includes(specValue)) {
-                let nestedConditions = thisQuery.nestedConditions;
-                for (let nestedCondition of nestedConditions){
-                    let output = queryGenerator(sku, nestedCondition);
-                    
-                    if (output) {
-                        return output;
-                    }
-                }
-            }
-            return null
+        let nestedConditions = condition.nestedConditions;
+        for (let nestedCondition of nestedConditions){
+            let output = queryBuilder(config, sku, nestedCondition, consolidatedPassedValue);
             
-        }
-        if (thisQuery.nestedType == "OR") {
-            let passedTest = passed;
-
-            if (!expectedValues.includes(specValue)) {
-                passedTest = true;
-            }
-
-            let nestedConditions = thisQuery.nestedConditions;
-            for (let nestedCondition of nestedConditions){
-                let output = queryGenerator(sku, nestedCondition, passedTest);
-                
-                if (output) {
-                    return output;
-                }
+            if (output) {
+                return output;
             }
         }
-        
-
-        if (!expectedValues.includes(specValue)) {
-            activeWindow.webContents.send("console-log","SpecValue was found in the expected values!!!")
-            return thisQuery.thenReturn
+    }
+    
+    if (passedTest && condition.nestedType === "AND") {
+        let nestedConditions = condition.nestedConditions;
+        for (let nestedCondition of nestedConditions){
+            let output = queryBuilder(config, sku, nestedCondition, consolidatedPassedValue);
+            
+            if (output) {
+                return output;
+            }
         }
-        
-        return null
+    } 
+    
+    if (passedTest) {
+        if (condition.thenReturn) {
+            return condition.thenReturn
+        }
     }
 
-    if (thisQuery.type == "includes") {
-        let expectedValues = thisQuery.ifCalled;
-        if (thisQuery.nestedType == "AND") {
-            //handle tree traversal
-            for (let value of expectedValues) {
-                if (specValue.includes(value)) {
-                    let nestedConditions = thisQuery.nestedConditions;
-                    for (let nestedCondition of nestedConditions){
-                        let output = queryGenerator(sku, nestedCondition);
-                        
-                        if (output) {
-                            return output;
-                        }
-                    }
-                };
-            }
-            return null
-        }
-        if (thisQuery.nestedType == "OR") {
-            let passedTest = passed;
-
-            for (let value of expectedValues) {
-                if (specValue.includes(value)) {
-                    passedTest = true;
-                };
-            }
-
-            let nestedConditions = thisQuery.nestedConditions;
-            for (let nestedCondition of nestedConditions){
-                let output = queryGenerator(sku, nestedCondition, passedTest);
-                
-                if (output) {
-                    return output;
-                }
-            }
-        }
-        
-        for (let value of expectedValues) {
-            if (specValue.includes(value)) {return thisQuery.thenReturn};
-        }
-        
-        return null
-        
-    }
-    if (thisQuery.type == "equals") {
-        let expectedValues = thisQuery.ifCalled;
-
-        if (thisQuery.nestedType == "AND") {
-            //handle tree traversal
-            for (let value of expectedValues) {
-                let secondarySpec = cleanSpec(sku.Specs[value]) 
-                if (secondarySpec && specValue == secondarySpec) {
-                    let nestedConditions = thisQuery.nestedConditions;
-                    for (let nestedCondition of nestedConditions){
-                        let output = queryGenerator(sku, nestedCondition);
-                        
-                        if (output) {
-                            return output;
-                        }
-                    }
-                }
-            }
-
-            return null
-        }
-        if (thisQuery.nestedType == "OR") {
-            let passedTest = passed;
-
-            for (let value of expectedValues) {
-                let secondarySpec = cleanSpec(sku.Specs[value])
-                if (secondarySpec && specValue == secondarySpec) {
-                    passedTest = true;
-                }
-            }
-
-            let nestedConditions = thisQuery.nestedConditions;
-            for (let nestedCondition of nestedConditions){
-                let output = queryGenerator(sku, nestedCondition, passedTest);
-                
-                if (output) {
-                    return output;
-                }
-            }
-        }
-
-        for (let value of expectedValues) {
-            let secondarySpec = cleanSpec(sku.Specs[value])
-            if (secondarySpec && specValue == secondarySpec) {
-                return thisQuery.thenReturn
-            }
-        }
-        
-        return null
-    }
-    if (thisQuery.type == "notEquals") {
-        let expectedValues = thisQuery.ifCalled;
-
-        if (thisQuery.nestedType == "AND") {
-            //handle tree traversal
-            for (let value of expectedValues) {
-                let secondarySpec = cleanSpec(sku.Specs[value]) 
-                if (secondarySpec && specValue !== secondarySpec) {
-                    let nestedConditions = thisQuery.nestedConditions;
-                    for (let nestedCondition of nestedConditions){
-                        let output = queryGenerator(sku, nestedCondition);
-                        
-                        if (output) {
-                            return output;
-                        }
-                    }
-                }
-            }
-
-            return null
-        }
-        if (thisQuery.nestedType == "OR") {
-            let passedTest = passed;
-
-            for (let value of expectedValues) {
-                let secondarySpec = cleanSpec(sku.Specs[value]) 
-                if (secondarySpec && specValue !== secondarySpec) {
-                    passedTest = true;
-                }
-            }
-
-            let nestedConditions = thisQuery.nestedConditions;
-            for (let nestedCondition of nestedConditions){
-                let output = queryGenerator(sku, nestedCondition, passedTest);
-                
-                if (output) {
-                    return output;
-                }
-            }
-        }
-        
-        for (let value of expectedValues) {
-            let secondarySpec = cleanSpec(sku.Specs[value]) 
-            if (secondarySpec && specValue !== secondarySpec) {
-                activeWindow.webContents.send("console-log",`${specValue} is not equal to ${secondarySpec}`)
-                return thisQuery.thenReturn
-            }
-        }
-        
-        return null
-    }
-
-    if (thisQuery.type == "contains") {
-        let expectedValues = thisQuery.ifCalled;
-
-        if (thisQuery.nestedType == "AND") {
-            //handle tree traversal
-            for (let value of expectedValues) {
-                let secondarySpec = cleanSpec(sku.Specs[value]) 
-                if (specValue.includes(secondarySpec)) {
-                    let nestedConditions = thisQuery.nestedConditions;
-                    for (let nestedCondition of nestedConditions){
-                        let output = queryGenerator(sku, nestedCondition);
-                        
-                        if (output) {
-                            return output;
-                        }
-                    }
-                }
-            }
-
-            return null
-        }
-        if (thisQuery.nestedType == "OR") {
-            let passedTest = passed;
-
-            for (let value of expectedValues) {
-                let secondarySpec = cleanSpec(sku.Specs[value]) 
-                if (specValue.includes(secondarySpec)) {
-                    passedTest = true;
-                }
-            }
-
-            let nestedConditions = thisQuery.nestedConditions;
-            for (let nestedCondition of nestedConditions){
-                let output = queryGenerator(sku, nestedCondition, passedTest);
-                
-                if (output) {
-                    return output;
-                }
-            }
-        }
-        
-        for (let value of expectedValues) {
-            let secondarySpec = cleanSpec(sku.Specs[value]) 
-            if (specValue.includes(secondarySpec)) {
-                return thisQuery.thenReturn
-            }
-        }
-        
-        return null
-    }
-
-    //throw error!!!
+    // Throw error in default situations
     return null
 }
 

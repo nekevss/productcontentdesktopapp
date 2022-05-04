@@ -5,9 +5,11 @@ const fs = require('fs');
 const path = require('path');
 const { app, Menu, BrowserWindow, ipcMain, shell } = electron;
 const nativeImage = electron.nativeImage;
-require('./main/handlers/ipcMainHandle.js');
 require('./main/ipcMainOn.js');
+require('./main/handlers/index.js');
 require('./main/handlers/builderHandlers.js');
+require('./main/handlers/requestHandlers.js');
+require('./main/handlers/importHandlers.js');
 
 
 //Roadmap to Stable Environment
@@ -336,6 +338,12 @@ const template = [
                 }
             }
         ]
+    },
+    {
+        label: 'Import',
+        click: function() {
+            mainWindow.webContents.send("change-overlay", "data-importer")
+        }
     },
     {
         label: "Resources",

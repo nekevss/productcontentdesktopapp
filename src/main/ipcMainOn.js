@@ -77,7 +77,7 @@ ipcMain.on("set-history-state", (event, args)=>{
         length: args.length,
     }
 
-    fs.writeFile(path.join(resourcesPath, "/state.json"), JSON.stringify(state), (err)=> {
+    fs.writeFile(path.join(resourcesPath, "/state.json"), JSON.stringify(state, null, 4), (err)=> {
         if (err){activeWindow.webContents.send("console.log", err)}
         activeWindow.webContents.send("change-interface", "main")
     })

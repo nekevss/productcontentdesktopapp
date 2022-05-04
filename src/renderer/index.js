@@ -2,15 +2,16 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from "react";
 import reactDOM from "react-dom";
-import MainInterface from "./components/views/mainView.js";
-import LegacyInterface from "./components/views/legacy.js";
-import StyleGuideBuilder from "./components/views/StyleGuideBuilder.js";
-import BulkSkuNamer from "./components/views/SkuNamer.js";
-import ConfigurationViewer from "./components/views/configViewer.js";
-import ResourceManager from "./components/views/ResourceManager.js";
-import HistoryDisplay from "./components/views/historyDisplay.js";
-import Importer from "./components/views/importer.js";
+import MainInterface from "./views/mainView.js";
+import LegacyInterface from "./views/legacy.js";
+import StyleGuideBuilder from "./views/StyleGuideBuilder.js";
+import BulkSkuNamer from "./views/SkuNamer.js";
+import ConfigurationViewer from "./views/configViewer.js";
+import ResourceManager from "./views/ResourceManager.js";
+import HistoryDisplay from "./views/historyDisplay.js";
+import Importer from "./views/importer.js";
 import './style/app.scss';
+import ImportOverlay from "./import-overlay/index.js";
 
 
 // rough min-width for entire app: 900
@@ -28,10 +29,12 @@ class App extends React.Component {
         //let lastView = localStorage.getItem('lastView') ? localStorage.getItem('lastView') : 'main'
         this.focusSKU = 0;
         this.state = {
-            view :  "main"
+            view: "main",
+            overlay: null 
         }
 
-        this.changeViewWithFocus = this.changeViewWithFocus.bind(this)
+        this.changeViewWithFocus = this.changeViewWithFocus.bind(this);
+        this.changeOverlay = this.changeOverlay.bind(this);
     }
 
     componentDidMount() {
@@ -40,10 +43,22 @@ class App extends React.Component {
             console.log(data);
             let oldView = this.state.view;
             localStorage.setItem('lastView', oldView);
-            this.setState({
-                view: data
+            this.setState((previousState)=> {
+                return {
+                    view: data,
+                    overlay: previousState.overlay
+                }
             })
-            
+        })
+
+        window.api.receive("change-overlay", (data) => {
+            console.log(data);
+            this.setState((previousState)=> {
+                return {
+                    view: previousState.view,
+                    overlay: data
+                }
+            })
         })
         window.api.receive("console-log", (message)=>{
             console.log(message)
@@ -59,6 +74,7 @@ class App extends React.Component {
     componentWillUnmount() {
         //remove listeners here
         window.api.removeListener("change-interface");
+        window.api.removeListener("change-overlay");
         window.api.removeListener("console-log");
         window.api.removeListener("console-display");
         window.removeEventListener("contextmenu", RightClickFunction);
@@ -74,16 +90,40 @@ class App extends React.Component {
         if (newFocus !== -1) {
             this.focusSKU = newFocus;
         }
-        this.setState({
-            view: newView
+        this.setState((previousState)=> {
+            return {
+                view: newView,
+                overlay: previousState.overlay
+            }
         })
-
         window.scrollTo(0,0);
+    }
+
+    changeOverlay(newOverlay) {
+        this.setState((previousState)=> {
+            return {
+                view: previousState.view,
+                overlay: newOverlay
+            }
+        })
+    }
+
+    renderOverlay(activeOverlay) {
+        switch(activeOverlay) {
+            case "data-importer":
+                return (
+                    <div className='app-overlay' onClick={()=>{this.changeOverlay("")}}>
+                        <ImportOverlay />
+                    </div>
+                )
+            default:
+                return null
+        }
     }
 
     renderView(activeView) {
         //clear the console on view change
-        console.clear();
+        //console.clear();
         //application view router
         switch(activeView) {
             case "main":
@@ -130,6 +170,7 @@ class App extends React.Component {
     render() {
         return (
         <div className={"app-wrapper-" + this.state.view}>
+            {this.renderOverlay(this.state.overlay)}
             {this.renderView(this.state.view)}
         </div>
     )}

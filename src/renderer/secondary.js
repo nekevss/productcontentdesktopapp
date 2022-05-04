@@ -1,8 +1,8 @@
 import React from 'react';
 import reactDOM from "react-dom";
 import ReactLoading from 'react-loading';
-import SecondaryNavbar from './components/navbars/secondaryNav.js';
-import SecondaryInterface from './components/views/secondaryInterface.js';
+import SecondaryNavbar from './views/components/navbars/secondaryNav.js';
+import SecondaryInterface from './views/secondaryInterface.js';
 
 function SecondaryApp() {
     const [isLoading, setIsLoading] = React.useState(true);
