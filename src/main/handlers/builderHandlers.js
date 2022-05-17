@@ -22,8 +22,8 @@ ipcMain.handle("export-sng-package", async(event, incomingPackage)=>{
     const dateString = constructDate()
 
     try {
-        const SNGs = await fsp.readFile(resourcesPath + '/SNGs.json', "utf-8",);
-        current = JSON.parse(SNGs);
+        const builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
+        current = JSON.parse(builders);
     } catch (err) {
         let errorOptions = {
             type: "none",
@@ -56,7 +56,7 @@ ipcMain.handle("export-sng-package", async(event, incomingPackage)=>{
         }
     
         //write new assets into local file
-        fs.writeFile(resourcesPath + '/SNGs.json', JSON.stringify(updatedSNG), "utf-8", (err) => {
+        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(updatedSNG), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -95,14 +95,14 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
         let styleGuideObj;
         let skuNameGenObj;
         try{
-            let skuNameGensRaw = await fsp.readFile(resourcesPath + '/SNGs.json', "utf-8",);
+            let skuNameGensRaw = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
             skuNameGenObj = JSON.parse(skuNameGensRaw);
         } catch(err) {
             let errorOptions = {
                 type: "none",
                 buttons: ["Okay"],
                 title: "Read File Error",
-                message: `There was an error while reading the Sku Name Generators JSON: ${err}`
+                message: `There was an error while reading the Sku Name Builders JSON: ${err}`
             }
             dialog.showMessageBox(activeWindow, errorOptions)
         }
@@ -123,7 +123,7 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
         const gens = skuNameGenObj.data;
         const styleGuides = styleGuideObj.data;
 
-        const newSNGsData = gens.filter((value, index)=>{
+        const newBuildersData = gens.filter((value, index)=>{
             return value.class !== styleGuideToDelete.class;
         })
         const newGuidesData = styleGuides.filter((value, index)=>{
@@ -140,9 +140,9 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
             },
             data: newGuidesData
         }
-        const newSNGs = {
+        const newBuilders = {
             metadata: {Updated:dateString},
-            data: newSNGsData
+            data: newBuildersData
         }
         fs.writeFile(resourcesPath + '/StyleGuide.json', JSON.stringify(newStyleGuidesObj), "utf-8", (err) => {
             if (err) {
@@ -155,13 +155,13 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
                 dialog.showMessageBox(activeWindow, errorOptions)
             }
         })
-        fs.writeFile(resourcesPath + '/SNGs.json', JSON.stringify(newSNGs), "utf-8", (err) => {
+        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(newBuilders), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
                     buttons: ["Okay"],
                     title: "Write File Error",
-                    message: `There was an error while writing the SNGs JSON: ${err}`
+                    message: `There was an error while writing the Builders JSON: ${err}`
                 }
                 dialog.showMessageBox(activeWindow, errorOptions)
             }
@@ -177,9 +177,9 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
                             activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                         }
                     })
-                    fs.writeFile(resourcesPath + '/cache/Resources/SNGs_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+                    fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                         if (err) {
-                            activeWindow.webContents.send("console-log", "Error while writing cached SNGs")
+                            activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                         }
                     })
                 }
@@ -191,9 +191,9 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
                     activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                 }
             })
-            fs.writeFile(resourcesPath + '/cache/Resources/SNGs_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+            fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                 if (err) {
-                    activeWindow.webContents.send("console-log", "Error while writing cached SNGs")
+                    activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                 }
             })
         }
@@ -226,7 +226,7 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
         const dateString = constructDate()
 
         try{
-            let skuNameGensRaw = await fsp.readFile(resourcesPath + '/SNGs.json', "utf-8",);
+            let skuNameGensRaw = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
             skuNameGenObj = JSON.parse(skuNameGensRaw);
         } catch(err) {
             let errorOptions = {
@@ -292,13 +292,13 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
                 dialog.showMessageBox(activeWindow, errorOptions)
             }
         })
-        fs.writeFile(resourcesPath + '/SNGs.json', JSON.stringify(newGeneratorsObject), "utf-8", (err) => {
+        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(newGeneratorsObject), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
                     buttons: ["Okay"],
                     title: "Write File Error",
-                    message: `There was an error while writing the SNGs JSON: ${err}`
+                    message: `There was an error while writing the Builders JSON: ${err}`
                 }
                 dialog.showMessageBox(activeWindow, errorOptions)
             }
@@ -314,9 +314,9 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
                             activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                         }
                     })
-                    fs.writeFile(resourcesPath + '/cache/Resources/SNGs_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+                    fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                         if (err) {
-                            activeWindow.webContents.send("console-log", "Error while writing cached SNGs")
+                            activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                         }
                     })
                 }
@@ -328,9 +328,9 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
                     activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                 }
             })
-            fs.writeFile(resourcesPath + '/cache/Resources/SNGs_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+            fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                 if (err) {
-                    activeWindow.webContents.send("console-log", "Error while writing cached SNGs")
+                    activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                 }
             })
         }

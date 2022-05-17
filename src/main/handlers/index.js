@@ -7,10 +7,9 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { post, StreamData, constructDate, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent } = require('../index.js');
-const { pleaseSirAGenerator } = require('../lib/StyleGuideRunner.js');
+const { pleaseSirABuilder } = require('../lib/StyleGuideRunner.js');
 const { builderEngine } = require('../lib/BuilderEngine.js');
 const { basicContentSearch, recommendedContentSearch } = require('../lib/report-runner.js');
-const { runAttributeImport } = require('../lib/attribute-mapper.js');
 const { cleanSpec } = require("../lib/utils/Cleaner.js");
 
 const activeUser = os.userInfo().username;
@@ -91,8 +90,8 @@ ipcMain.handle("update-local", async(event, package)=>{
         })
     }
     if (updateType == "sng" || updateType == "all") {
-        let builderPath = path.join(fullPath, "\SNGs.json");
-        let localPath = path.join(resourcesPath, "\SNGs.json");
+        let builderPath = path.join(fullPath, "\Builders.json");
+        let localPath = path.join(resourcesPath, "\Builders.json");
         //update later
         StreamData(builderPath, localPath, "import").then(()=>{
             console.log(`Stream initialized from ${builderPath} to ${localPath}`)
@@ -163,8 +162,8 @@ ipcMain.handle("post-local", async(event, package)=>{
             })
         }
         if (updateType == "sng" || updateType == "all") {
-            let builderPath = path.join(fullPath, "\SNGs.json");
-            let localPath = path.join(resourcesPath, "\SNGs.json");
+            let builderPath = path.join(fullPath, "\Builders.json");
+            let localPath = path.join(resourcesPath, "\Builders.json");
     
             StreamData(localPath, builderPath, "export").then(()=>{
                 console.log(`Stream initialized from ${localPath} to ${builderPath}`)
@@ -192,7 +191,7 @@ ipcMain.handle("post-local", async(event, package)=>{
 
 ipcMain.handle('run-sku-namer', async(event, args)=>{
     let activeWindow = BrowserWindow.fromId(1);
-    let SngArray;
+    let buildersArray;
     
     //loading in config and SkuData
     const config = await fetchConfig()
@@ -202,9 +201,9 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     const FullSkuSet = frame.json;
 
     try {
-        let SNGs = await Promise.resolve(fsp.readFile(resourcesPath + '/SNGs.json', "utf-8"));
-        let SNGsFull = JSON.parse(SNGs);
-        SngArray = SNGsFull.data
+        let builders = await Promise.resolve(fsp.readFile(resourcesPath + '/Builders.json', "utf-8"));
+        let buildersFull = JSON.parse(builders);
+        buildersArray = buildersFull.data
         //console.log(SngArray)
     } catch(err) {
         let errorOptions = {
@@ -265,7 +264,7 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
                     }
                 }
             }
-            gen = pleaseSirAGenerator(config, SngArray, activeClass, sku);
+            gen = pleaseSirABuilder(config, buildersArray, activeClass, sku);
             let generatorReturn = builderEngine(sku, gen, config)
             rendererData.push({
                 pyramidId: sku[config["Excel Mapping"]["Pyramid Id"]],
@@ -417,8 +416,8 @@ ipcMain.handle("fetch-resource", async(event, incoming)=>{
     }
     if (incoming == "generators") {
         try {
-            let sngJSON = await fsp.readFile(resourcesPath + '/SNGs.json', "utf-8");
-            thisResource = JSON.parse(sngJSON);
+            let buildersJSON = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8");
+            thisResource = JSON.parse(buildersJSON);
         } catch(err) {
             let errorOptions = {
                 type: "none",

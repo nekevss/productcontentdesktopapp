@@ -4,44 +4,51 @@ import ImageGrid from './Imagegrid.js';
 import DataPresenter from './presenter/presenter.js';
 //switch to functional with hooks
 
-export default class MainBody extends React.Component {
-    constructor(props) {
-        super(props);
-        this.config = this.props.config
-        console.log(this.props.sku)
-        console.log(this.props.config)
+export default function MainBody(props) {
+    const handleSKUContent = (incomingSKU) => {
+        // Adjust html tags for all fields that we complete reporting on for content.
+        const ltTag = new RegExp("<lt\\/>", "gi");
+        const gtTag = new RegExp("<gt\\/>", "gi");
+        let fieldsToClean = props.config["Functional Data"]["Reporting Fields"];
+        fieldsToClean.forEach((field)=>{
+            let fieldValue = incomingSKU[field];
+            fieldValue = fieldValue.replace(ltTag, "<");
+            fieldValue = fieldValue.replace(gtTag, ">");
+            incomingSKU[field] = fieldValue;
+        })
+        return incomingSKU
     }
 
-    //use basic ternary to switch between cards and raw
-    
-    //Okay, idea: run basic QA check/report on a sku as third
-    //read out. The raw contains table of all data.
+    const [currentSKU, setCurrentSKU] = React.useState(()=>{return handleSKUContent(props.sku)})
 
-    render() {
-        return(
-            <div className="body-container">
-                <div className="top-spacer">
-                    <p dangerouslySetInnerHTML={{__html:this.props.sku[this.props.config["Excel Mapping"]["PPH Path"]]}}></p>
-                </div>
-                <div className="top-container">
-                    <ImageGallery {...this.props} />
-                    <DataPresenter 
-                        config ={this.props.config}
-                        styleGuide={this.props.styleGuide} 
-                        gen={this.props.gen} 
-                        sku={this.props.sku}
-                        attributes={this.props.attributes} />
-                </div>
-                <div className="lower-container">
-                    <WrittenContent sku={this.props.sku} config ={this.props.config} />
-                    <SpecsTable sku={this.props.sku} config ={this.props.config} />
-                </div>
-                
+    React.useEffect(()=>{
+        let newSKU = handleSKUContent(props.sku);
+        setCurrentSKU(newSKU)
+    }, [props.sku])
+
+
+    return(
+        <div className="body-container">
+            <div className="top-spacer">
+                <p dangerouslySetInnerHTML={{__html: currentSKU[props.config["Excel Mapping"]["PPH Path"]]}}></p>
             </div>
-        );
-    }
+            <div className="top-container">
+                <ImageGallery {... props} />
+                <DataPresenter 
+                    config ={ props.config}
+                    styleGuide={ props.styleGuide} 
+                    gen={props.gen} 
+                    sku={currentSKU}
+                    attributes={props.attributes} />
+            </div>
+            <div className="lower-container">
+                <WrittenContent sku={currentSKU} config ={props.config} />
+                <SpecsTable sku={currentSKU} config ={props.config} />
+            </div>
+            
+        </div>
+    )
 }
-
 
 
 function ImageGallery(props) {
@@ -183,6 +190,14 @@ function ImageGallery(props) {
 
 function WrittenContent(props) {
 
+    const extendedDesc = React.useRef() 
+    console.log(extendedDesc.current)
+    if (extendedDesc.current) {
+        extendedDesc.current = extendedDesc.current.replace("/<lt\\/>/gi", "<");
+        extendedDesc.current = extendedDesc.current.replace("/<gt\\/>/gi", ">");
+        console.log(extendedDesc.current)
+    }
+
     return (
         <div className="WrittenContent">
             <h3>About Product</h3>
@@ -193,7 +208,7 @@ function WrittenContent(props) {
             ? <p dangerouslySetInnerHTML={{__html: props.sku[props.config["Excel Mapping"]["Short Description"]]}}></p>
             : null}
             <Bullets sku={props.sku} config={props.config} />
-            {props.sku[props.config["Excel Mapping"]["Extended Description"]] 
+            {props.sku[props.config["Excel Mapping"]["Extended Description"]]
             ? <p dangerouslySetInnerHTML={{__html: props.sku[props.config["Excel Mapping"]["Extended Description"]]}}></p>
             : null}
         </div>

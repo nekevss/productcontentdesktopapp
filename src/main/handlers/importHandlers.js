@@ -2,13 +2,11 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 const electron = require('electron');
 const { app, BrowserWindow, dialog, webContents, ipcMain, shell } = electron;
-const fsp = require('fs').promises;
-const fs = require('fs');
 const os = require('os');
-const path = require('path');
 const { fetchConfig } = require('../index.js');
-const { runAttributeImport } = require('../lib/attribute-mapper.js');
+//const { runAttributeImport } = require('../lib/attribute-mapper.js');
 const { runSkuDataImport } = require('../sku-importer/index.js');
+const { runAttributeImport } = require('../attribute-importer/index.js');
 
 
 
@@ -29,6 +27,7 @@ ipcMain.handle("run-import", async(event, importPackage)=>{
 
     if (importPackage.type === "sku-data") {
         // SKU data is going a more involved import.
+        console.log("Recieved a request to import SKUs.")
         try {
             let result = runSkuDataImport(activeWindow, resourcesPath, importPackage.filePath, config);
             return result

@@ -87,22 +87,22 @@ function ResourceInterface(props) {
             <div className="resource-block">
                 <div className="title">Configuration</div>
                 <div className="btn fetch" onClick={()=>{updateLocal("config")}}><p>Update Local</p></div>
-                <div className="btn post" onClick={()=>{postLocal("config")}}><p>Export Local</p></div>
+                <div className="btn post" onClick={()=>{postLocal("config")}}><p>Export to Remote</p></div>
             </div>
             <div className="resource-block">
                 <div className="title">Style Guides</div>
                 <div className="btn fetch" onClick={()=>{updateLocal("sg")}}><p>Update Local</p></div>
-                <div className="btn post" onClick={()=>{postLocal("sg")}}><p>Export Local</p></div>
+                <div className="btn post" onClick={()=>{postLocal("sg")}}><p>Export to Remote</p></div>
             </div>
             <div className="resource-block">
                 <div className="title">Sku Name Builders</div>
                 <div className="btn fetch" onClick={()=>{updateLocal("sng")}}><p>Update Local</p></div>
-                <div className="btn post" onClick={()=>{postLocal("sng")}}><p>Export Local</p></div>
+                <div className="btn post" onClick={()=>{postLocal("sng")}}><p>Export to Remote</p></div>
             </div>
             <div className="resource-block">
                 <div className="title">All Local Resources</div>
                 <div className="btn fetch" onClick={()=>{updateLocal("all")}}><p>Update Local</p></div>
-                <div className="btn post" onClick={()=>{postLocal("all")}}><p>Export Local</p></div>
+                <div className="btn post" onClick={()=>{postLocal("all")}}><p>Export to Remote</p></div>
             </div>
         </div>
     )

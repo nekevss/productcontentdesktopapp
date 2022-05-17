@@ -3,29 +3,26 @@ import './style/nav.scss'
 
 
 export default function MainNavbar(props) {
-    const [skuSetLength, setSkuSetLength] = React.useState(props.length);
+    const [currentPosition, setCurrentPosition] = React.useState(props.position);
+    const [currentLength, setCurrentLength] = React.useState(props.length);
 
     React.useEffect(()=>{
-        setSkuSetLength(props.length)
-    }, [props])
+        if (props.length != currentLength) {
+            setCurrentLength(props.length) 
+        }
+        
+        setCurrentPosition(props.position)
 
+    }, [props.position])
+/*
     React.useEffect(()=>{
-        window.addEventListener("keydown", checkKeyPress, true)
-
+        window.addEventListener("keydown", checkKeyPress, true);
+        
         return () => {
             window.removeEventListener("keydown", checkKeyPress)
         }
     }, [])
-
-    const checkKeyPress = (evt) => {
-        if (evt.key === "ArrowRight") {
-            props.handlePositionChange("increment")
-        }
-        if (evt.key === "ArrowLeft") {
-            props.handlePositionChange("decrement")
-        }
-
-    }
+*/
 
     return (
         <div className="mainNav">

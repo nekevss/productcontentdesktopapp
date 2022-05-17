@@ -59,7 +59,7 @@ function AttributionImporter(props) {
     }
 
     const openDialog = async() => {
-        const fileName = await window.api.invoke("open-file-dialog", "csv");
+        const fileName = await window.api.invoke("open-file-dialog", "xlsx");
         console.log(fileName)
         if (fileName) {
             setValue(fileName)

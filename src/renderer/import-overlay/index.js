@@ -19,7 +19,17 @@ export default function ImportOverlay(props) {
             type: "sku-data",
             filePath: "default"
         }
-        window.api.invoke("run-import", importPackage);
+        window.api.invoke("run-import", importPackage).then((data)=>{
+            if (data !== "finished") {
+                window.api.alert("send-alert", "There was an issue when importing the sheeet. Please try again")
+            } else {
+                let updateValue = {
+                    overlay: "",
+                    reload: true
+                }
+                props.updateReloadAndOverlay(updateValue)
+            }
+        });
     }
 
     const runImport = () => {
@@ -28,7 +38,17 @@ export default function ImportOverlay(props) {
                 type: "sku-data",
                 filePath: importName
             }
-            window.api.invoke("run-import", importPackage);
+            window.api.invoke("run-import", importPackage).then((data)=>{
+                if (data !== "finished") {
+                    window.api.alert("send-alert", "There was an issue when importing the sheeet. Please try again")
+                } else {
+                    let updateValue = {
+                        overlay: "",
+                        reload: true
+                    }
+                    props.updateReloadAndOverlay(updateValue)
+                }
+            });
         } else {
             window.api.alert("send-alert", "No file has been chosen! Please select a file to import.")
         }

@@ -27,15 +27,11 @@
     box-shadow: 0 1px 3px 1px gray;
 
     &>.start-node-class {
-        margin:1em 0.5em;
-        width:85%;
-        height: 2em;
+        margin:0.5em 0.5em;
+        width:90%;
+        height: 2.25em;
         min-width: 5em;
         text-align: left;
-
-        &>div {
-            margin:0.5em auto;
-        }
     }
 
     &>.staple-save {
@@ -74,21 +70,37 @@
 
         &>.inputs-section {
             width: 90%;
-            height:75%;
+            height:73%;
             margin:auto;
         }
 
         &>.input-controls {
-            float:right;
-            height:20%;
-            width:60%;
-            max-width: 24em;
+            height:22%;
+            width:90%;
             margin:auto 1.5em;
             display:flex;
             flex-direction:row;
 
-            &>* {
-                margin:auto 0.5em;
+            &>.control-buttons {
+                display:flex;
+                flex-direction: row;
+                width: 48%;
+                
+                &>* {
+                    margin:auto 0.5em;
+                }
+            }
+            
+            &>.remove-buttons {
+                display:flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                width: 48%;
+                
+                &>* {
+                    margin:auto 0.5em;
+                }
+
             }
         }
     }

@@ -78,12 +78,12 @@ if (!fs.existsSync(resourcesPath)) {
                 }
             })
             //TODO: add SNG fetch here when supported
-            fs.readFile(path.join(__dirname,  '/resources/SNGs.json'), 'utf-8', (err, data)=> {
+            fs.readFile(path.join(__dirname,  '/resources/Builders.json'), 'utf-8', (err, data)=> {
                 if (err) {
                     console.log(err)
                 } else {
                     const parsedData = JSON.parse(data);
-                    fs.writeFile(resourcesPath + '/SNGs.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
+                    fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
                         if (err) {console.log(err)};
                     })
                 }
@@ -107,14 +107,14 @@ if (!fs.existsSync(resourcesPath)) {
     console.log('Resources directory found!\n\n')
     console.log('Checking for files to exist...')
 
-    if (!fs.existsSync(resourcesPath + '/SNGs.json')) {
-        console.log("Did not find a SNGs.json file, loading the one from storage")
-        fs.readFile(path.join(__dirname,  '/resources/SNGs.json'), 'utf-8', (err, data)=> {
+    if (!fs.existsSync(resourcesPath + '/Builders.json')) {
+        console.log("Did not find a Builders.json file, loading the one from storage")
+        fs.readFile(path.join(__dirname,  '/resources/Builders.json'), 'utf-8', (err, data)=> {
             if (err) {
                 console.log(err)
             } else {
                 const parsedData = JSON.parse(data);
-                fs.writeFile(resourcesPath + '/SNGs.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
+                fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
                     if (err) {console.log(err)};
                 })
             }
@@ -141,6 +141,19 @@ if (!fs.existsSync(resourcesPath)) {
             } else {
                 const parsedData = JSON.parse(data);
                 fs.writeFile(resourcesPath + '/config.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
+                    if (err) {console.log(err)};
+                })
+            }
+        })
+    }
+    if (!fs.existsSync(resourcesPath + '/state.json')) {
+        console.log("Did not find a config.json file, loading the one from storage")
+        fs.readFile(path.join(__dirname,  '/resources/state.json'), 'utf-8', (err, data)=> {
+            if (err) {
+                console.log(err)
+            } else {
+                const parsedData = JSON.parse(data);
+                fs.writeFile(resourcesPath + '/state.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
                     if (err) {console.log(err)};
                 })
             }

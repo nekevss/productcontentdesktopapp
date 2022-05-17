@@ -7,10 +7,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { fetchStateAndData, findStyleGuide, checkForCurrent, fetchConfig } = require('../index.js');
-const { pleaseSirAGenerator } = require('../lib/StyleGuideRunner.js');
+const { pleaseSirABuilder } = require('../lib/StyleGuideRunner.js');
 const { builderEngine } = require('../lib/BuilderEngine.js');
 const { reportRunner } = require('../lib/report-runner.js');
-const { fetchAttributesData } = require('../lib/fetch-attributes.js');
+const { fetchAttributesData, fetchAttributes } = require('../lib/fetch-attributes.js');
 
 const activeUser = os.userInfo().username;
 const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
@@ -18,14 +18,23 @@ const resourcesPath = userDataPath + "/Resources";
 
 // Table of Contents
 // ---------------------
+// request-skuset
 // request-sku-and-state
 // request-class-data
 // request-class-details
 // request-name
 // request-cache-data
 // request-sku-report
-// request-skuset
 
+
+ipcMain.handle('request-skuset', async(event, arg) => {
+    let frame = await fetchStateAndData();
+    const current = frame.json;
+
+    console.log("Sending the full skuset as a payload");
+
+    return current.data
+})
 
 //main function for determining application state and returning SKU
 ipcMain.handle('request-sku-and-state', async(event, arg) => {
@@ -99,9 +108,9 @@ ipcMain.handle('request-sku-and-state', async(event, arg) => {
 
 ipcMain.handle('request-class-data', async(event, arg)=>{
     let activeWindow = BrowserWindow.getFocusedWindow()
-    let SNGs;
+    let builders;
     try {
-        SNGs = await fsp.readFile(resourcesPath + '/SNGs.json', "utf-8",);
+        builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
     } catch (err) {
         let options = {
             type: "none",
@@ -113,12 +122,12 @@ ipcMain.handle('request-class-data', async(event, arg)=>{
     }
 
 
-    let SNGsContainer = JSON.parse(SNGs);
-    let SNGsArray = SNGsContainer.data;
+    let buildersContainer = JSON.parse(builders);
+    let buildersArray = buildersContainer.data;
 
-    for (let index in SNGsArray) {
-        if (SNGsArray[index].class == arg) {
-            return SNGsArray[index];
+    for (let index in buildersArray) {
+        if (buildersArray[index].class == arg) {
+            return buildersArray[index];
         }
     }
 
@@ -140,16 +149,16 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     const queryPath = arg.thisPath;
     
     try {
-        let SNGs = await fsp.readFile(resourcesPath + '/SNGs.json', "utf-8",);
-        let SNGsContainer = JSON.parse(SNGs);
-        let SNGsArray = SNGsContainer.data;
-        found_generator = pleaseSirAGenerator(config, SNGsArray, queryClass, querySku)
+        let builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
+        let buildersContainer = JSON.parse(builders);
+        let buildersArray = buildersContainer.data;
+        found_generator = pleaseSirABuilder(config, buildersArray, queryClass, querySku)
     } catch (err) {
         let errOptions = {
             type: "none",
             buttons: ["Okay"],
-            title: "Generator Query Error",
-            message: `Error during generator query: ${err}`
+            title: "Builder Search Error",
+            message: `Error during builder query: ${err}`
         }
         dialog.showMessageBox(activeWindow, errOptions)
     }
@@ -160,15 +169,18 @@ ipcMain.handle('request-class-details', async(event, arg) => {
         let errOptions = {
             type: "none",
             buttons: ["Okay"],
-            title: "Generator Query Error",
-            message: `Error during style guide formula query: ${err}`
+            title: "Style Guide Search Error",
+            message: `Error during style guide formula search: ${err}`
         }
         dialog.showMessageBox(activeWindow, errOptions)
     }
 
-    const attributes = await fetchAttributesData(queryPath, resourcesPath, queryConfig);
+    let pph = arg.thisSku[arg.config["Excel Mapping"]["PPH Path"]];
+    const pphArray = pph.split(/(?<=[\w.*+?^${}()|[\]\\])\/(?=[\w.*+?^${}()|[\]\\])/gi);
+    const attributes = fetchAttributes(pphArray, resourcesPath);
+    //const attributes = await fetchAttributesData(queryPath, resourcesPath, queryConfig);
     
-    const payload = {styleGuide : found_SG, SNG: found_generator, attributes: attributes}
+    const payload = {styleGuide : found_SG, builder: found_generator, attributes: attributes}
 
     return payload;
 })
@@ -243,13 +255,4 @@ ipcMain.handle("request-sku-report", async(event, package)=>{
         dialog.showMessageBox(activeWindow, errorOptions)
         return []
     }
-})
-
-ipcMain.handle('request-skuset', async(event, arg) => {
-    let frame = await fetchStateAndData();
-    const current = frame.json;
-
-    console.log("Sending the full skuset as a payload");
-
-    return current.data
 })

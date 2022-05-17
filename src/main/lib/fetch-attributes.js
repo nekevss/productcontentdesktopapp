@@ -4,6 +4,34 @@ const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
 
+function fetchAttributes(pphArray, resourcesPath) {
+    const attributionPath = path.join(resourcesPath, "/attributes");
+
+    if (!fs.existsSync(attributionPath)) {return null}
+
+    const fileName = pphArray.shift();
+
+    let jsonData = {};
+    try {
+        const jsonRaw = fs.readFileSync(path.join(attributionPath, fileName + ".json"));
+        jsonData = JSON.parse(jsonRaw);
+    } catch (err) {
+        return null
+    }
+
+    const category = pphArray.shift();
+    const department = pphArray.shift();
+    const _class = pphArray.shift();
+    
+    const attributeObject = jsonData[category][department][_class];
+
+    // attributeObject could be undefined. Want to make sure we return null over undefined
+    if (!attributeObject) {return null}
+
+    return attributeObject
+
+}
+
 async function fetchAttributesData(webPath, resourcesPath, config) {
     //okay, so we get the webpath. We first need to figure out where we are going
     const attributionPath = path.join(resourcesPath, "/attributes");
@@ -52,5 +80,5 @@ function createExtension(pathArray, depth, errorChecking=0) {
 }
 
 module.exports = {
-    fetchAttributesData
+    fetchAttributesData, fetchAttributes
 }

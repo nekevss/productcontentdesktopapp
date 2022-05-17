@@ -57,7 +57,7 @@ function runSkuDataImport(activeWindow, resourcesPath, filePath, config) {
         // Get metadata fields
         const importPathArray = importPath.split("\\");
         const fileName = importPathArray[importPathArray.length - 1].replace(fileTypeRegex, "");
-        console.log(fileName)
+        //console.log(fileName)
         // lol
         const currentDate = constructDate();
         const currentTime = constructTime()
@@ -94,7 +94,7 @@ function ImportExcelData(importPath, config) {
     const workbook = xlsx.read(fileBuffer);
 
     // 3. Curate an array of worksheets by removing the sheets we don't want
-    let utilityWorksheet = new RegExp("Cover|STEP|Sheet[0-9]+", "gi")
+    let utilityWorksheet = new RegExp("Cover$|STEP|Sheet[0-9]+", "gi")
 
     const curatedSheets = workbook.SheetNames.filter(name=>!name.match(utilityWorksheet));
     console.log(curatedSheets)
@@ -108,7 +108,7 @@ function ImportExcelData(importPath, config) {
         // 2. Read sheet to JSON with utility function.
         // NOTE: range should be made a configuration value at some point
         //       so that it can be altered
-        const json = xlsx.utils.sheet_to_json(thisSheet, {range: 9});
+        const json = xlsx.utils.sheet_to_json(thisSheet, {defval: "", range: 9});
     
         // 3. Loop through the sheet and map the SKUs into new data object.
         json.forEach((sku)=>{
@@ -118,11 +118,12 @@ function ImportExcelData(importPath, config) {
                 let activeField = fields[i];
                 // Keywords should be in config file as Attribution Entry point
                 if (activeField == config["Import Mapping"]["Attribute Entry Point"]) {
+                    console.log('Found an Entry point')
                     mapped_sku[activeField] = sku[activeField];
                     mapped_sku.Specs = new Object();
                     for (j = i + 1; j <= fields.length - 2; j++) {
                         activeField = fields[j]
-                        mapped_sku.Specs[activeField] = sku[activeField];
+                        mapped_sku.Specs[activeField] = sku[activeField] ? sku[activeField] : null;
                         // Proprietary Code should be in config file as Attribution Exit Point
                         if (fields[j+1] == config["Import Mapping"]["Attribute Exit Point"]) {
                             i = j;
@@ -158,6 +159,8 @@ function ImportExcelData(importPath, config) {
             }
             mapped_sku["Class"] = determinedClass;
             // Push mapped SKU into the current SKUs object
+
+            console.log(mapped_sku)
             currentSKUs.push(mapped_sku)
         })
     })

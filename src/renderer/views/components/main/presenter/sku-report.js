@@ -11,9 +11,9 @@ export default function SkuDataReport(props) {
         </tr>
     )
 
-    props.report.forEach((row)=>{
+    props.report.forEach((row, index)=>{
         thisReport.push(
-            <tr key={row.field + "-"+ row.test}>
+            <tr key={row.field + "-"+ row.test + "-"+ index}>
                 <td className="col-1">{row.test}</td>
                 <td className="col-2">{row.message}</td>
             </tr>
@@ -36,7 +36,7 @@ export default function SkuDataReport(props) {
     )
 }
 
-//gotta display that attribute data
+// gotta display that attribute data
 function AttributeRecommender(props) {
     let display = props.attributeReport.map((value, index)=>{
         let table = [];

@@ -9,6 +9,264 @@ import ReactLoading from 'react-loading';
 
 //**Rename this file to mainInterface**
 
+export default function MainInterface(props) {
+    // Declare state variables. These values have some sort of relation to the state of components downstream
+    const [currentPosition, setCurrentPosition] = React.useState(()=>{
+        const lastView = localStorage.getItem("lastView");
+        return lastView === "legacy" ? props.focusSKU : 0;
+    })
+    const [length, setLength] = React.useState(()=>{
+        const lastView = localStorage.getItem("lastView");
+        return lastView === "legacy" ? props.focusSKU + 1 : 1;
+    });
+    const [primaryImage, setPrimaryImage] = React.useState("http://www.staples-3p.com/s7/is/image/Staples/");
+    const [skuMenu, setSkuMenu] = React.useState(false);
+    const [isLoaded, setIsLoaded] = React.useState(false);
+    const [isCurrent, setIsCurrent] = React.useState(true);
+
+    // Generic variables that will be available throughout the component
+    const positionRef = React.useRef(currentPosition);
+    const lengthRef = React.useRef(length);
+    const sku = React.useRef({});
+    const config = React.useRef({});
+    const builder = localStorage.getItem('classGenerator') ? React.useRef([{}]) : React.useRef(JSON.parse(localStorage.getItem('classGenerator')));
+    const styleGuide = React.useRef(localStorage.getItem('styleGuide'));
+    const attributes = React.useRef(null);
+    const source = "http://www.staples-3p.com/s7/is/image/Staples/";
+    
+
+    React.useEffect(()=>{
+        mountView();
+    }, [])
+
+    React.useEffect(()=>{
+        if (props.reload) {
+            console.log("Reload has been triggered")
+            setSkuPosition(0)
+            props.updateReload(false);
+        }
+    }, [props.reload])
+
+    React.useEffect(()=>{
+        console.log("currentPosition useEffect firing")
+        positionRef.current = currentPosition
+    }, [currentPosition])
+
+    React.useEffect(()=>{
+        window.addEventListener("keydown", checkKeyPress);
+        
+        return () => {
+            window.removeEventListener("keydown", checkKeyPress)
+        }
+    }, [])
+
+    const checkKeyPress = (evt) => {
+        console.log(evt)
+        if (evt.key === "ArrowRight") {
+            console.log("Right arrow key pressed")
+            console.log(`Requesting position be set to ${positionRef.current + 1}`)
+            setSkuPosition(positionRef.current + 1)
+        }
+        if (evt.key === "ArrowLeft") {
+            console.log("left arrow key pressed")
+            console.log(`Requesting position be set to ${positionRef.current - 1}`)
+            setSkuPosition(positionRef.current - 1)
+        }   
+    }
+
+    const mountView = () => {
+        window.api.invoke("fetch-configuration").then((fetchedConfig)=>{
+            config.current = fetchedConfig
+            setSkuPosition(currentPosition)
+        })
+    }
+
+    const returnDataAndState = async(newPosition) => {
+        let functionalClass = "";
+        //fetch configuration
+        
+        //run fetch here
+        const responseState = await window.api.invoke("request-sku-and-state", newPosition);
+        //invoke this separate, because it only needs to be invoked when
+        //a class is updated
+        console.log("Logging the config");
+        console.log(config);
+        const activeConfig = config.current;
+
+        // There is a bug here. Sometimes when switching from Legacy view to Default view
+        // the response sku will be undefined. No way to replicate so far. Seems to be with
+        // the generic sheet post Pyramid software update 2/21/2022
+        
+        // Note: this function at one point used Sku Class as the default class. But this was ultimately 
+        // unreliable due to excel cutting names early. So switching to the below approach. Might be a 
+        // decent idea to write the below as a utility function on the main side. However, right now that
+        // is more lines of code than just copy and pasting the below where need be (SKU Namer and Default 
+        // View primarily) 
+        const webPath = responseState.sku[activeConfig["Excel Mapping"]["PPH Path"]];
+        let pphArray = webPath.split(/(?<=[\w.*+?^${}()|[\]\\])\/(?=[\w.*+?^${}()|[\]\\])/gi);
+        for (let i = pphArray.length-1; i>=0; i=i-1) {
+            // this finds the class based of the SKU being in a normal area
+            if (pphArray[i].includes("Items")) {
+                functionalClass = pphArray[i-1];
+                break;
+            }
+
+            // The below is going to be super greedy. In most cases, the 4th PPH value should be the class.
+            // Above we handle based off finding "Items", because we can verify the return is 
+            // 100% valid.
+            // Here, we are going to make a broad assumption that if we have made it to index 3, then
+            // the value at that point is the class. This is being implemented primarily for SKU sets
+            // and we will leave it be.
+
+            if (i === 3) {
+                functionalClass = pphArray[i];
+                break;
+            }
+
+        }
+
+        console.log("Here is the functional class: " + functionalClass)
+        
+        localStorage.setItem("class", functionalClass)
+
+        // let feedback the config file to the main process so we aren't reading it.
+        const detailQuery = {
+            thisClass: functionalClass, 
+            thisSku: responseState.sku, 
+            thisPath: webPath, 
+            config: activeConfig
+        }
+        // change channel name from generator-request to request-class-details
+        // run fetch here
+        const classDetails = await window.api.invoke('request-class-details', detailQuery)
+
+        console.log("Received new class details!")
+        console.log(classDetails)
+
+        attributes.current = classDetails.attributes;
+        styleGuide.current = classDetails.styleGuide;
+        localStorage.setItem("styleGuide", classDetails.styleGuide)
+        builder.current = classDetails.builder;
+        localStorage.setItem("classGenerator", JSON.stringify(classDetails.builder))
+
+        console.log('Package receieved!');
+        return responseState;
+    }
+
+    const setSkuPosition = async(newPosition) => {
+        console.log(`Setting SKU Position to ${newPosition} out of ${lengthRef.current}`)
+        if (newPosition <= lengthRef.current - 1 && newPosition >= 0) {
+            const activeConfig = config.current;
+            if (newPosition == 0) {
+                console.clear();
+            }
+            console.log("Position is being changed to: ")
+            console.log(newPosition);
+            //run fetch here
+            let data = await returnDataAndState(newPosition)
+            sku.current = data.sku;
+            const active = data.type === "current" ? true : false;
+            let primary = source + data.sku[activeConfig["Excel Mapping"]["Primary Image"]];
+    
+            if (active !== isCurrent) {
+                setIsCurrent(active);
+            }
+    
+            if (data.length !== length) {
+                lengthRef.current = data.length
+                setLength(data.length)
+            }
+    
+            if (!isLoaded) {
+                setIsLoaded(true)
+            }
+            
+            setPrimaryImage(primary);
+            setCurrentPosition(data.position)
+        }
+    }
+
+    const handlePositionChange = (request) => {
+        console.log(`Recieved a request to ${request} with ${length} and ${position}`);
+        if (request == "increment") {
+            console.log("Incrementing by 1")
+            
+        }
+        if (request == "decrement") {
+            console.log("Decrementing by 1")
+            
+        }
+    }
+
+    const setprimaryimage = (newImage) => {
+        setPrimaryImage(newImage)
+    }
+
+    const toggleSkuMenu = () => {
+        console.log("Toggling Menu...");
+        setSkuMenu(!skuMenu)
+    }
+
+    const escapeHistory = () => {
+        window.api.invoke("escape-history").then((res)=>{
+            console.log(`Response from history escape: ${res}`)
+            setSkuPosition(0)
+        }).catch((err)=>{
+            if(err){console.log(err)}
+        })
+    }
+
+    return (
+        <>
+            <MainNavbar 
+                length = {length}
+                position = {currentPosition}
+                isCurrent = {isCurrent} 
+                toggleSkuMenu = {()=>toggleSkuMenu()}
+                handlePositionChange ={handlePositionChange}
+                setSkuPosition = {(i)=>setSkuPosition(i)}
+                escapeHistory = {()=>escapeHistory()}
+            />
+            <div className = "main-view-container">
+                {skuMenu 
+                ? <SkuDrawer 
+                    position ={currentPosition}
+                    length = {length}
+                    config = {config.current}
+                    sku={sku.current}
+                    source ={source}
+                    toggleSkuMenu={()=>toggleSkuMenu()}
+                    setSkuPosition = {(i)=>setSkuPosition(i)}
+                    /> 
+                : null}
+                {!isLoaded
+                ? <div className="load-container">
+                        <ReactLoading className="react-loader" type={"bars"} color={"gray"} width={"12em"} height={"12em"} />
+                </div>
+                :<MainBody 
+                        position = {currentPosition}
+                        length = {length}
+                        primaryImage ={primaryImage}
+                        config= {config.current}
+                        sku={sku.current}
+                        gen={builder.current}
+                        attributes={attributes.current}
+                        styleGuide={styleGuide.current}
+                        source = {source}
+                        setprimaryimage = {(data) => {setprimaryimage(data)}} 
+                        />
+                }
+            </div>
+        </>
+    )
+
+}
+
+// Below can be removed eventually as it is the intial and completely functional class based version 
+// of MainView. MainView was reimplemented as the above but I'm keeping it on the off chance of a 
+// worse case scenario.
+
+/*
 //below should be built out with the sku state. Since it is local to this interface
 export default class MainInterface extends React.Component {
     constructor(props) {
@@ -125,8 +383,8 @@ export default class MainInterface extends React.Component {
         this.attributes = classDetails.attributes;
         this.styleGuide = classDetails.styleGuide;
         localStorage.setItem("styleGuide", classDetails.styleGuide)
-        this.gen = classDetails.SNG;
-        localStorage.setItem("classGenerator", JSON.stringify(classDetails.SNG))
+        this.gen = classDetails.builder;
+        localStorage.setItem("classGenerator", JSON.stringify(classDetails.builder))
 
         console.log('Package receieved!');
         return responseState;
@@ -200,8 +458,6 @@ export default class MainInterface extends React.Component {
         })
     }
 
-    // Was <div className = "mainView">
-
     render() {
         return (
         <>
@@ -238,6 +494,6 @@ export default class MainInterface extends React.Component {
                 }
             </div>
         </>
-            
     )}
 }
+*/

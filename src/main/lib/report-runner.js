@@ -4,57 +4,81 @@ require("core-js/stable");
 async function reportRunner(sku, config) {
     const report = [];
 
-    //pulling in the test fields
+    // 1. Pull in the test fields
     const reportingFields = config["Functional Data"]["Reporting Fields"];
-    //pulling in the report build outs
+    // 2. Pull in the configurable test fields
     const patternSet = config["Reporting Build"]["Pattern"];
     const flagSet = config["Reporting Build"]["Flags"];
     const exclusionSet = config["Reporting Build"]["Exclusions"];
+    const validChars = config["Reporting Build"]["Valid Characters"];
 
-    //finding available test patterns
+    // 3. Find available configurable test patterns
     const currentTests = Object.keys(patternSet);
 
+    // 4. Iterate through the reporting fields and test
     //console.log(currentTests);
-    //need to invert -> iterate through reporting fields and run currentTests on each
-    currentTests.forEach((value,index)=>{
-        //wrapping in try catch block cause I'm worried about that RegExp failing out, don't want it to mess up the others
-        try {
-            const pattern = patternSet[value];
-            const flags = flagSet[value] ? flagSet[value] : "gi";
-            const exclusions = exclusionSet[value] ? exclusionSet[value].split(",") : null;
+    reportingFields.forEach((fieldKey, index)=>{
+        let content = fieldKey ? sku[fieldKey] : null;
+        // a. Ensure content is not null
+        if (content) {
+            // b. Run configurable tests.
+            try {
+                currentTests.forEach((testValue, index)=>{
+                    const pattern = patternSet[testValue];
+                    const flags = flagSet[testValue] ? flagSet[testValue] : "gi";
+                    const exclusions = exclusionSet[testValue] ? exclusionSet[testValue].split(",") : null;
     
-            const regex = new RegExp(pattern, flags);
-    
-    
-            for (const fieldKey of reportingFields) {
-                const field = sku[fieldKey] ? sku[fieldKey] : "";
-    
-                //testing vs. regex
-                if (regex.test(field)) {
-                    //console.log(`Found ${value} in ${fieldKey}`)
-                    report.push({
-                        test: value,
-                        field: fieldKey,
-                        message: "Test failed in field: " + fieldKey
-                    })
-    
-                    //if exclusion exists test for it and pop it off
-                    if (exclusions) {
-                        for (let ex of exclusions) {
-                            if (field.includes(ex)) {
-                                report.pop()
-                                break;
+                    const regex = new RegExp(pattern, flags);
+
+                    if (regex.test(content)) {
+                        //console.log(`Found ${value} in ${fieldKey}`)
+                        report.push({
+                            test: testValue,
+                            field: fieldKey,
+                            message: "Test failed in field: " + fieldKey
+                        })
+        
+                        //if exclusion exists test for it and pop it off
+                        if (exclusions) {
+                            for (let ex of exclusions) {
+                                if (content.includes(ex)) {
+                                    report.pop()
+                                    break;
+                                }
                             }
                         }
                     }
+                })
+
+                // c. Run valid character checks
+                const validCharsTest = new RegExp(validChars, "gi");
+                const invalidChars = content.replace(validCharsTest, "");
+
+                for (let i = 0; i < invalidChars.length; i++) {
+                    while (content.includes(invalidChars[i])) {
+                        const locationIndex = content.indexOf(invalidChars[i])
+                        const locationSlice = content.slice(locationIndex - 3, locationIndex + 5);
+                        report.push({
+                            test: "Invalid Character",
+                            field: fieldKey,
+                            message: `Unexpected Character "${invalidChars[i]}" in field ${fieldKey} in section "${locationSlice}"`
+                        })
+
+                        // We will basically remove the characters from the content so that we can test again,
+                        // whether the value still exists...might not be the best approach, but it's the one
+                        // that comes to mind now
+                        let contentArray = [...content];
+                        contentArray[locationIndex] = " ";
+                        content = contentArray.join("");
+                    }
                 }
-            }
-        } catch (err) {
-            report.push({
-                test: "Test Error",
-                field: "error",
-                message: err
-            })
+            } catch(err) {
+                report.push({
+                    test: "Test Error",
+                    field: "error",
+                    message: `${err}`
+                })
+            }   
         }
     })
 

@@ -1,13 +1,12 @@
 const electron = require('electron');
 const { BrowserWindow } = electron;
-const { cleanSpec } = require("./utils/Cleaner.js");
 const { conditionTests } = require("./condition-tests.js");
 const { GetSkuCallValue } = require('./fetch-sku-value.js');
 
 // Okay, I super regret naming these Generators. They're basically just an AST Node
 // stack of sorts, and nowadays we call them Builders.
 
-function pleaseSirAGenerator(config, SNGsArray, incomingClass, incomingSku) {
+function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
     let activeWindow = BrowserWindow.fromId(1);
 
     //console.log("Beginning to search for generator\n")
@@ -18,12 +17,12 @@ function pleaseSirAGenerator(config, SNGsArray, incomingClass, incomingSku) {
         return [{"type": "string", "string" : "Error: No Style Guide exists for Primary Products"}]
     }
 
-    for (let index in SNGsArray) {
-        let SNG = SNGsArray[index];
-        if (SNG.class == incomingClass) {
+    for (let index in buildersArray) {
+        let builder = buildersArray[index];
+        if (builder.class == incomingClass) {
             activeWindow.webContents.send("console-log", "I found a matching class!")
             //name should change to generatorQueries
-            const queryStack = SNG.returnGenerator;
+            const queryStack = builder.returnGenerator;
             
             if (queryStack.length == 1) {
                 if (queryStack[0].type == "Error") {
@@ -88,7 +87,7 @@ function queryBuilder(config, sku, condition, passed=false) {
     if (passedTest && condition.nestedType === "AND") {
         let nestedConditions = condition.nestedConditions;
         for (let nestedCondition of nestedConditions){
-            let output = queryBuilder(config, sku, nestedCondition, consolidatedPassedValue);
+            let output = queryBuilder(config, sku, nestedCondition);
             
             if (output) {
                 return output;
@@ -107,5 +106,5 @@ function queryBuilder(config, sku, condition, passed=false) {
 }
 
 module.exports = {
-    pleaseSirAGenerator
+    pleaseSirABuilder
 }

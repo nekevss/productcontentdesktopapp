@@ -30,11 +30,14 @@ class App extends React.Component {
         this.focusSKU = 0;
         this.state = {
             view: "main",
-            overlay: null 
+            overlay: null,
+            reload: false
         }
 
         this.changeViewWithFocus = this.changeViewWithFocus.bind(this);
         this.changeOverlay = this.changeOverlay.bind(this);
+        this.updateReload = this.updateReload.bind(this);
+        this.updateReloadAndOverlay = this.updateReloadAndOverlay.bind(this);
     }
 
     componentDidMount() {
@@ -46,7 +49,8 @@ class App extends React.Component {
             this.setState((previousState)=> {
                 return {
                     view: data,
-                    overlay: previousState.overlay
+                    overlay: previousState.overlay,
+                    reload: previousState.reload
                 }
             })
         })
@@ -56,7 +60,8 @@ class App extends React.Component {
             this.setState((previousState)=> {
                 return {
                     view: previousState.view,
-                    overlay: data
+                    overlay: data,
+                    reload: previousState.reload
                 }
             })
         })
@@ -93,7 +98,8 @@ class App extends React.Component {
         this.setState((previousState)=> {
             return {
                 view: newView,
-                overlay: previousState.overlay
+                overlay: previousState.overlay,
+                reload: previousState.reload
             }
         })
         window.scrollTo(0,0);
@@ -103,7 +109,28 @@ class App extends React.Component {
         this.setState((previousState)=> {
             return {
                 view: previousState.view,
-                overlay: newOverlay
+                overlay: newOverlay,
+                reload: previousState.reload
+            }
+        })
+    }
+
+    updateReload(bool) {
+        this.setState((previousState)=> {
+            return {
+                view: previousState.view,
+                overlay: previousState.overlay,
+                reload: bool
+            }
+        })
+    }
+
+    updateReloadAndOverlay(newState) {
+        this.setState((previousState)=>{
+            return {
+                view: previousState.view,
+                overlay: newState.overlay,
+                reload: newState.reload
             }
         })
     }
@@ -113,7 +140,10 @@ class App extends React.Component {
             case "data-importer":
                 return (
                     <div className='app-overlay' onClick={()=>{this.changeOverlay("")}}>
-                        <ImportOverlay />
+                        <ImportOverlay 
+                            changeOverlay={(i)=>{this.changeOverlay(i)}} 
+                            updateReloadAndOverlay={(i)=>this.updateReloadAndOverlay(i)}
+                            />
                     </div>
                 )
             default:
@@ -129,7 +159,9 @@ class App extends React.Component {
             case "main":
                 return (
                     <MainInterface 
+                        reload={this.state.reload}
                         focusSKU={this.focusSKU}  
+                        updateReload={(i)=>this.updateReload(i)}
                         />)
             case "configure":
                 return (

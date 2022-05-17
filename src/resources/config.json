@@ -163,6 +163,7 @@
         ]
     },
     "Reporting Build": {
+        "Valid Characters": "[a-zA-Z0-9 .?!,;:()\"'/&#—\\-]",
         "Pattern": {
             "Double Space": "\\s\\s",
             "Missing Space After Sentence": "(\\.|\\?|\\!)[a-zA-Z]"

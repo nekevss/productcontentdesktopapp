@@ -297,12 +297,15 @@ function TopLevelControls(props) {
 
     return(
         <div className="input-controls">
-            <button title="Add a child element to node" onClick={()=>props.addChild()}>Add Child</button>
-            <button title="Remove this element" onClick={()=>{remove()}}>Remove</button>
-            {props.children == 0
-            ?<button title="Open style guide formula in workbench" className="f-x" onClick={()=>{props.OpenSG()}}>Open Formula</button>
-            : null}
-            
+            <div className ="control-buttons">
+                <button title="Add a child element to node" onClick={()=>props.addChild()}>Add Child</button>
+                {props.children == 0
+                ?<button title="Open style guide formula in workbench" className="f-x" onClick={()=>{props.OpenSG()}}>Open Formula</button>
+                : null}
+            </div>
+            <div className='remove-buttons'>
+                <button title="Remove this element" onClick={()=>{remove()}}>Remove</button>
+            </div>
         </div>
     )
 }
