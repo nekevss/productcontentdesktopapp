@@ -70,7 +70,7 @@ function AttributionImporter(props) {
         <div className="attribution-container">
             <h3>Attribution Import</h3>
             <div className="attribution-display">
-                <div dangerouslySetInnerHTML={{__html: value ? value : "Please select a CSV to import"}} />
+                <div dangerouslySetInnerHTML={{__html: value ? value : "Please select an Excel file to import"}} />
                 <button onClick={()=>{openDialog()}}>Select File</button>
             </div>
             <div className="buttons">

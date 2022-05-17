@@ -14,11 +14,11 @@ export default function ImportLoading(props) {
         //const loadBar = document.getElementById("import-load-bar")
         //const width = loadBar.getBoundingClientRect().width;
         //console.log(width);
-        console.log(props.percentage);
-        const _loadWidths = {
-            loaded: width * props.percentage,
-            notLoaded: width * (1-props.percentage)
-        }
+        //console.log(props.percentage);
+        //const _loadWidths = {
+        //    loaded: width * props.percentage,
+        //    notLoaded: width * (1-props.percentage)
+        //}
         //setLoadWidths(_loadWidths)
         setStatusMessage(props.statusMessage)
     }, [props.percentage, props.statusMessage])
