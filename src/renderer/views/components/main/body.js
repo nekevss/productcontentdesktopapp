@@ -12,9 +12,11 @@ export default function MainBody(props) {
         let fieldsToClean = props.config["Functional Data"]["Reporting Fields"];
         fieldsToClean.forEach((field)=>{
             let fieldValue = incomingSKU[field];
-            fieldValue = fieldValue.replace(ltTag, "<");
-            fieldValue = fieldValue.replace(gtTag, ">");
-            incomingSKU[field] = fieldValue;
+            if (fieldValue !== null) {
+                fieldValue = fieldValue.replace(ltTag, "<");
+                fieldValue = fieldValue.replace(gtTag, ">");
+                incomingSKU[field] = fieldValue;
+            }
         })
         return incomingSKU
     }
