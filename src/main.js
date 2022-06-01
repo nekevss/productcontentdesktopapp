@@ -46,27 +46,14 @@ if (!fs.existsSync(resourcesPath)) {
     //once functioning from resources files. Change resources to test in
     //application directory
 
-    //TODO: switch from callbacks to Async/Await
-    //NOTE: don't like the idea of tons of try catch blocks
+    // NOTE: don't like the idea of tons of try catch blocks
+    // Here we know that there is no resourcesPath, so we create the path along with the /cache directory.
+    // After creation we are going to create the files and read from the examples cached in the .exe 
     fs.mkdir(resourcesPath + '/cache', {recursive: true}, (err) => {
         if (err) {
             console.log(err);
         } else {
-            fs.readFile(path.join(__dirname, '/resources/current.json'), 'utf-8', (err, data)=> {
-                if (err) {
-                    console.log(err);
-                } else {
-                    const parsedData = JSON.parse(data);
-                    fs.writeFile(resourcesPath + '/current.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
-                        if (err) {console.log(err)};
-                    });
-                    const metaData = {...parsedData.metadata, length: parsedData.data.length}
-                    fs.writeFile(resourcesPath + '/state.json', JSON.stringify(metaData), 'utf-8', (err)=> {
-                        if (err) {console.log(err)};
-                    })
-                }   
-            })
-            //TODO: fetch centrally stored config when supported
+            // We read in the cached state and config options
             fs.readFile(path.join(__dirname,  '/resources/config.json'), 'utf-8', (err, data)=> {
                 if (err) {
                     console.log(err)
@@ -77,24 +64,12 @@ if (!fs.existsSync(resourcesPath)) {
                     })
                 }
             })
-            //TODO: add SNG fetch here when supported
-            fs.readFile(path.join(__dirname,  '/resources/Builders.json'), 'utf-8', (err, data)=> {
+            fs.readFile(path.join(__dirname,  '/resources/state.json'), 'utf-8', (err, data)=> {
                 if (err) {
                     console.log(err)
                 } else {
                     const parsedData = JSON.parse(data);
-                    fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
-                        if (err) {console.log(err)};
-                    })
-                }
-            })
-            //TODO: add style guide file fetch here when supported
-            fs.readFile(path.join(__dirname,  '/resources/StyleGuide.json'), 'utf-8', (err, data)=> {
-                if (err) {
-                    console.log(err)
-                } else {
-                    const parsedData = JSON.parse(data);
-                    fs.writeFile(resourcesPath + '/StyleGuide.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
+                    fs.writeFile(resourcesPath + '/state.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
                         if (err) {console.log(err)};
                     })
                 }
@@ -107,32 +82,6 @@ if (!fs.existsSync(resourcesPath)) {
     console.log('Resources directory found!\n\n')
     console.log('Checking for files to exist...')
 
-    if (!fs.existsSync(resourcesPath + '/Builders.json')) {
-        console.log("Did not find a Builders.json file, loading the one from storage")
-        fs.readFile(path.join(__dirname,  '/resources/Builders.json'), 'utf-8', (err, data)=> {
-            if (err) {
-                console.log(err)
-            } else {
-                const parsedData = JSON.parse(data);
-                fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
-                    if (err) {console.log(err)};
-                })
-            }
-        })
-    }
-    if (!fs.existsSync(resourcesPath + '/StyleGuide.json')) {
-        console.log("Did not find a StyleGuide.json file, loading the one from storage")
-        fs.readFile(path.join(__dirname,  '/resources/StyleGuide.json'), 'utf-8', (err, data)=> {
-            if (err) {
-                console.log(err)
-            } else {
-                const parsedData = JSON.parse(data);
-                fs.writeFile(resourcesPath + '/StyleGuide.json', JSON.stringify(parsedData), 'utf-8', (err)=> {
-                    if (err) {console.log(err)};
-                })
-            }
-        })
-    }
     if (!fs.existsSync(resourcesPath + '/config.json')) {
         console.log("Did not find a config.json file, loading the one from storage")
         fs.readFile(path.join(__dirname,  '/resources/config.json'), 'utf-8', (err, data)=> {
