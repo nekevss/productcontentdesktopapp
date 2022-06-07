@@ -12,6 +12,7 @@
         "react-dom": "^16.13.1",
         "react-loading": "^2.0.3",
         "regenerator-runtime": "^0.13.7",
+        "spellchecker": "^3.7.1",
         "xlsx": "file:./vendor/xlsx-latest.tgz",
         "yarn": "^1.22.4"
     },
@@ -26,6 +27,7 @@
         "css-loader": "^4.2.1",
         "electron": "15.0.0",
         "electron-builder": "^22.9.1",
+        "electron-rebuild": "^3.2.7",
         "file-loader": "^6.2.0",
         "sass": "^1.26.10",
         "sass-loader": "^10.0.2",
@@ -38,14 +40,16 @@
     "scripts": {
         "dev": "webpack-dev-server --mode development --hot",
         "build": "webpack",
-        "start": "electron .",
+        "start": "yarn run build && electron .",
         "dev-start": "node CLI/concurrent.js",
-        "dist": "electron-builder"
+        "dist": "yarn run build && yarn run rebuild && electron-builder",
+        "rebuild": "electron-rebuild"
     },
     "author": "Kevin Ness",
     "license": "MIT",
     "build": {
         "productName": "Product Content App",
+        "npmRebuild": false,
         "win": {
             "target": [
                 "nsis"
@@ -65,5 +69,6 @@
             "target": "dmg",
             "icon": "MacAppIcon.icns"
         }
-    }
+    },
+    "packageManager": "yarn@3.2.1"
 }

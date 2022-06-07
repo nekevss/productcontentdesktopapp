@@ -33,7 +33,8 @@ contextBridge.exposeInMainWorld(
                 "escape-history",
                 "delete-cache-item",
                 "run-import",
-                "run-attribute-search"
+                "run-attribute-search",
+                "complete-spellcheck"
             ];
             if (validChannels.includes(channel)) {
                 return await ipcRenderer.invoke(channel, data);

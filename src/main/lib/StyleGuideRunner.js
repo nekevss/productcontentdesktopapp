@@ -10,41 +10,61 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
     let activeWindow = BrowserWindow.fromId(1);
 
     //console.log("Beginning to search for generator\n")
-
+    const ownBrands = config["Functional Data"]["Staples Brands"];
+    const thisBrand = incomingSku[config["Excel Mapping"]["Brand"]];
+    const isOwnBrand = ownBrands.includes(thisBrand);
     // YIKES
     // TODO: update this
     if (incomingClass == "Primary Products") {
         return [{"type": "string", "string" : "Error: No Style Guide exists for Primary Products"}]
     }
 
+    let builderOutput = null;
     for (let index in buildersArray) {
         let builder = buildersArray[index];
-        if (builder.class == incomingClass) {
+        // Okay, so below we are searching and comparing incomingClass to the builder class. We will also flag
+        // own brand style guides. But since we cannot gaurantee the builder order, we need to make sure to
+        // validate storing builders and handle exiting
+        if (builder.class === incomingClass || builder.class === "Own Brands " + incomingClass) {
+            // We can prevent non-own brand SKUs from storing an own brand generator here
+            if (!isOwnBrand && builder.class.includes("Own Brand")) {continue}
+
+            const activeOwnBrandSearch = isOwnBrand && builder.class.includes("Own Brand");
             activeWindow.webContents.send("console-log", "I found a matching class!")
             //name should change to generatorQueries
             const queryStack = builder.returnGenerator;
             
             if (queryStack.length == 1) {
                 if (queryStack[0].type == "Error") {
-                    const error = {"string1" : queryStack[0].errorMessage}
-                    return error;
+                    builderOutput = [{"string" : queryStack[0].errorMessage}]  
+                } else {
+                    builderOutput = queryStack[0].thenReturn
                 }
-                return queryStack[0].thenReturn
+                if (!isOwnBrand || activeOwnBrandSearch) {break}
             } else {
                 for (let i = 0 ; i <= queryStack.length - 1; i++) {
                     let foundGen = queryBuilder(config, incomingSku, queryStack[i]);
                     if (foundGen) {
                         console.log("Found the Generator!")
                         //console.log(foundGen)
-                        return foundGen
+                        builderOutput = foundGen;
+                        break;
                     };
                 }
-                console.log("No generator found throwing error")
-                return [{"type": "string", "string" : "Error: Null value returned for determining attribute."}];
+                // If we made it to this point, then we assume that a null value was returned for the determining attribute
+                if (builderOutput === null) {
+                    builderOutput = [{"type": "string", "string" : "Error: Null value returned for determining attribute."}];
+                    
+                    if (!isOwnBrand || activeOwnBrandSearch) {break}
+                }
             }
         }
     }
-    return [{"type": "string", "string" : "Error: A Builder was not found for this class"}];
+
+    if (builderOutput === null) {
+        return [{"type": "string", "string" : "Error: A Builder was not found for this class"}];
+    }
+    return builderOutput
 }
 
 // FML why did I call the one value ifCalled and spec

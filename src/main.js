@@ -10,6 +10,7 @@ require('./main/handlers/index.js');
 require('./main/handlers/builderHandlers.js');
 require('./main/handlers/requestHandlers.js');
 require('./main/handlers/importHandlers.js');
+require('./main/handlers/spellcheckHandler.js');
 
 
 //Roadmap to Stable Environment

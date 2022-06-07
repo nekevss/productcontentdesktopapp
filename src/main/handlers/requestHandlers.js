@@ -164,7 +164,7 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     }
     
     try {
-        found_SG = await findStyleGuide(resourcesPath, queryClass);
+        found_SG = await findStyleGuide(config, resourcesPath, queryClass, querySku);
     } catch (err) {
         let errOptions = {
             type: "none",

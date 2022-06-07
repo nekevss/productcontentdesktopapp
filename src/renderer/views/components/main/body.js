@@ -1,3 +1,5 @@
+require("regenerator-runtime/runtime");
+require("core-js/stable");
 import React, {useState} from 'react';
 import './style/body.scss';
 import ImageGrid from './Imagegrid.js';
@@ -5,34 +7,43 @@ import DataPresenter from './presenter/presenter.js';
 //switch to functional with hooks
 
 export default function MainBody(props) {
-    const handleSKUContent = (incomingSKU) => {
-        // Adjust html tags for all fields that we complete reporting on for content.
-        const ltTag = new RegExp("<lt\\/>", "gi");
-        const gtTag = new RegExp("<gt\\/>", "gi");
-        let fieldsToClean = props.config["Functional Data"]["Reporting Fields"];
-        fieldsToClean.forEach((field)=>{
-            let fieldValue = incomingSKU[field];
-            if (fieldValue !== null) {
-                fieldValue = fieldValue.replace(ltTag, "<");
-                fieldValue = fieldValue.replace(gtTag, ">");
-                incomingSKU[field] = fieldValue;
-            }
-        })
-        return incomingSKU
-    }
-
-    const [currentSKU, setCurrentSKU] = React.useState(()=>{return handleSKUContent(props.sku)})
+    const [currentSKU, setCurrentSKU] = React.useState(null)
+    const [isLoading, setIsLoading] = React.useState(true);
 
     React.useEffect(()=>{
-        let newSKU = handleSKUContent(props.sku);
-        setCurrentSKU(newSKU)
+        handleSKUContent(props.sku)
+    }, [])
+
+    React.useEffect(()=>{
+        handleSKUContent(props.sku);
     }, [props.sku])
 
+    React.useEffect(()=>{
+        console.log("current SKU has changed to the below and is loaded")
+        console.log(currentSKU)
+    }, [currentSKU])
+
+    const handleSKUContent = (incomingSKU) => {
+        const spellcheckPackage = {
+            sku: incomingSKU,
+            config: props.config
+        }
+        window.api.invoke("complete-spellcheck", spellcheckPackage).then((cleanedSKU)=>{
+            console.log(cleanedSKU)
+            setCurrentSKU(cleanedSKU)
+            if (isLoading) {
+                setIsLoading(false)
+            }
+        }).catch((err)=>{if(err){console.log(err)}})             
+    }
 
     return(
-        <div className="body-container">
+        <>
+        {isLoading
+        ? null
+        : <div className="body-container">
             <div className="top-spacer">
-                <p dangerouslySetInnerHTML={{__html: currentSKU[props.config["Excel Mapping"]["PPH Path"]]}}></p>
+                <p dangerouslySetInnerHTML={{__html: currentSKU[props.config["Excel Mapping"]["PPH Path"]]}}></p> 
             </div>
             <div className="top-container">
                 <ImageGallery {... props} />
@@ -46,9 +57,10 @@ export default function MainBody(props) {
             <div className="lower-container">
                 <WrittenContent sku={currentSKU} config ={props.config} />
                 <SpecsTable sku={currentSKU} config ={props.config} />
-            </div>
-            
+            </div> 
         </div>
+        }
+        </>
     )
 }
 

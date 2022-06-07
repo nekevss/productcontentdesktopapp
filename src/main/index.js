@@ -5,6 +5,7 @@ const { app, BrowserWindow, dialog } = electron;
 const fsp = require('fs').promises;
 const fs = require('fs');
 const path = require('path');
+const { builderEngine } = require("./lib/BuilderEngine");
 
 //the below isn't in use. Just practice/test.
 //would need to manage passing the reference to the mainWindow and import dialog
@@ -80,18 +81,29 @@ async function StreamData(readPath, writePath, type) {
     })
 }
 
-async function findStyleGuide(resourcesPath, incomingClass) {
+async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku) {
     let styleGuideJSON = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
     
+    const ownBrands = config["Functional Data"]["Staples Brands"];
+    const thisBrand = incomingSku[config["Excel Mapping"]["Brand"]];
+    const isOwnBrand = ownBrands.includes(thisBrand);
+
     let StyleGuides = JSON.parse(styleGuideJSON);
     let SGArray = StyleGuides.data;
+    let foundStyleGuide = null;
     for (let index in SGArray) {
         let thisSG = SGArray[index];
-        if (thisSG.class == incomingClass) {
-            return thisSG.styleGuide
+        if (thisSG.class === incomingClass || thisSG.class === "Own Brands" + incomingClass) {
+            if (!isOwnBrand && thisSG.class.includes("Own Brand")) {continue}
+            const activeOwnBrandSearch = isOwnBrand && thisSG.class.includes("Own Brand");
+
+            foundStyleGuide = thisSG.styleGuide
+            if (!isOwnBrand || activeOwnBrandSearch && foundStyleGuide) {break}
         }
     }
-    return "No style guide was found for this class";
+
+    if (foundStyleGuide === null) {return "No style guide was found for this class";}
+    return foundStyleGuide
 }
 
 //This checks to see if the file is the current file by comparing
