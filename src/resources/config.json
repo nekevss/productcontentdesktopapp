@@ -95,6 +95,14 @@
     },
     "Functional Data": {
         "Resources Path": "\\\\frafile7\\ContractMerchandising\\Content Team\\ProductContentApp\\resources",
+        "Staples Brands": [
+            "Coastwide Professional",
+            "NXT Technologies",
+            "Perk",
+            "TRU RED",
+            "Union & Scale",
+            "Staples"
+        ],
         "No Style Guide Classes": [
             "Primary Products",
             "Wholesaler Items",
@@ -149,7 +157,7 @@
             "Pack Qty": "Selling UOM"
         },
         "Legacy Table Columns": [
-            "* <ID>",
+            "* <ID>",
             "Sku Name",
             "Primary Image",
             "Secondary Image 1",
@@ -163,7 +171,7 @@
         ]
     },
     "Reporting Build": {
-        "Valid Characters": "[a-zA-Z0-9 .?!,;:()\"'/&#—\\-]",
+        "Valid Characters": "[a-zA-Z0-9 .?!,;:()\"'/&#—\\-<>=]",
         "Pattern": {
             "Double Space": "\\s\\s",
             "Missing Space After Sentence": "(\\.|\\?|\\!)[a-zA-Z]"
@@ -249,7 +257,28 @@
             "root": "Class_Name,Class_ID",
             "level_1": "Attribute_Name,Attribute_ID,Type, Filter,Mandatory",
             "level_2": "Attribute_Value_Name,Attribute_Value_ID,Attribute_Description"
-        }
+        },
+        "Super Category Node": "SuperCategory_Name",
+        "Category Node": "Category_Name",
+        "Department Node": "Dept_Name",
+        "Class Primary Field": "Class_Name",
+        "Class Fields": [
+            "Class_Name",
+            "Class_ID"
+        ],
+        "Attribute Primary Field": "Attribute_Name",
+        "Attribute Fields": [
+            "Attribute_Name",
+            "Attribute_ID",
+            "Type",
+            "Mandatory"
+        ],
+        "Attribute Value Primary": "Attribute_Value_Name",
+        "Attribute Value Fields": [
+            "Attribute_Value_Name",
+            "Attribute_Value_ID",
+            "Attribute_Description"
+        ]
     },
     "Import Mapping": {
         "Attribute Entry Point": "Keywords 1",
