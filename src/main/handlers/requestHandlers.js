@@ -106,34 +106,6 @@ ipcMain.handle('request-sku-and-state', async(event, arg) => {
     }
 })
 
-ipcMain.handle('request-class-data', async(event, arg)=>{
-    let activeWindow = BrowserWindow.getFocusedWindow()
-    let builders;
-    try {
-        builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
-    } catch (err) {
-        let options = {
-            type: "none",
-            buttons: ["Okay"],
-            title: "Read File Error",
-            message: err
-        }
-        dialog.showMessageBox(activeWindow, options)
-    }
-
-
-    let buildersContainer = JSON.parse(builders);
-    let buildersArray = buildersContainer.data;
-
-    for (let index in buildersArray) {
-        if (buildersArray[index].class == arg) {
-            return buildersArray[index];
-        }
-    }
-
-    //return null if no value is found
-    return null;
-})
 
 ipcMain.handle('request-class-details', async(event, arg) => {
     let activeWindow = BrowserWindow.fromId(1);

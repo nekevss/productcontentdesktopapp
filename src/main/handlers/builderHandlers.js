@@ -443,3 +443,35 @@ ipcMain.handle("fetch-class-index", async(event, args)=>{
     }
     return []
 })
+
+// TODO: Rename to "request-builder-data"
+// The below is only called when importing data into the Style Guide Builder in the ImportOverlay
+
+ipcMain.handle('request-class-data', async(event, arg)=>{
+    let activeWindow = BrowserWindow.getFocusedWindow()
+    let builders;
+    try {
+        builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
+    } catch (err) {
+        let options = {
+            type: "none",
+            buttons: ["Okay"],
+            title: "Read File Error",
+            message: err
+        }
+        dialog.showMessageBox(activeWindow, options)
+    }
+
+
+    let buildersContainer = JSON.parse(builders);
+    let buildersArray = buildersContainer.data;
+
+    for (let index in buildersArray) {
+        if (buildersArray[index].class == arg) {
+            return buildersArray[index];
+        }
+    }
+
+    //return null if no value is found
+    return null;
+})
