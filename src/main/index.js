@@ -87,18 +87,24 @@ async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku)
     const ownBrands = config["Functional Data"]["Staples Brands"];
     const thisBrand = incomingSku[config["Excel Mapping"]["Brand"]];
     const isOwnBrand = ownBrands.includes(thisBrand);
+    const ownBrandClass = "Own Brands " + incomingClass
+    if (isOwnBrand) {console.log("Found an Own Brand SKU")}
+    console.log(ownBrandClass)
 
     let StyleGuides = JSON.parse(styleGuideJSON);
     let SGArray = StyleGuides.data;
     let foundStyleGuide = null;
     for (let index in SGArray) {
         let thisSG = SGArray[index];
-        if (thisSG.class === incomingClass || thisSG.class === "Own Brands" + incomingClass) {
+        if (thisSG.class === incomingClass || thisSG.class === ownBrandClass) {
             if (!isOwnBrand && thisSG.class.includes("Own Brand")) {continue}
             const activeOwnBrandSearch = isOwnBrand && thisSG.class.includes("Own Brand");
 
             foundStyleGuide = thisSG.styleGuide
-            if (!isOwnBrand || activeOwnBrandSearch && foundStyleGuide) {break}
+            if ((!isOwnBrand || activeOwnBrandSearch) && foundStyleGuide) {
+                //console.log(`Style Guide was found with isOwnBrand:${isOwnBrand}  activeOwnBrand:${activeOwnBrandSearch}  Class:${thisSG.class}`)
+                break
+            }
         }
     }
 

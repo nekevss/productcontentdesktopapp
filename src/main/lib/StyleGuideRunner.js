@@ -7,12 +7,14 @@ const { GetSkuCallValue } = require('./fetch-sku-value.js');
 // stack of sorts, and nowadays we call them Builders.
 
 function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
-    let activeWindow = BrowserWindow.fromId(1);
+    let activeWindow = BrowserWindow.getFocusedWindow();
 
     //console.log("Beginning to search for generator\n")
     const ownBrands = config["Functional Data"]["Staples Brands"];
     const thisBrand = incomingSku[config["Excel Mapping"]["Brand"]];
     const isOwnBrand = ownBrands.includes(thisBrand);
+    if (isOwnBrand) {activeWindow.send("console.log", `SKU is an Own Brands SKU`)}
+    const ownBrandsClass = "Own Brands " + incomingClass
     // YIKES
     // TODO: update this
     if (incomingClass == "Primary Products") {
@@ -25,7 +27,7 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
         // Okay, so below we are searching and comparing incomingClass to the builder class. We will also flag
         // own brand style guides. But since we cannot gaurantee the builder order, we need to make sure to
         // validate storing builders and handle exiting
-        if (builder.class === incomingClass || builder.class === "Own Brands " + incomingClass) {
+        if (builder.class === incomingClass || builder.class === ownBrandsClass) {
             // We can prevent non-own brand SKUs from storing an own brand generator here
             if (!isOwnBrand && builder.class.includes("Own Brand")) {continue}
 

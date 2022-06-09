@@ -33,8 +33,8 @@ ipcMain.handle("complete-spellcheck", async(event, incomingData)=>{
                     const paddedMisspelledString = fieldValue.slice(mispelling.start - 1, mispelling.end + 3);
                     // Test a padded version of the string to see if there is a html tag. If not, add highlight span to string
                     if (!paddedMisspelledString.match(htmlTag)) {
-                        console.log("No htmlTag match found")
-                        console.log(paddedMisspelledString);
+                        //console.log("No htmlTag match found")
+                        //console.log(paddedMisspelledString);
                         let spannedMispelling = `<span style="color:red">` + misspelledString + "</span>"
                         output = [fieldValue.slice(0, mispelling.start), spannedMispelling, fieldValue.slice(mispelling.end + 1)].join("");
                     }
