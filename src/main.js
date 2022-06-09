@@ -302,11 +302,21 @@ const template = [
             }
         ]
     },
-    {
+    !isMac
+    ? {
         label: 'Import',
         click: function() {
             mainWindow.webContents.send("change-overlay", "data-importer")
         }
+    }
+    : {
+        label: "Import",
+        submenu: [{
+            label: "Open",
+            click: function() {
+                mainWindow.webContents.send("change-overlay", "data-importer")
+            }
+        }]
     },
     {
         label: "Resources",

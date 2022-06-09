@@ -5,7 +5,7 @@ const { GetSkuCallValue } = require('./fetch-sku-value.js');
 
 
 function builderEngine(sku, gen, config) {
-    let activeWindow = BrowserWindow.fromId(1);
+    let activeWindow = BrowserWindow.getFocusedWindow()
     let genreport = {};
     //the check is assumed true until proven false.
     //Logic dictates that an assumed false until proven true approach would be best, but
@@ -156,7 +156,7 @@ function builderEngine(sku, gen, config) {
 }
 
 function generatorPiston(conditions, thisSku, config) {
-    let activeWindow = BrowserWindow.fromId(1);
+    let activeWindow = BrowserWindow.getFocusedWindow();
     
     // Implementation of return Specification ReturnObject
     const returnSpec = (sku, call, leadString, endString) => {
@@ -220,7 +220,7 @@ function generatorPiston(conditions, thisSku, config) {
 
 function evaluateConditionals(conditional, thisSku, config, passed=false) {
     // need to better build out OR case -> test if value is true and send bool that to indicate PASSED
-    let activeWindow = BrowserWindow.fromId(1);
+    let activeWindow = BrowserWindow.getFocusedWindow();
     let thisType = conditional.type;
 
     let call = conditional.call;

@@ -4,6 +4,8 @@ dist/
 #dependencies/packages
 node_modules/
 .yarn/
+.yarnrc.yml
+.pnp.*
 
 #internal docs
 src/resources/current.json
