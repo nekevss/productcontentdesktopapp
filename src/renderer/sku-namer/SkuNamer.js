@@ -2,7 +2,7 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
 import ReactLoading from 'react-loading';
-import BlankNavbar from './components/navbars/blankNav.js';
+import BlankNavbar from '../navbars/blankNav.js';
 import './style/SkuNamer.scss';
 
 export default function BulkSkuNamer(props) {

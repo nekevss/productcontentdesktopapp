@@ -2,7 +2,7 @@ require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
 import './style/secondInterface.scss';
-import SuggestSearchBar from './components/search/SuggestSearchBar.js';
+import SuggestSearchBar from '../search/SuggestSearchBar.js';
 
 
 export default function SecondaryInterface(props) {

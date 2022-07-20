@@ -3,7 +3,7 @@ require("core-js/stable");
 import React from 'react';
 import ReactLoading from 'react-loading';
 import './style/legacy.scss'
-import BlankNavbar from './components/navbars/blankNav.js'
+import BlankNavbar from '../navbars/blankNav.js'
 
 
 export default class LegacyInterface extends React.Component {

@@ -1,10 +1,10 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import MainNavbar from './components/navbars/mainNavbar.js';
+import MainNavbar from '../navbars/mainNavbar.js';
 import '../style/app.scss'
-import MainBody from './components/main/body.js'
-import SkuDrawer from './components/main/SkuDrawer.js';
+import MainBody from './components/body.js'
+import SkuDrawer from './components/SkuDrawer.js';
 import ReactLoading from 'react-loading';
 
 //**Rename this file to mainInterface**

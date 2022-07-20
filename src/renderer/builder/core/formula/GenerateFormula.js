@@ -1,5 +1,7 @@
 // GenerateFormula is going to be the first and ideally only instance of a context object.
 // 
+// TODO: Move this function into the main processes and call the value from the renderer to the main
+
 // I've avoided using context where possible in favor of passing a config, because while it 
 // seems to be the standard from what I've been able to tell over the course of some open 
 // source contributions. I find it too abstract and always needing some type of context in 

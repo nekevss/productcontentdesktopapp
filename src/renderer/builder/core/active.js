@@ -2,7 +2,7 @@ import React from 'react';
 import ConditionalAttribute from './components/ConditionalCard.js';
 import './style/buildspace.scss';
 
-export default function StyleGuideBuildSpace(props) {
+export default function ActiveBuilder(props) {
     const [currentGenerator, setCurrentGenerator] = React.useState(props.activeGenerator);
     const [styleGuide, setStyleGuide] = React.useState(props.activeGenerator.thenReturn);
     const [sgLength, setLength] = React.useState(()=>{

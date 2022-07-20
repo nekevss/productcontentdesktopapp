@@ -1,6 +1,6 @@
 import React from 'react';
 import './style/BuilderWorkspace.scss';
-import StyleGuideBuildSpace from './BuildSpace.js';
+import ActiveBuilder from './active.js';
 import TreeDrawer from './components/TreeDrawer.js';
 import BuilderWelcome from './templates/builderWelcome.js';
 
@@ -112,7 +112,7 @@ function ActiveWorkspace(props) {
             </div>
             : <HiddenDrawer toggle={()=>{toggleDrawer()}} />}
             {displaySG 
-            ? <StyleGuideBuildSpace {...props}
+            ? <ActiveBuilder {...props}
                 activeGenerator={currentGenerator}
                 activeIndex={activeSGIndex}
                 displayDrawer={displayDrawer} />

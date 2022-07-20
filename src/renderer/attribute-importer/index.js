@@ -1,8 +1,8 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import BlankNavbar from './components/navbars/blankNav.js';
-import ImportLoading from './components/importer/import-loading.js';
+import BlankNavbar from '../navbars/blankNav.js';
+import ImportLoading from './components/import-loading.js';
 import './style/importer.scss';
 
 export default function Importer(props) {

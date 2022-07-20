@@ -1,7 +1,7 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import SuggestSearchBar from '../../search/SuggestSearchBar.js'
+import SuggestSearchBar from '../../../search/SuggestSearchBar.js'
 import './style/ImportOverlay.scss';
 
 
