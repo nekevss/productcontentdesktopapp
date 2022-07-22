@@ -81,10 +81,7 @@ export default function MainInterface(props) {
         })
     }
 
-    const returnDataAndState = async(newPosition) => {
-        let functionalClass = "";
-        //fetch configuration
-        
+    const returnDataAndState = async(newPosition) => {       
         //run fetch here
         const responseState = await window.api.invoke("request-sku-and-state", newPosition);
         //invoke this separate, because it only needs to be invoked when
@@ -93,48 +90,12 @@ export default function MainInterface(props) {
         console.log(config);
         const activeConfig = config.current;
 
-        // There is a bug here. Sometimes when switching from Legacy view to Default view
-        // the response sku will be undefined. No way to replicate so far. Seems to be with
-        // the generic sheet post Pyramid software update 2/21/2022
-        
-        // Note: this function at one point used Sku Class as the default class. But this was ultimately 
-        // unreliable due to excel cutting names early. So switching to the below approach. Might be a 
-        // decent idea to write the below as a utility function on the main side. However, right now that
-        // is more lines of code than just copy and pasting the below where need be (SKU Namer and Default 
-        // View primarily) 
-        const webPath = responseState.sku[activeConfig["Excel Mapping"]["PPH Path"]];
-        let pphArray = webPath.split(/(?<=[\w.*+?^${}()|[\]\\])\/(?=[\w.*+?^${}()|[\]\\])/gi);
-        for (let i = pphArray.length-1; i>=0; i=i-1) {
-            // this finds the class based of the SKU being in a normal area
-            if (pphArray[i].includes("Items")) {
-                functionalClass = pphArray[i-1];
-                break;
-            }
-
-            // The below is going to be super greedy. In most cases, the 4th PPH value should be the class.
-            // Above we handle based off finding "Items", because we can verify the return is 
-            // 100% valid.
-            // Here, we are going to make a broad assumption that if we have made it to index 3, then
-            // the value at that point is the class. This is being implemented primarily for SKU sets
-            // and we will leave it be.
-
-            if (i === 3) {
-                functionalClass = pphArray[i];
-                break;
-            }
-
-        }
-
-        console.log("Here is the functional class: " + functionalClass)
-        
-        localStorage.setItem("class", functionalClass)
+        const webPath = responseState.sku[activeConfig["Excel Mapping"]["PPH Path"]];   
 
         // let feedback the config file to the main process so we aren't reading it.
         const detailQuery = {
-            thisClass: functionalClass, 
             thisSku: responseState.sku, 
-            thisPath: webPath, 
-            config: activeConfig
+            thisPath: webPath
         }
         // change channel name from generator-request to request-class-details
         // run fetch here
@@ -142,6 +103,10 @@ export default function MainInterface(props) {
 
         console.log("Received new class details!")
         console.log(classDetails)
+
+        console.log("Here is the functional class: " + classDetails.webClass)
+        
+        localStorage.setItem("class", classDetails.webClass)
 
         attributes.current = classDetails.attributes;
         styleGuide.current = classDetails.styleGuide;

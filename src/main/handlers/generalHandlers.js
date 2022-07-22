@@ -6,11 +6,8 @@ const fsp = require('fs').promises;
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { post, StreamData, constructDate, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent } = require('../index.js');
-const { pleaseSirABuilder } = require('../lib/StyleGuideRunner.js');
-const { builderEngine } = require('../lib/BuilderEngine.js');
-const { basicContentSearch, recommendedContentSearch } = require('../lib/report-runner.js');
-const { cleanSpec } = require("../lib/utils/Cleaner.js");
+const { StreamData, fetchStateAndData, fetchConfig } = require('../index.js');
+const { pleaseSirABuilder, builderEngine, basicContentSearch, recommendedContentSearch, cleanSpec, determineWebClass } = require('../lib/index.js');
 
 const activeUser = os.userInfo().username;
 const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
@@ -197,7 +194,7 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     const config = await fetchConfig()
 
     const frame = await fetchStateAndData();
-    const state = frame.state;
+    const _state = frame.state;
     const FullSkuSet = frame.json;
 
     try {
@@ -223,23 +220,10 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     let rendererData = [];
     let gen;
     let report = {};
-    let activeClass = "";
     // find class of the first SKU since over a batch job finding the right class is going to get expensive.
     let firstSku = SkuData[0];
     let pph = firstSku[config["Excel Mapping"]["PPH Path"]];
-    let pphArray = pph.split(/(?<=[\w.*+?^${}()|[\]\\])\/(?=[\w.*+?^${}()|[\]\\])/gi);
-    for (let i=pphArray.length-1; i>=0; i=i-1) {
-        if (pphArray[i].includes("Items")) {
-            activeClass = pphArray[i-1];
-            break;
-        }
-
-        //Taking greedy guess
-        if (i === 3) {
-            functionalClass = pphArray[i];
-            break;
-        }
-    }
+    let activeClass = determineWebClass(pph);
 
     do {
         let batchData = SkuData.length > 500 ? SkuData.splice(0, 500) : SkuData.splice(0, SkuData.length);
@@ -250,19 +234,7 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
             // Check if the activeClass is different. If so, we have to determine the class.
             if (!activeClass.includes(sku[config["Excel Mapping"]["Sku Class"]])) {
                 let pph = sku[config["Excel Mapping"]["PPH Path"]];
-                let pphArray = pph.split(/(?<=\w)\/(?=\w)/gi);
-                for (let i=pphArray.length-1; i>=0; i=i-1) {
-                    if (pphArray[i].includes("Items")) {
-                        activeClass = pphArray[i-1];
-                        break;
-                    }
-                    
-                    //Taking greedy guess
-                    if (i === 3) {
-                        functionalClass = pphArray[i];
-                        break;
-                    }
-                }
+                activeClass = determineWebClass(pph);
             }
             gen = pleaseSirABuilder(config, buildersArray, activeClass, sku);
             let generatorReturn = builderEngine(sku, gen, config)

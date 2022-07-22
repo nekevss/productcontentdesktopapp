@@ -6,7 +6,7 @@ const path = require('path');
 const { app, Menu, BrowserWindow, ipcMain, shell } = electron;
 const nativeImage = electron.nativeImage;
 require('./main/ipcMainOn.js');
-require('./main/handlers/index.js');
+require('./main/handlers/generalHandlers.js');
 require('./main/handlers/builderHandlers.js');
 require('./main/handlers/requestHandlers.js');
 require('./main/handlers/importHandlers.js');

@@ -1,7 +1,7 @@
-const { cleanSpec } = require('./utils/Cleaner.js')
+const { cleanSpec }  = require('./clean-spec.js');
 
 // should the below be separated into a module and imported into the Style Guide Runner as well...
-function GetSkuCallValue (sku, generatorCall, config) {
+function getSkuCallValue (sku, generatorCall, config) {
     // slow af. Think it added like 40 seconds on bulk run of 27k skus.
     // But safety and utility over speed in this case. If I was worried
     // about speed, then this should be rebuilt in rust and compiled to wasm.
@@ -40,5 +40,5 @@ function GetSkuCallValue (sku, generatorCall, config) {
 }
 
 module.exports = {
-    GetSkuCallValue
+    getSkuCallValue, cleanSpec
 }

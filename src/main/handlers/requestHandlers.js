@@ -7,10 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { fetchStateAndData, findStyleGuide, checkForCurrent, fetchConfig } = require('../index.js');
-const { pleaseSirABuilder } = require('../lib/StyleGuideRunner.js');
-const { builderEngine } = require('../lib/BuilderEngine.js');
-const { reportRunner } = require('../lib/report-runner.js');
-const { fetchAttributesData, fetchAttributes } = require('../lib/fetch-attributes.js');
+const { pleaseSirABuilder, builderEngine, reportRunner, fetchAttributes, determineWebClass } = require('../lib/index.js');
 
 const activeUser = os.userInfo().username;
 const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
@@ -115,16 +112,17 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     const config = await fetchConfig()
     //Can I lower the amount of time/load by preloading
     //the generators into an array on new sheet
-    const queryConfig = arg.config;
-    const queryClass = arg.thisClass;
     const querySku = arg.thisSku;
     const queryPath = arg.thisPath;
     
+    const determinedClass = determineWebClass(queryPath);
+    console.log(determinedClass)
+
     try {
         let builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
         let buildersContainer = JSON.parse(builders);
         let buildersArray = buildersContainer.data;
-        found_generator = pleaseSirABuilder(config, buildersArray, queryClass, querySku)
+        found_generator = pleaseSirABuilder(config, buildersArray, determinedClass, querySku)
     } catch (err) {
         let errOptions = {
             type: "none",
@@ -136,7 +134,7 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     }
     
     try {
-        found_SG = await findStyleGuide(config, resourcesPath, queryClass, querySku);
+        found_SG = await findStyleGuide(config, resourcesPath, determinedClass, querySku);
     } catch (err) {
         let errOptions = {
             type: "none",
@@ -147,12 +145,16 @@ ipcMain.handle('request-class-details', async(event, arg) => {
         dialog.showMessageBox(activeWindow, errOptions)
     }
 
-    let pph = arg.thisSku[arg.config["Excel Mapping"]["PPH Path"]];
-    const pphArray = pph.split(/(?<=[\w.*+?^${}()|[\]\\])\/(?=[\w.*+?^${}()|[\]\\])/gi);
+    const pphArray = queryPath.split(/(?<=[\w.*+?^${}()|[\]\\])\/(?=[\w.*+?^${}()|[\]\\])/gi);
     const attributes = fetchAttributes(pphArray, resourcesPath);
     //const attributes = await fetchAttributesData(queryPath, resourcesPath, queryConfig);
     
-    const payload = {styleGuide : found_SG, builder: found_generator, attributes: attributes}
+    const payload = {
+        styleGuide : found_SG, 
+        builder: found_generator, 
+        attributes: attributes, 
+        webClass: determinedClass 
+    }
 
     return payload;
 })

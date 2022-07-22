@@ -1,7 +1,7 @@
 const electron = require('electron');
 const { BrowserWindow } = electron;
-const { conditionTests } = require("./condition-tests.js");
-const { GetSkuCallValue } = require('./fetch-sku-value.js');
+const { conditionTests } = require("../conditions/condition-tests.js");
+const { getSkuCallValue } = require("../utils/index.js");
 
 
 function builderEngine(sku, gen, config) {
@@ -70,7 +70,7 @@ function builderEngine(sku, gen, config) {
             //Set values for the generator report if not already running
             if (!genreport.hasOwnProperty(generatorcall)) {genreport[generatorcall] = {attempts: 0, conn: 0}}
             
-            let specval = GetSkuCallValue(sku, generatorcall, config);
+            let specval = getSkuCallValue(sku, generatorcall, config);
             
             //set our attempts
             genreport[generatorcall].attempts += 1;
@@ -160,7 +160,7 @@ function generatorPiston(conditions, thisSku, config) {
     
     // Implementation of return Specification ReturnObject
     const returnSpec = (sku, call, leadString, endString) => {
-        let spec = GetSkuCallValue(sku, call, config);
+        let spec = getSkuCallValue(sku, call, config);
         if (spec) {
             return leadString ? leadString + spec + endString : spec + endString
         }
@@ -170,7 +170,7 @@ function generatorPiston(conditions, thisSku, config) {
     // Implementation of Replace and Return ReturnObject
     const replaceAndReturn = (sku, call, leadString, endString, findValue, replaceValue) => {
         // TODO: CLEAN THIS UP lol
-        let spec = GetSkuCallValue(sku, call, config);
+        let spec = getSkuCallValue(sku, call, config);
         // NOTE: is it worth implementing the below as a regex???
         if (spec) {
             return leadString 
@@ -224,7 +224,7 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
     let thisType = conditional.type;
 
     let call = conditional.call;
-    let spec = GetSkuCallValue(thisSku, call, config);
+    let spec = getSkuCallValue(thisSku, call, config);
 
     // Couple base cases: 
     //    - if a passed = true value exists from a previously passed OR clause, then return

@@ -1,4 +1,4 @@
-const { GetSkuCallValue } = require('./fetch-sku-value.js');
+const { getSkuCallValue } = require('../utils/index.js');
 
 // Let's go over the tests that are in the conditionTests object
 // if - implemented and live
@@ -32,7 +32,7 @@ const conditionTests = {
     },
     "equals" : (specValue, expectedArray, thisSku, config) => {
         for (let value of expectedArray) {
-            let secondarySpec = GetSkuCallValue(thisSku, value, config)
+            let secondarySpec = getSkuCallValue(thisSku, value, config)
             if (secondarySpec && specValue == secondarySpec) {
                 return true
             }
@@ -41,7 +41,7 @@ const conditionTests = {
     },
     "notEquals" : (specValue, expectedArray, thisSku, config) => {
         for (let value of expectedArray) {
-            let secondarySpec = GetSkuCallValue(thisSku, value, config)
+            let secondarySpec = getSkuCallValue(thisSku, value, config)
             if (secondarySpec && specValue !== secondarySpec) {
                 return true
             }
@@ -51,7 +51,7 @@ const conditionTests = {
     "contains" : (specValue, expectedArray, thisSku, config) => {
         if (specValue) {
             for (let value of expectedArray) {
-                let secondarySpec = GetSkuCallValue(thisSku, value, config)
+                let secondarySpec = getSkuCallValue(thisSku, value, config)
                 if (specValue.includes(secondarySpec)) {
                     return true
                 }
