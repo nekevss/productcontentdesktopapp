@@ -223,7 +223,8 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     // find class of the first SKU since over a batch job finding the right class is going to get expensive.
     let firstSku = SkuData[0];
     let pph = firstSku[config["Excel Mapping"]["PPH Path"]];
-    let activeClass = determineWebClass(pph);
+    let identifier = firstSku[config["Excel Mapping"]["Sku Number"]] ? firstSku[config["Excel Mapping"]["Sku Number"]] : firstSku[config["Excel Mapping"]["Wholesaler Number"]]
+    let activeClass = determineWebClass(pph, identifier);
 
     do {
         let batchData = SkuData.length > 500 ? SkuData.splice(0, 500) : SkuData.splice(0, SkuData.length);
@@ -234,7 +235,8 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
             // Check if the activeClass is different. If so, we have to determine the class.
             if (!activeClass.includes(sku[config["Excel Mapping"]["Sku Class"]])) {
                 let pph = sku[config["Excel Mapping"]["PPH Path"]];
-                activeClass = determineWebClass(pph);
+                let identifier = sku[config["Excel Mapping"]["Sku Number"]] ? sku[config["Excel Mapping"]["Sku Number"]] : sku[config["Excel Mapping"]["Wholesaler Number"]]
+                activeClass = determineWebClass(pph, identifier);
             }
             gen = pleaseSirABuilder(config, buildersArray, activeClass, sku);
             let generatorReturn = builderEngine(sku, gen, config)

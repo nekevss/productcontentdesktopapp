@@ -2,7 +2,7 @@
 // For the sake of speed and correctness. We make assumptions on how the systems are currently functioning. This will be against my past
 // approach of always future proofing and leaving the code functionality in the configuration file.
 
-function determineWebClass(pph) {
+function determineWebClass(pph, itemIdentifier) {
     // 1. we split our pph string into an array based on whether we are able to find spaces or characters around a "/"
     // "first/second" -> should be split
     // "first / second" -> should preserve the string and not split
@@ -13,10 +13,16 @@ function determineWebClass(pph) {
 
     // Here's were our issues begin. At some point, somebody ensured that productCatLevel4 never had a / without spaces 
     // isolating it (hence the above split), but this opinion changed somewhere and also got kicked out the door when
-    // considering SKU Set names. So we need to do some testing to determine whether productCatLevelFour is valid
+    // considering SKU Set names. So we need to do some testing to determine whether productCatLevelFour is valid.
+    
     console.log(`Checking if ${productCatLevelFour} === ${pphArray[4]}`)
     if (productCatLevelFour + " Items" === pphArray[4]) {
         // Base case is that the value after ProductCatLevel4 is the items folder, which should be == productCatLevelFour + " Items" 
+        return productCatLevelFour
+    }
+
+    // But this also doesn't capture SKU Sets. So we need to check if the SKU Number is located at the end of the path.
+    if (pphArray[pphArray.length - 1] == itemIdentifier ) {
         return productCatLevelFour
     }
 
@@ -40,9 +46,11 @@ function determineWebClass(pph) {
         slashCounter++
         itemsStartPosition++
     }
+
+
     
     // Honestly, if we make it this far in the function. Than something has most likely gone horribly wrong and we need to return a null
-    return null
+    return "Undeterminable Class"
 }
 
 module.exports = {

@@ -115,7 +115,9 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     const querySku = arg.thisSku;
     const queryPath = arg.thisPath;
     
-    const determinedClass = determineWebClass(queryPath);
+    const skuIdentifer = querySku[config["Excel Mapping"]["Sku Number"]] ? querySku[config["Excel Mapping"]["Sku Number"]] : querySku[config["Excel Mapping"]["Wholesaler Number"]];
+    const determinedClass = determineWebClass(queryPath, skuIdentifer);
+    
     console.log(determinedClass)
 
     try {

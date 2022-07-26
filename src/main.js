@@ -14,12 +14,7 @@ require('./main/handlers/spellcheckHandler.js');
 
 
 //Roadmap to Stable Environment
-//1. Create Settings/Configuration handler --> complete
-//2. Setup centralized data storage --> complete (frafile enabled, but would be best for Azure server)
-//3. Access Style Guide values/backwards compatibility --> complete
-//4. Support export history --> complete
-//5. Base feature/reporting build out
-//6. Generator error log report (Pat's idea)
+//1. Server Setup
 
 //TODO list
 //1. Add attribute reporting and recommending
@@ -223,7 +218,7 @@ ipcMain.on("open-secondary-window", (event, args)=>{
 
 const isMac = process.platform === 'darwin'
 
-const template = [
+const menuTemplate = [
     // { role: 'appMenu' }
     ...(isMac ? [{
       label: "Product Content App",
@@ -322,15 +317,15 @@ const template = [
         label: "Resources",
         submenu:[
             {
-                label: "Manage",
+                label: "Manage Shared",
                 click: function() {
                     mainWindow.webContents.send("change-interface", "manage-resources")
                 }
             },
             {
-                label: "Import",
+                label: "Import Attributes",
                 click: function() {
-                    mainWindow.webContents.send("change-interface", "import")
+                    mainWindow.webContents.send("change-interface", "import-attributes")
                 }
             }
         ]
@@ -454,7 +449,7 @@ app.on('window-all-closed', () => {
 app.whenReady().then(()=>{
     mainWindow = createWindow();
     
-    const menu = Menu.buildFromTemplate(template);
+    const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
 
     app.on('activate', () => {

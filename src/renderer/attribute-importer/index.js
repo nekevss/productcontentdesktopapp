@@ -5,7 +5,7 @@ import BlankNavbar from '../navbars/blankNav.js';
 import ImportLoading from './components/import-loading.js';
 import './style/importer.scss';
 
-export default function Importer(props) {
+export default function AttributeImporter(props) {
     const [isRunning, setIsRunning] = React.useState(false);
     const [percentage, setPercentage] = React.useState(0);
     const [message, setMessage]= React.useState("");
@@ -30,7 +30,7 @@ export default function Importer(props) {
         <>
             <BlankNavbar />
             <div className="importer-container">
-                <AttributionImporter setIsRunning={setIsRunning} />
+                <AttributeImportCard setIsRunning={setIsRunning} />
             </div>
             <div style={{width:"90%", margin:"2em auto"}}>
                 {isRunning
@@ -42,7 +42,7 @@ export default function Importer(props) {
     )
 }
 
-function AttributionImporter(props) {
+function AttributeImportCard(props) {
     const [value, setValue] = React.useState("");
 
     const runImport = () => {

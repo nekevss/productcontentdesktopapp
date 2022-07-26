@@ -9,7 +9,7 @@ import BulkSkuNamer from "./sku-namer/SkuNamer.js";
 import ConfigurationViewer from "./config-interface/index.js";
 import ResourceManager from "./resources/index.js";
 import HistoryDisplay from "./history/index.js";
-import Importer from "./attribute-importer/index.js";
+import AttributeImporter from "./attribute-importer/index.js";
 import './style/app.scss';
 import ImportOverlay from "./import-overlay/index.js";
 
@@ -190,9 +190,9 @@ class App extends React.Component {
                 return (
                     <HistoryDisplay />
                 )
-            case "import":
+            case "import-attributes":
                 return (
-                    <Importer />
+                    <AttributeImporter />
                 )
             default:
                 return null
