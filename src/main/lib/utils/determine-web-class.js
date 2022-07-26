@@ -21,11 +21,6 @@ function determineWebClass(pph, itemIdentifier) {
         return productCatLevelFour
     }
 
-    // But this also doesn't capture SKU Sets. So we need to check if the SKU Number is located at the end of the path.
-    if (pphArray[pphArray.length - 1] == itemIdentifier ) {
-        return productCatLevelFour
-    }
-
     // If we've made it this far, something is wrong. The 5th value isn't the items folder
     let basePosition = 3;
     let slashCounter = 1;
@@ -47,6 +42,10 @@ function determineWebClass(pph, itemIdentifier) {
         itemsStartPosition++
     }
 
+    // But this also doesn't capture SKU Sets. So we need to check if the SKU Number is located at the end of the path.
+    if (pphArray[pphArray.length - 1] == itemIdentifier ) {
+        return productCatLevelFour
+    }
 
     
     // Honestly, if we make it this far in the function. Than something has most likely gone horribly wrong and we need to return a null
