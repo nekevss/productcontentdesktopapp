@@ -25,17 +25,18 @@ function determineWebClass(pph, itemIdentifier) {
     let basePosition = 3;
     let slashCounter = 1;
     let itemsStartPosition = basePosition + slashCounter + 1;
+    let potentialCatLevelFour = productCatLevelFour;
     while (itemsStartPosition + slashCounter <= pphArray.length - 1) {
-        productCatLevelFour = productCatLevelFour + "/" + pphArray[basePosition + slashCounter];
+        potentialCatLevelFour = potentialCatLevelFour + "/" + pphArray[basePosition + slashCounter];
         
         let potentialItemsFolder = pphArray[itemsStartPosition];
         for (let i = itemsStartPosition + 1; i <= itemsStartPosition + slashCounter; i++) {
             potentialItemsFolder += "/" + pphArray[i];
         }
         
-        console.log(`Checking if ${productCatLevelFour + " Items"} === ${potentialItemsFolder}`)
-        if (productCatLevelFour + " Items" === potentialItemsFolder) {
-            return productCatLevelFour
+        console.log(`Checking if ${potentialCatLevelFour + " Items"} === ${potentialItemsFolder}`)
+        if (potentialCatLevelFour + " Items" === potentialItemsFolder) {
+            return potentialCatLevelFour
         }
 
         slashCounter++
