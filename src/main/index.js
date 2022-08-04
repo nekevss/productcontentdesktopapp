@@ -151,6 +151,8 @@ async function fetchStateAndData() {
     const cachePath = resourcesPath + "/cache";
     let state;
 
+
+
     try {
         let stateJSON = await fsp.readFile(resourcesPath + '/state.json', "utf-8");
         state = JSON.parse(stateJSON);
@@ -194,13 +196,24 @@ async function fetchStateAndData() {
                     json: JSON.parse(currentJSON)
                 };
             } catch(err) {
-                let options = {
-                    type: "none",
-                    buttons: ["Okay"],
-                    title: "Read File Error",
-                    message: "Read file error: " + err
+                // Check if the current.json file has been written yet or if it is problem with reading the file.
+                if (!fs.existsSync(path.join(resourcesPath, '/current.json'))) {
+                    let options = {
+                        type: "none",
+                        buttons: ["Okay"],
+                        title: "Non-Existent File Error",
+                        message: "Oops! It looks like there is no SKU Data loaded. Please import an SKU data sheet."
+                    }
+                    dialog.showMessageBox(activeWindow, options)
+                } else {
+                    let options = {
+                        type: "none",
+                        buttons: ["Okay"],
+                        title: "Read File Error",
+                        message: "Read file error: " + err
+                    }
+                    dialog.showMessageBox(activeWindow, options)
                 }
-                dialog.showMessageBox(activeWindow, options)
             }
         }       
     } else if (state.type == "custom") {
@@ -213,13 +226,24 @@ async function fetchStateAndData() {
                 json: JSON.parse(currentJSON)
             };
         } catch(err) {
-            let options = {
-                type: "none",
-                buttons: ["Okay"],
-                title: "Read File Error",
-                message: "Read file error: " + err
+            // Check if the current.json file has been written yet or if it is problem with reading the file.
+            if (!fs.existsSync(path.join(resourcesPath, '/current.json'))) {
+                let options = {
+                    type: "none",
+                    buttons: ["Okay"],
+                    title: "Non-Existent File Error",
+                    message: "Oops! It looks like there is no SKU Data loaded. Please import an SKU data sheet."
+                }
+                dialog.showMessageBox(activeWindow, options)
+            } else {
+                let options = {
+                    type: "none",
+                    buttons: ["Okay"],
+                    title: "Read File Error",
+                    message: "Read file error: " + err
+                }
+                dialog.showMessageBox(activeWindow, options)
             }
-            dialog.showMessageBox(activeWindow, options)
         }
     }
 }
