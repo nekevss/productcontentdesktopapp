@@ -56,7 +56,7 @@ ipcMain.handle("export-sng-package", async(event, incomingPackage)=>{
         }
     
         //write new assets into local file
-        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(updatedSNG), "utf-8", (err) => {
+        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(updatedSNG, null, 4), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",

@@ -1,4 +1,9 @@
-// Context on webclass searching. There is no clear deterministic value due to all the spaghetti and different systems/encodings happening.
+const electron = require("electron");
+const {app} = electron;
+const fs = require('fs');
+
+// Context on webclass searching. There is no clear deterministic value due to all the spaghetti and different systems/encodings happening
+// that I have absolutely zero visibility to.
 // For the sake of speed and correctness. We make assumptions on how the systems are currently functioning. This will be against my past
 // approach of always future proofing and leaving the code functionality in the configuration file.
 
@@ -41,6 +46,40 @@ function determineWebClass(pph, itemIdentifier) {
 
         slashCounter++
         itemsStartPosition++
+    }
+
+    console.log(`potentialCat is ${potentialCatLevelFour}`)
+    console.log(`productCat is ${productCatLevelFour}`);
+    // At this point, we are going to enter into a more expensive search method by checking against
+    // all avialable classes. This should only happen ideally after the less expensive operations happen.
+    const userDataPath = app.getPath('userData');
+    const resourcePath = userDataPath + "/Resources";
+
+    try {
+        let styleGuideJSON = fs.readFileSync(resourcePath + "/StyleGuide.json", "utf-8");
+        const styleGuideObject = JSON.parse(styleGuideJSON);
+        const styleGuides = styleGuideObject.data;
+        
+        const availableClasses = styleGuides.map(value=>value.class);
+
+        if (availableClasses.includes(productCatLevelFour)) {
+            return productCatLevelFour
+        }
+
+        let currentPosition = 4;
+        while (currentPosition < pphArray.length) {
+            potentialCatLevelFour = potentialCatLevelFour + "/" + pphArray[currentPosition]
+
+            if (availableClasses.includes(potentialCatLevelFour)) {
+                return potentialCatLevelFour
+            }
+
+            currentPosition++
+        }
+    } catch(err) {
+        // We  don't want to actually throw an error in this function, so
+        // just return an undeterminable
+        return "Undeterminable Class"
     }
 
     // But this also doesn't capture SKU Sets. So we need to check if the SKU Number is located at the end of the path.
