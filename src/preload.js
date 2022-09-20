@@ -34,7 +34,8 @@ contextBridge.exposeInMainWorld(
                 "delete-cache-item",
                 "run-import",
                 "run-attribute-search",
-                "complete-spellcheck"
+                "complete-spellcheck",
+                'validate-builder'
             ];
             if (validChannels.includes(channel)) {
                 return await ipcRenderer.invoke(channel, data);

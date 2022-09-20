@@ -112,7 +112,24 @@ export default function RecursiveInputNode(props) {
             props.OpenStyleGuide(thisCondition, thisLevel, thisIndex);
         } else {
             let _Condition = thisCondition;
-            _Condition["thenReturn"] = [];
+            _Condition["thenReturn"] = [{
+                "type": "spec",
+                "report": true,
+                "endString": "",
+                "spec": "Brand",
+                "leadString": ""
+            },
+            {
+                "type": "string",
+                "string": " "
+            },
+            {
+                "type": "spec",
+                "report": false,
+                "endString": "",
+                "spec": "Series or Collection",
+                "leadString": ""
+            }];
             setThisCondition(_Condition);
             props.OpenStyleGuide(_Condition, thisLevel, thisIndex);
         }

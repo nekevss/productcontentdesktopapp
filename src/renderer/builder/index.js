@@ -8,7 +8,7 @@ import ValidationOverlay from './core/overlays/ValidationOverlay.js';
 import ImportOverlay from './core/overlays/importOverlay.js';
 import AssetOverlay from './core/overlays/AssetOverlay.js';
 import RenameOverlay from './core/overlays/RenameOverlay.js';
-import SGForm from './core/components/SGForm.js';
+import SGForm from './core/overlays/new-sg-form.js';
 import './builder.scss';
 
 // NOTE: I am worried about improperly managing the state throughout the Style Guide Builder.
@@ -160,7 +160,24 @@ export default class StyleGuideBuilder extends React.Component {
                 "type": thisType,
                 "returnGenerator" : [{
                     type : "else",
-                    thenReturn: []
+                    thenReturn: [{
+                        "type": "spec",
+                        "report": true,
+                        "endString": "",
+                        "spec": "Brand",
+                        "leadString": ""
+                    },
+                    {
+                        "type": "string",
+                        "string": " "
+                    },
+                    {
+                        "type": "spec",
+                        "report": false,
+                        "endString": "",
+                        "spec": "Series or Collection",
+                        "leadString": ""
+                    }]
                 }]
             })
         } else {

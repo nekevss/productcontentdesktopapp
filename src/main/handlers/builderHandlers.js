@@ -6,6 +6,7 @@ const fsp = require('fs').promises;
 const fs = require('fs');
 const os = require('os');
 const { constructDate } = require('../index.js');
+const { validateBuilder } = require("../lib/builder/formulaValidation.js");
 
 const activeUser = os.userInfo().username;
 const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
@@ -474,4 +475,9 @@ ipcMain.handle('request-class-data', async(event, arg)=>{
 
     //return null if no value is found
     return null;
+})
+
+ipcMain.handle('validate-builder', async(event, unvalidatedBuilder)=>{ 
+    let validationResults = validateBuilder(unvalidatedBuilder)
+    return validationResults
 })
