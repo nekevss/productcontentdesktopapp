@@ -23,13 +23,13 @@ function fetchAttributes(pphArray, resourcesPath) {
     const department = pphArray.shift();
     const _class = pphArray.shift();
     
-    const attributeObject = jsonData[category][department][_class];
+    // Optional Chaining might be one of the prettiest things I've seen in a long time.
+    const attributeObject = jsonData[category]?.[department]?.[_class];
 
     // attributeObject could be undefined. Want to make sure we return null over undefined
     if (!attributeObject) {return null}
 
     return attributeObject
-
 }
 
 async function fetchAttributesData(webPath, resourcesPath, config) {

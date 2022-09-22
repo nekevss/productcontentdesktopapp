@@ -19,7 +19,7 @@ export default function MainInterface(props) {
         const lastView = localStorage.getItem("lastView");
         return lastView === "legacy" ? props.focusSKU + 1 : 1;
     });
-    const [primaryImage, setPrimaryImage] = React.useState("http://www.staples-3p.com/s7/is/image/Staples/");
+    const [primaryImage, setPrimaryImage] = React.useState("https://www.staples-3p.com/s7/is/image/Staples/");
     const [skuMenu, setSkuMenu] = React.useState(false);
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [isCurrent, setIsCurrent] = React.useState(true);
@@ -32,7 +32,7 @@ export default function MainInterface(props) {
     const builder = localStorage.getItem('classGenerator') ? React.useRef([{}]) : React.useRef(JSON.parse(localStorage.getItem('classGenerator')));
     const styleGuide = React.useRef(localStorage.getItem('styleGuide'));
     const attributes = React.useRef(null);
-    const source = "http://www.staples-3p.com/s7/is/image/Staples/";
+    const source = "https://www.staples-3p.com/s7/is/image/Staples/";
     
 
     React.useEffect(()=>{
