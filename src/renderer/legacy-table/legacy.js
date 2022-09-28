@@ -40,7 +40,7 @@ function LegacySkuTable(props) {
     const [rows, setRows] = React.useState([]);
     const [headRows, setHeadRows] = React.useState([])
     const [isLoading, setIsLoading] = React.useState(true);
-    const imgsource = "http://www.staples-3p.com/s7/is/image/Staples/";
+    const imgsource = "https://www.staples-3p.com/s7/is/image/Staples/";
 
     React.useEffect(()=>{
         let SkuRows = [];
