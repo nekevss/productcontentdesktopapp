@@ -1,7 +1,7 @@
 const electron = require('electron');
 const { BrowserWindow } = electron;
 const { conditionTests } = require("../conditions/condition-tests.js");
-const { getSkuCallValue } = require("../utils/index.js");
+const { getSkuCallValue, indexSkuContent, decimalToFraction, fractionToDecimal } = require("../utils/index.js");
 
 
 function builderEngine(sku, gen, config) {
@@ -16,13 +16,20 @@ function builderEngine(sku, gen, config) {
     //init return object
     let returnobject = {
         check: true, 
+        confidence: {
+            checks: 0,
+            finds: 0
+        },
         name: "", 
         report: {},
         log: []
     }
+
+    const contentIndex = indexSkuContent(sku, config);
     
     const PyramidId = config["Excel Mapping"]["Pyramid Id"];
     const skuId = sku[PyramidId];
+    
 
     activeWindow.webContents.send("console-log","Logging the generator prior to iterating...")
     activeWindow.webContents.send("console-log", gen);
@@ -33,6 +40,10 @@ function builderEngine(sku, gen, config) {
         console.log(sku)
         return {
             check: false,
+            confidence: {
+                checks: 0,
+                finds: 0
+            },
             name: "*Error*",
             report: {},
             log:[`${skuId}: Null generator error`]
@@ -56,6 +67,9 @@ function builderEngine(sku, gen, config) {
 
             if (functionOutput || functionOutput === "") {
                 genreport[funcname].conn += 1
+                let [c, f] = confidenceCheck(functionOutput, contentIndex)
+                returnobject.confidence.checks += c
+                returnobject.confidence.finds += f
                 name += functionOutput;
             } else {
                 if (functionData.report) {
@@ -98,6 +112,10 @@ function builderEngine(sku, gen, config) {
                 //Putting together value to add --> have to check if leadString exists because it wasn't always in use.
                 let nameAddition = value.leadString ? value.leadString + specval + value.endString : specval + value.endString;
 
+                //confidence check!
+                let [c, f] = confidenceCheck(nameAddition, contentIndex)
+                returnobject.confidence.checks += c
+                returnobject.confidence.finds += f
                 //add the resulting spec value
                 name += nameAddition;
             } else {
@@ -110,6 +128,9 @@ function builderEngine(sku, gen, config) {
             }
         } else if (value.type == "string") {
             //This else statement handles strings
+            let [c, f] = confidenceCheck(value.string, contentIndex)
+            returnobject.confidence.checks += c
+            returnobject.confidence.finds += f
             name += value.string;
         } else {
             //This else statement handles errors
@@ -124,6 +145,7 @@ function builderEngine(sku, gen, config) {
         }
     })
 
+    // It should be noted: this is a HORRIBLE idea...I love it
     // regex and replace land!!!
     const danglingCommaCheck = new RegExp('\\,\\s*\\(','gi')
     if (danglingCommaCheck.test(name)) {
@@ -270,6 +292,134 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
         return null
     }
 }
+
+function confidenceCheck(addValue, indexedContent) {
+    let checks = 0;
+    let finds = 0;
+
+    const decimalCheck = /[0-9]+\.[0-9]+/;
+    const fractionCheck = /[0-9]+\/[0-9]+/;
+
+    // remove the space from test value as the index has no spaces
+    const testValue = addValue.replaceAll(" ", "");
+
+    checks += 1
+    if (decimalCheck.test(testValue)) {
+        let decimalValue = addValue;
+        let fractionValue = addValue;
+        Object.keys(decimalToFraction).forEach((decimal, index)=>{
+            if (fractionValue.includes(decimal)) {
+                fractionValue = fractionValue.replaceAll(decimal, decimalToFraction[decimal])
+            }
+        })
+
+        let decimalTest = decimalValue.replaceAll(" ", "");
+        let fractionTest = fractionValue.replaceAll(" ", "");
+
+        if (indexedContent.includes(decimalTest)) {
+            finds += 1;
+
+            const separateValues = decimalValue.split(" ")
+
+            separateValues.forEach((value)=>{
+                checks += 1;
+                if (indexedContent.includes(value)) {
+                    finds += 1
+                }
+            })
+
+        } else if (indexedContent.includes(fractionTest)) {
+            finds += 1;
+            
+            const separateValues = fractionValue.split(" ")
+
+            separateValues.forEach((value)=>{
+                checks += 1;
+                if (indexedContent.includes(value)) {
+                    finds += 1
+                }
+            })
+
+        } else {
+            if (indexedContent.includes(testValue)) {
+                finds += 1
+            }
+            const separateValues = addValue.split(" ");
+
+            separateValues.forEach((value)=>{ 
+                checks += 1;
+                 if (indexedContent.includes(value)) {
+                    finds += 1
+                 }
+            })
+        }
+    } else if (fractionCheck.test(testValue)) {
+        let decimalValue = addValue;
+        let fractionValue = addValue;
+        Object.keys(fractionToDecimal).forEach((fraction, index)=>{
+            if (decimalValue.includes(fraction)) {
+                decimalValue = decimalValue.replaceAll(fraction, fractionToDecimal[decimal])
+            }
+        })
+
+        let decimalTest = decimalValue.replaceAll(" ", "");
+        let fractionTest = fractionValue.replaceAll(" ", "");
+
+        if (indexedContent.includes(fractionTest)) {
+            finds += 1;
+
+            const separateValues = fractionValue.split(" ")
+
+            separateValues.forEach((value)=>{
+                checks += 1;
+                if (indexedContent.includes(value)) {
+                    finds += 1
+                }
+            })
+        } else if (indexedContent.includes(decimalTest)) {
+                finds += 1;
+    
+                const separateValues = decimalValue.split(" ")
+    
+                separateValues.forEach((value)=>{
+                    checks += 1;
+                    if (indexedContent.includes(value)) {
+                        finds += 1
+                    }
+                })
+    
+            } else {
+                if (indexedContent.includes(testValue)) {
+                    finds += 1
+                }
+
+                const separateValues = addValue.split(" ");
+    
+                separateValues.forEach((value)=>{ 
+                    checks += 1;
+                     if (indexedContent.includes(value)) {
+                        finds += 1
+                     }
+                })
+            }
+    } else { 
+        if (indexedContent.includes(testValue.toLowerCase())) {
+            finds += 1
+        }
+
+        const separateValues = addValue.split(" ");
+
+        separateValues.forEach((value)=>{ 
+            checks += 1;
+             if (indexedContent.includes(value.toLowerCase())) {
+                finds += 1
+             }
+        })
+    }
+
+    return [checks, finds]
+}
+
 
 module.exports = {
     builderEngine

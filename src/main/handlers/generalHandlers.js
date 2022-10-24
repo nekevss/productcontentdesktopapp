@@ -6,7 +6,7 @@ const fsp = require('fs').promises;
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { StreamData, fetchStateAndData, fetchConfig } = require('../index.js');
+const { StreamData, fetchStateAndData, fetchConfig, cleanResourceFiles } = require('../index.js');
 const { pleaseSirABuilder, builderEngine, basicContentSearch, recommendedContentSearch, cleanSpec, determineWebClass } = require('../lib/index.js');
 
 const activeUser = os.userInfo().username;
@@ -100,7 +100,7 @@ ipcMain.handle("update-local", async(event, package)=>{
                 message: `There was an error while initializing the stream: ${err}`
             }
             dialog.showMessageBox(activeWindow, errOptions)
-        })  
+        })
     }
 })
 
@@ -244,6 +244,7 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
                 pyramidId: sku[config["Excel Mapping"]["Pyramid Id"]],
                 skuClass: activeClass,
                 generatedName: generatorReturn.name,
+                confidence: generatorReturn.confidence,
                 check: generatorReturn.check
             })
             //calculate for the report

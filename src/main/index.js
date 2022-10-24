@@ -67,6 +67,7 @@ async function StreamData(readPath, writePath, type) {
                 message: "Import of assets has completed succesfully"
             }
             dialog.showMessageBox(activeWindow, options)
+            cleanResourceFiles("all")
         }
     })
     writeStream.on("error", (err)=>{
@@ -150,8 +151,6 @@ async function fetchStateAndData() {
     const activeWindow = BrowserWindow.fromId(1);
     const cachePath = resourcesPath + "/cache";
     let state;
-
-
 
     try {
         let stateJSON = await fsp.readFile(resourcesPath + '/state.json', "utf-8");
@@ -265,6 +264,37 @@ async function fetchConfig() {
     }
 }
 
+async function cleanResourceFiles(fileSelection) {
+    let activeWindow = BrowserWindow.fromId(1);
+
+    try {
+        if (fileSelection === "sg" || fileSelection === "all") {
+            let sgString = await fsp.readFile(path.join(resourcesPath, 'StyleGuide.json'), "utf-8")
+            const cleanedSg = sgString.replace("&reg;", "®")
+            fs.writeFile(path.join(resourcesPath, 'StyleGuide.json'), cleanedSg, "utf-8", (err)=>{
+                if(err) {console.log(err)}
+            })
+        }
+
+        if (fileSelection === "sng" || fileSelection === "all") {
+            let builderString = await fsp.readFile(path.join(resourcesPath, 'Builders.json'), "utf-8")
+            const cleanBuilders = builderString.replace("&reg;", "®")
+            fs.writeFile(path.join(resourcesPath, 'Builders.json'), cleanBuilders, "utf-8", (err)=>{
+                if(err) {console.log(err)}
+            })
+        }
+        
+    } catch(err) {
+        let errorOptions = {
+            type: "none",
+            buttons: ["Okay"],
+            title: "File Clean Error",
+            message: `Error while cleaning Style Guide file: ${err}`
+        }
+        dialog.showMessageBox(activeWindow, errorOptions)
+    }
+}
+
 module.exports = {
-    post, StreamData, constructDate, constructTime, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent
+    post, StreamData, constructDate, constructTime, fetchStateAndData, fetchConfig, findStyleGuide, checkForCurrent, cleanResourceFiles
 }

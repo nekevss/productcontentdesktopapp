@@ -223,7 +223,7 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
     }
     let feedback = await dialog.showMessageBox(activeWindow, options);
 
-    if (feedback === 0) {
+    if (feedback.response === 0) {
         const dateString = constructDate()
 
         try{
