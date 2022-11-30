@@ -3,8 +3,8 @@ require("core-js/stable");
 import React from 'react';
 import MainNavbar from '../navbars/mainNavbar.js';
 import '../style/app.scss'
-import MainBody from './components/body.js'
-import SkuDrawer from './components/SkuDrawer.js';
+import MainBody from './components/body'
+import SkuDrawer from './components/sku-drawer';
 import ReactLoading from 'react-loading';
 
 //**Rename this file to mainInterface**

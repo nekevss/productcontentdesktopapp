@@ -1,5 +1,5 @@
-import React from 'react'
-
+import React from 'react';
+import './images.scss';
 
 //update somebody to functional with hooks
 export default function ImageGrid(props) {
@@ -18,7 +18,7 @@ export default function ImageGrid(props) {
 
 
     return (
-        <div className = "ImageGrid">
+        <div className = "image-grid">
             {images}
         </div>
     );

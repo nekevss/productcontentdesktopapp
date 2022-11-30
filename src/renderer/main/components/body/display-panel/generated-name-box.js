@@ -5,6 +5,7 @@ import React from 'react';
 export default function GeneratedName(props) {
     const [generatorReturn, setGeneratorReturn] = React.useState("")
     const [checkResult, setCheckResult] = React.useState("");
+    const [confidenceLevel, setConfidenceLevel] = React.useState("")
 
     React.useEffect(()=>{
         if (props.sku && props.gen) {
@@ -16,6 +17,10 @@ export default function GeneratedName(props) {
                     setCheckResult("Failed")
                 }
 
+                let confidence = response.confidence.checks === 0 ? 0 : (response.confidence.finds / response.confidence.checks) * 100;
+                let confidenceLevel = confidence === 0 ? 0 + "%" : confidence.toPrecision(4) + "%";
+
+                setConfidenceLevel(confidenceLevel)
                 setGeneratorReturn(response.name)
             }).catch((err)=>{if(err){console.log(err)}});
         } else {
@@ -38,7 +43,10 @@ export default function GeneratedName(props) {
             <div><b>Recommended SKU Name:</b></div>
             <div className="gen-name" dangerouslySetInnerHTML={{__html: generatorReturn}}></div>
             <div><b>Recommended Name Check:</b></div>
-            <div dangerouslySetInnerHTML={{__html:checkResult}}></div> 
+            {checkResult === "Pass"
+            ? <div dangerouslySetInnerHTML={{__html:checkResult + " with " + confidenceLevel + " confidence"}}></div>
+            :<div dangerouslySetInnerHTML={{__html:checkResult}}></div>
+            }
         </div>
         
     )

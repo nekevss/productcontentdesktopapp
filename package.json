@@ -1,7 +1,7 @@
 {
     "name": "productcontentdesktopapp",
     "productName": "Product Content App",
-    "version": "2.1.0",
+    "version": "2.5.0",
     "description": "Desktop App for Product Content Team",
     "main": "src/main.js",
     "dependencies": {

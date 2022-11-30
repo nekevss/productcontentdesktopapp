@@ -6,27 +6,12 @@ import SkuDataReport from './sku-report.js';
 import './style/presenter.scss';
 
 //Change name to TopsideDisplay ???
-export default function DataPresenter(props) {
+export default function DisplayPanel(props) {
     const [dataView, setdataView] = useState('main')
     const [extraStack, setExtraStack] = React.useState([]);
-    const [reportLength, setReportLength] = useState(0);
-    const [report, setReport] = useState([]);
-    const [attributeReport, setAttributeReport] = useState([]);
 
     React.useEffect(()=> {
-        //run our reports in presenter, so that it can be moved down
-        runReport().then((thisReport)=>{
-            setReport(thisReport)
-            console.log("Got my sku data report!")
-            setReportLength(thisReport.length)
-        })
-
-        evalAttributes().then((data)=>{
-            console.log("Here's the evaluated attributes")
-            console.log(data)
-            setAttributeReport(data)
-        })
-
+        // Generate the extra info display stack
         let extraDisplay = [];
         const extraInput = props.config["Functional Data"]["Extra Fields"] ? props.config["Functional Data"]["Extra Fields"] : [];
         for (const call of extraInput) {
@@ -36,16 +21,7 @@ export default function DataPresenter(props) {
         }
 
         setExtraStack(extraDisplay);
-
     }, [props.sku])
-
-    const runReport = async() => {
-        return await window.api.invoke("request-sku-report", {sku:props.sku, config:props.config})
-    }
-
-    const evalAttributes = async()=> {
-        return await window.api.invoke("run-attribute-search", {sku:props.sku, attributes: props.attributes, config:props.config});
-    }
 
     const renderView = (view) => {
         switch (view) {
@@ -61,9 +37,9 @@ export default function DataPresenter(props) {
                         <SkuDataReport 
                             sku= {props.sku}
                             config={props.config}
-                            report={report}
-                            reportLength = {reportLength} 
-                            attributeReport={attributeReport}
+                            report={props.contentReport}
+                            reportLength = {props.contentReport.length} 
+                            attributeReport={props.attributeReport}
                             />
                     </div>
                 )
@@ -87,7 +63,7 @@ export default function DataPresenter(props) {
                 <div onClick={() => {setdataView('main')}}
                     className={dataView == 'main' ? 'sd-btn-active' : 'sd-btn-inactive'}><p>Main</p></div>
                 <div onClick={() => {setdataView('report')}} 
-                    className={ dataView == 'report' ? 'sd-btn-active' : 'sd-btn-inactive'}><p>{reportLength == 0 ? "Reporting" : `Reporting (${reportLength})`}</p></div>
+                    className={ dataView == 'report' ? 'sd-btn-active' : 'sd-btn-inactive'}><p>{props.contentReport.length == 0 ? "Reporting" : `Reporting (${props.contentReport.length})`}</p></div>
                 <div onClick={() => {setdataView('json')}} 
                     className={dataView == 'json' ? 'sd-btn-active' : 'sd-btn-inactive'}><p>View Raw</p></div>
             </div>

@@ -297,11 +297,13 @@ function confidenceCheck(addValue, indexedContent) {
     let checks = 0;
     let finds = 0;
 
+    const punctuationCleaner = /[,()]/g
     const decimalCheck = /[0-9]+\.[0-9]+/;
     const fractionCheck = /[0-9]+\/[0-9]+/;
 
     // remove the space from test value as the index has no spaces
-    const testValue = addValue.replaceAll(" ", "");
+    const punctionationFreeValue = addValue.replaceAll(punctuationCleaner, "");
+    const testValue = punctionationFreeValue.replaceAll(" ", "");
 
     checks += 1
     if (decimalCheck.test(testValue)) {
@@ -358,7 +360,7 @@ function confidenceCheck(addValue, indexedContent) {
         let fractionValue = addValue;
         Object.keys(fractionToDecimal).forEach((fraction, index)=>{
             if (decimalValue.includes(fraction)) {
-                decimalValue = decimalValue.replaceAll(fraction, fractionToDecimal[decimal])
+                decimalValue = decimalValue.replaceAll(fraction, fractionToDecimal[fraction])
             }
         })
 
