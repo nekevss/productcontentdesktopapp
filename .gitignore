@@ -6,6 +6,7 @@ node_modules/
 .yarn/
 .yarnrc.yml
 .pnp.*
+.DS_Store
 
 #internal docs
 src/resources/current.json
