@@ -1,7 +1,8 @@
 import React from 'react';
 import reactDOM from "react-dom";
 import ReactLoading from 'react-loading';
-import SecondaryNavbar from './navbars/secondaryNav.js';
+import "./style/app.scss";
+import SecondaryNavbar from './secondary/secondary-nav.js';
 import SecondaryInterface from './secondary/secondaryInterface.js';
 
 function SecondaryApp() {

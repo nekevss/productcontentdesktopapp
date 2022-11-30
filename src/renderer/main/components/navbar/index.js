@@ -1,5 +1,5 @@
 import React from 'react';
-import './style/nav.scss'
+import './nav.scss'
 
 
 export default function MainNavbar(props) {
@@ -25,7 +25,7 @@ export default function MainNavbar(props) {
 */
 
     return (
-        <div className="mainNav">
+        <div className="nav-bar">
             {props.length == 1
             ? <LeftSideNav {...props} backstyle={{visibility:'hidden'}} nextstyle={{visibility:'hidden'}} />
             : props.position <= 0

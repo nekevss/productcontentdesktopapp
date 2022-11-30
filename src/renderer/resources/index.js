@@ -1,7 +1,7 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 import React from 'react';
-import BlankNavbar from '../navbars/blankNav.js';
+import BlankNavbar from '../blank-nav';
 import ReactLoading from 'react-loading';
 import './style/ResourceManager.scss';
 

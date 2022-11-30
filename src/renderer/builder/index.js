@@ -3,7 +3,7 @@ require("core-js/stable");
 import React from 'react';
 import BuilderControls from './core/components/BuilderControls.js';
 import BuilderWorkspace from './core/index.js';
-import BlankNavbar from '../navbars/blankNav.js';
+import BlankNavbar from '../blank-nav';
 import ValidationOverlay from './core/overlays/ValidationOverlay.js';
 import ImportOverlay from './core/overlays/importOverlay.js';
 import AssetOverlay from './core/overlays/AssetOverlay.js';

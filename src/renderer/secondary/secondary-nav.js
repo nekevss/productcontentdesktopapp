@@ -9,7 +9,7 @@ export default function SecondaryNavbar(props) {
     }
 
     return (
-        <div className="mainNav">
+        <div className="nav-bar">
             <div className="left-side-nav">
                 <button className="reset-button" onClick={() => FetchResources()}>Reload</button>
             </div>
