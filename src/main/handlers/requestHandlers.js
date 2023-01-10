@@ -176,16 +176,16 @@ ipcMain.handle("request-cache-data", async(event, args)=>{
 
     try {
         files = await fsp.readdir(cachePath);
-        for await (const file of files) {
+        for await (let file of files) {
             //iterate through files in array and verify they are jsons
             if (jsonRegex.test(file)) {
                 let fileData = {fileName : file.replace(jsonRegex, "")}
                 
                 let filePath = path.join(cachePath, file);
-                const contents = fs.readFileSync(filePath, {encoding:"utf8"});
-                const fileJson = JSON.parse(contents)
-                const metadata = fileJson.metadata;
-                const metaKeys = Object.keys(metadata);
+                let contents = fs.readFileSync(filePath, {encoding:"utf8"});
+                let fileJson = JSON.parse(contents)
+                let metadata = fileJson.metadata;
+                let metaKeys = Object.keys(metadata);
                 metaKeys.forEach((value)=>{
                     fileData[value] = metadata[value];
                 })

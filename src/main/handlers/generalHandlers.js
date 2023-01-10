@@ -25,6 +25,7 @@ const resourcesPath = userDataPath + "/Resources";
 // fetch-resource
 // escape-history
 // delete-cache-item
+// nuke-history
 // run-attribute-search
 
 ipcMain.handle('open-file-dialog', async(event, arg)=>{
@@ -436,6 +437,41 @@ ipcMain.handle("delete-cache-item", async(event, args)=>{
         return "complete"
     })   
 })
+
+ipcMain.handle("nuke-history", async(event, _args)=>{
+    let activeWindow = BrowserWindow.getFocusedWindow()
+    const cachePath = resourcesPath + "/cache"
+
+    let options = {
+        type: "question",
+        buttons: ["Do not delete", "Confirm, delete all"],
+        title: "Remove files confirmation",
+        message: "Please confirm that all history files should be deleted"
+    }
+
+    let removeFeedback = await dialog.showMessageBox(activeWindow, options);
+
+    console.log(removeFeedback)
+    if (removeFeedback.response === 1) {
+        try {
+            fs.rm(cachePath, {recursive: true, force: true}, ()=>{
+                fs.mkdirSync(cachePath);
+            });
+            return "nuked"
+        } catch(err) {
+            let errorOptions = {
+                type: "none",
+                buttons: ["Okay"],
+                title: "Nuke History Error",
+                message: `Error while removing the history directory: ${err}`
+            }
+            dialog.showMessageBox(activeWindow, errorOptions)
+        }
+    } else {
+        return "nothing was done"
+    }
+})
+
 
 /*--------------------------------------------------------*/
 //Runners

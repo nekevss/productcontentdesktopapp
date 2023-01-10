@@ -11,18 +11,13 @@ export default function ResourceManager(props) {
     const [storagePath, setStoragePath] = React.useState("");
 
     React.useEffect(()=>{
-        fetchConfiguration().then(_config=>{
+        window.api.invoke("fetch-configuration").then(_config=>{
             console.log(_config);
             setConfig(_config);
             setStoragePath(_config["Functional Data"]["Resources Path"]);
             setIsLoading(false);
         }).catch(err=>{console.log(err)})
     }, [])
-
-    const fetchConfiguration = async () => {
-        let _config = await window.api.invoke("fetch-configuration");
-        return _config
-    }
 
     return(
         <>

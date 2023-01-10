@@ -168,17 +168,17 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
             }
         })
         //caching the version being deleted for restoring;
-        if (!fs.existsSync(resourcesPath+"cache/Resources")) {
-            fs.mkdir(resourcesPath+"cache/Resources", {recursive: true}, (err) => {
+        if (!fs.existsSync(resourcesPath+"archived/Resources")) {
+            fs.mkdir(resourcesPath+"archived/Resources", {recursive: true}, (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error creating resources cache")
                 } else {
-                    fs.writeFile(resourcesPath + 'cache/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
+                    fs.writeFile(resourcesPath + 'archived/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
                         if (err) {
                             activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                         }
                     })
-                    fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+                    fs.writeFile(resourcesPath + '/archived/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                         if (err) {
                             activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                         }
@@ -187,12 +187,12 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
                 
             })
         } else {
-            fs.writeFile(resourcesPath + 'cache/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
+            fs.writeFile(resourcesPath + 'archived/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                 }
             })
-            fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+            fs.writeFile(resourcesPath + '/archived/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                 }
@@ -305,17 +305,17 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
             }
         })
         //caching the version being deleted for restoring;
-        if (!fs.existsSync(resourcesPath+"cache/Resources")) {
-            fs.mkdir(resourcesPath+"cache/Resources", {recursive: true}, (err) => {
+        if (!fs.existsSync(resourcesPath+"archived/Resources")) {
+            fs.mkdir(resourcesPath+"archived/Resources", {recursive: true}, (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error creating resources cache")
                 } else {
-                    fs.writeFile(resourcesPath + 'cache/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
+                    fs.writeFile(resourcesPath + 'archived/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
                         if (err) {
                             activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                         }
                     })
-                    fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+                    fs.writeFile(resourcesPath + '/archived/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                         if (err) {
                             activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                         }
@@ -324,12 +324,12 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
                 
             })
         } else {
-            fs.writeFile(resourcesPath + 'cache/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
+            fs.writeFile(resourcesPath + 'archived/Resources/StyleGuide_revert.json', JSON.stringify(styleGuideObj), "utf-8", (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error while writing cached Style Guide")
                 }
             })
-            fs.writeFile(resourcesPath + '/cache/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
+            fs.writeFile(resourcesPath + '/archived/Resources/Builders_revert.json', JSON.stringify(skuNameGenObj), "utf-8", (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error while writing cached Builders")
                 }

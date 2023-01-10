@@ -16,7 +16,7 @@ export default function ValidationOverlay(props) {
     }, [props.StyleGuide])
 
     const runValidation = (builder) => {
-        window.api.invoke("validate-builder", props.StyleGuide).then((results)=>{
+        window.api.invoke("validate-builder", builder).then((results)=>{
             console.log(results);
             createValidationDisplay(results.validationLog);
             createErrorDisplay(results.errorLog);

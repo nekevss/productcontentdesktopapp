@@ -12,7 +12,6 @@ require('./main/handlers/requestHandlers.js');
 require('./main/handlers/importHandlers.js');
 require('./main/handlers/spellcheckHandler.js');
 
-
 //Roadmap to Stable Environment
 //1. Server Setup
 

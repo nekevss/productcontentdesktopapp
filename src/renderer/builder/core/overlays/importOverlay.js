@@ -9,13 +9,8 @@ export default function ImportOverlay(props) {
     const [classIndex, setClassIndex] = React.useState([])
 
     React.useEffect(()=>{
-        fetchIndex().then(data=>setClassIndex(data)).then(err=>{if (err){console.log(err)}})
+        window.api.invoke("fetch-class-index").then(data=>setClassIndex(data)).catch(err=>{if (err){console.log(err)}})
     }, [])
-
-    const fetchIndex = async() => {
-        let index = await window.api.invoke("fetch-class-index")
-        return index
-    }
 
     const runImport = async (thisClass) => {
         console.log("Running style guide import...")

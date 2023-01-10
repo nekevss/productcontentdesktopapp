@@ -8,17 +8,13 @@ export default function AssetOverlay(props) {
     const [config, setThisConfig] = React.useState({});
 
     React.useEffect(()=>{
-        fetchConfiguration().then(data=>setThisConfig(data)).then(err=>{if(err){console.log(err)}})        
+        window.api.invoke('fetch-configuration').then(data=>setThisConfig(data)).then(err=>{if(err){console.log(err)}})        
     },[])
 
     React.useEffect(()=>{
         console.log("Oh cool, running Asset Overlay")
         setThisAsset(props.StyleGuide)
     }, [props.StyleGuide])
-
-    const fetchConfiguration = async ()=>{
-        return await window.api.invoke("fetch-configuration");
-    }
 
     return (
         <div className="asset-overlay" onClick={()=>{props.setOverlay("")}}>

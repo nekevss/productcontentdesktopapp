@@ -35,7 +35,8 @@ contextBridge.exposeInMainWorld(
                 "run-import",
                 "run-attribute-search",
                 "complete-spellcheck",
-                'validate-builder'
+                'validate-builder',
+                "nuke-history"
             ];
             if (validChannels.includes(channel)) {
                 return await ipcRenderer.invoke(channel, data);
