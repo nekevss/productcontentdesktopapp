@@ -24,7 +24,7 @@ ipcMain.handle("complete-spellcheck", async(event, incomingData)=>{
             let output = ""
             const misspelledPositions = spellchecker.checkSpelling(fieldValue);
             if (misspelledPositions.length > 0) {
-                console.log(`Found misspellings in ${field}`)
+                //console.log(`Found misspellings in ${field}`)
                 misspelledPositions.forEach((mispelling)=>{
                     // We have our misspelling locs here.
                     // First, slice the string from the fieldValue

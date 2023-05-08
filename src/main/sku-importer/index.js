@@ -94,7 +94,7 @@ function ImportExcelData(importPath, config) {
     const workbook = xlsx.read(fileBuffer);
 
     // 3. Curate an array of worksheets by removing the sheets we don't want
-    let utilityWorksheet = new RegExp("Cover$|STEP|Sheet[0-9]+", "gi")
+    let utilityWorksheet = new RegExp("Cover$|STEP|Sheet[0-9]+", "g");
 
     const curatedSheets = workbook.SheetNames.filter(name=>!name.match(utilityWorksheet));
     console.log(curatedSheets)
