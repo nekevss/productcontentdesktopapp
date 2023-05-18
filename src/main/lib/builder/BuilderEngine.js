@@ -7,6 +7,7 @@ const { getSkuCallValue, indexSkuContent, decimalToFraction, fractionToDecimal }
 function builderEngine(sku, gen, config) {
     let activeWindow = BrowserWindow.getFocusedWindow()
     let genreport = {};
+    let failureCount = 0;
     //the check is assumed true until proven false.
     //Logic dictates that an assumed false until proven true approach would be best, but
     //but how would result remain persistent across all calls without recording all calls.
@@ -74,7 +75,9 @@ function builderEngine(sku, gen, config) {
             } else {
                 if (functionData.report) {
                     activeWindow.webContents.send("console-log",`Sku failed report at ${funcname}`)
-                    returnobject.log.push(`${skuId} failed at ${funcname} call`)
+                    returnobject.log.push(`${skuId} failed at ${funcname} call`);
+                    returnobject.confidence.checks += (2 ** failureCount); // This is a pretty naive way to weight the confidence lower on failures. Maybe adjust later?
+                    failureCount += 1;
                     perCallCheck = false;
                 }
             }   
@@ -105,6 +108,8 @@ function builderEngine(sku, gen, config) {
                     if (specval.includes(brand_to_test)) {
                         activeWindow.webContents.send("console-log","Sku failed the report at Brand/Series or Collection duplication")
                         returnobject.log.push(`${skuId} failed due to duplicate value in brand and series or collection`)
+                        returnobject.confidence.checks += (4 ** failureCount);
+                        failureCount += 1;
                         perCallCheck = false;
                     }
                 }
@@ -123,6 +128,8 @@ function builderEngine(sku, gen, config) {
                 if (value.report) {
                     activeWindow.webContents.send("console-log",`Sku failed the report at ${generatorcall}`);
                     returnobject.log.push(`${skuId} failed at ${generatorcall} call`)
+                    returnobject.confidence.checks += (4 ** failureCount);
+                    failureCount += 1;
                     perCallCheck = false;
                 }
             }
@@ -137,6 +144,8 @@ function builderEngine(sku, gen, config) {
             name += "*Error*";
             returnobject.log.push(`${skuId} contains an unknown call type`)
             perCallCheck = false;
+            returnobject.confidence.checks += (10 * (2 ** failureCount));
+            failureCount += 1;
         }
 
         //setting return objects checker to false if null is found
