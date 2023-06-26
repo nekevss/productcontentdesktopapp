@@ -1,7 +1,7 @@
 const electron = require('electron');
 const { BrowserWindow } = electron;
 const { conditionTests } = require("../conditions/condition-tests.js");
-const { getSkuCallValue, indexSkuContent, decimalToFraction, fractionToDecimal } = require("../utils/index.js");
+const { getSkuCallValue, prepareIndexableSkuContent, decimalToFraction, fractionToDecimal } = require("../utils/index.js");
 
 
 function builderEngine(sku, gen, config) {
@@ -15,7 +15,7 @@ function builderEngine(sku, gen, config) {
     //that being said we are innocent until proven guilty. Perhaps this holds here.
 
     //init return object
-    let returnobject = {
+    let builderOutput = {
         check: true, 
         confidence: {
             checks: 0,
@@ -26,7 +26,7 @@ function builderEngine(sku, gen, config) {
         log: []
     }
 
-    const contentIndex = indexSkuContent(sku, config);
+    const contentIndex = prepareIndexableSkuContent(sku, config);
     
     const PyramidId = config["Excel Mapping"]["Pyramid Id"];
     const skuId = sku[PyramidId];
@@ -50,6 +50,7 @@ function builderEngine(sku, gen, config) {
             log:[`${skuId}: Null generator error`]
         }
     }
+
     gen.forEach((value, index) => {
         let perCallCheck = true;
         /* Below checks for function, then spec, and defaults to string. On check returning true, */
@@ -59,7 +60,7 @@ function builderEngine(sku, gen, config) {
             //TODO: Add call value to function's return object. This would record the name
             let funcname = functionData.forAttribute;
             
-            let functionOutput = generatorPiston(functionData.conditions, sku, config)
+            let functionOutput = evalConditions(functionData.conditions, sku, config)
             
             activeWindow.webContents.send("console-log","The function output is: " + functionOutput)
 
@@ -67,16 +68,22 @@ function builderEngine(sku, gen, config) {
             genreport[funcname].attempts += 1;
 
             if (functionOutput || functionOutput === "") {
+                // Handle reporting and confidence checks
                 genreport[funcname].conn += 1
                 let [c, f] = confidenceCheck(functionOutput, contentIndex)
-                returnobject.confidence.checks += c
-                returnobject.confidence.finds += f
+                builderOutput.confidence.checks += c
+                builderOutput.confidence.finds += f
+
+                // Add values to output
+                if (value.postType) {
+                    name+= ", "
+                }
                 name += functionOutput;
             } else {
                 if (functionData.report) {
                     activeWindow.webContents.send("console-log",`Sku failed report at ${funcname}`)
-                    returnobject.log.push(`${skuId} failed at ${funcname} call`);
-                    returnobject.confidence.checks += (2 ** failureCount); // This is a pretty naive way to weight the confidence lower on failures. Maybe adjust later?
+                    builderOutput.log.push(`${skuId} failed at ${funcname} call`);
+                    builderOutput.confidence.checks += (2 ** failureCount); // This is a pretty naive way to weight the confidence lower on failures. Maybe adjust later?
                     failureCount += 1;
                     perCallCheck = false;
                 }
@@ -107,28 +114,37 @@ function builderEngine(sku, gen, config) {
                     let brand_to_test = sku[config["Excel Mapping"]["Brand"]];
                     if (specval.includes(brand_to_test)) {
                         activeWindow.webContents.send("console-log","Sku failed the report at Brand/Series or Collection duplication")
-                        returnobject.log.push(`${skuId} failed due to duplicate value in brand and series or collection`)
-                        returnobject.confidence.checks += (4 ** failureCount);
+                        builderOutput.log.push(`${skuId} failed due to duplicate value in brand and series or collection`)
+                        builderOutput.confidence.checks += (4 ** failureCount);
                         failureCount += 1;
                         perCallCheck = false;
                     }
                 }
 
-                //Putting together value to add --> have to check if leadString exists because it wasn't always in use.
-                let nameAddition = value.leadString ? value.leadString + specval + value.endString : specval + value.endString;
+                let nameAddition = "";
+                if (value.postType) {
+                    nameAddition += ", "
+                }
 
-                //confidence check!
+                // Putting together value to add --> have to check if leadString exists because it wasn't always in use.
+                nameAddition += value.leadString
+                    ? value.leadString + specval + value.endString
+                    : specval + value.endString;
+
+                // confidence check!
                 let [c, f] = confidenceCheck(nameAddition, contentIndex)
-                returnobject.confidence.checks += c
-                returnobject.confidence.finds += f
-                //add the resulting spec value
+                builderOutput.confidence.checks += c
+                builderOutput.confidence.finds += f
+                
+                // add the resulting spec value
+                
                 name += nameAddition;
             } else {
                 //Series or Collection is being considered optional for individual level reporting
                 if (value.report) {
                     activeWindow.webContents.send("console-log",`Sku failed the report at ${generatorcall}`);
-                    returnobject.log.push(`${skuId} failed at ${generatorcall} call`)
-                    returnobject.confidence.checks += (4 ** failureCount);
+                    builderOutput.log.push(`${skuId} failed at ${generatorcall} call`)
+                    builderOutput.confidence.checks += (4 ** failureCount);
                     failureCount += 1;
                     perCallCheck = false;
                 }
@@ -136,21 +152,21 @@ function builderEngine(sku, gen, config) {
         } else if (value.type == "string") {
             //This else statement handles strings
             let [c, f] = confidenceCheck(value.string, contentIndex)
-            returnobject.confidence.checks += c
-            returnobject.confidence.finds += f
+            builderOutput.confidence.checks += c
+            builderOutput.confidence.finds += f
             name += value.string;
         } else {
             //This else statement handles errors
             name += "*Error*";
-            returnobject.log.push(`${skuId} contains an unknown call type`)
+            builderOutput.log.push(`${skuId} contains an unknown call type`)
             perCallCheck = false;
-            returnobject.confidence.checks += (10 * (2 ** failureCount));
+            builderOutput.confidence.checks += (10 * (2 ** failureCount));
             failureCount += 1;
         }
 
         //setting return objects checker to false if null is found
         if (!perCallCheck) {
-            returnobject.check = false;
+            builderOutput.check = false;
         }
     })
 
@@ -178,18 +194,18 @@ function builderEngine(sku, gen, config) {
 
     //Running one final check to throw Failed flag on ipcMain/query errors
     if (name.includes("Error:")) {
-        returnobject.check = false;
+        builderOutput.check = false;
     }
 
-    returnobject.report = genreport;
-    returnobject.name = name;
-    return returnobject;
+    builderOutput.report = genreport;
+    builderOutput.name = name;
+    return builderOutput;
 }
 
-function generatorPiston(conditions, thisSku, config) {
+function evalConditions(conditions, thisSku, config) {
     let activeWindow = BrowserWindow.getFocusedWindow();
     
-    // Implementation of return Specification ReturnObject
+    // Implementation of return Specification builderOutput
     const returnSpec = (sku, call, leadString, endString) => {
         let spec = getSkuCallValue(sku, call, config);
         if (spec) {
@@ -198,7 +214,7 @@ function generatorPiston(conditions, thisSku, config) {
         return null
     };
     
-    // Implementation of Replace and Return ReturnObject
+    // Implementation of Replace and Return builderOutput
     const replaceAndReturn = (sku, call, leadString, endString, findValue, replaceValue) => {
         // TODO: CLEAN THIS UP lol
         let spec = getSkuCallValue(sku, call, config);
@@ -211,17 +227,10 @@ function generatorPiston(conditions, thisSku, config) {
         return null
     }
 
-    // Wrapping card implementations in an object so they can be called using
-    // card types for simplicity
-    const functionCallWrapper = {
-        returnSpec,
-        replaceAndReturn
-    }
-
     for (let i in conditions) {
         let thisCondition = conditions[i];
         
-        let evaluatedObject = evaluateConditionals(thisCondition, thisSku, config)
+        let evaluatedObject = evalNestedConditions(thisCondition, thisSku, config)
 
         activeWindow.webContents.send("console-log",`I'm logging the returned evaluated object for condtion ${i}: ${thisCondition.call} `)
         activeWindow.webContents.send("console-display", JSON.stringify(evaluatedObject));
@@ -233,11 +242,11 @@ function generatorPiston(conditions, thisSku, config) {
                 return evaluatedObject.string;
             }
             if (evaluatedObject.type == 'returnSpec') {
-                return functionCallWrapper['returnSpec'](thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString)
+                return returnSpec(thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString)
             }
             //Card needed to be complete
             if (evaluatedObject.type == 'replaceAndReturn') {
-                return functionCallWrapper['replaceAndReturn'](thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString, evaluatedObject.find, evaluatedObject.replace)
+                return replaceAndReturn(thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString, evaluatedObject.find, evaluatedObject.replace)
             }
             if (evaluatedObject.type == 'returnNull') {
                 return null
@@ -249,7 +258,7 @@ function generatorPiston(conditions, thisSku, config) {
     return null;
 }
 
-function evaluateConditionals(conditional, thisSku, config, passed=false) {
+function evalNestedConditions(conditional, thisSku, config, passed=false) {
     // need to better build out OR case -> test if value is true and send bool that to indicate PASSED
     let activeWindow = BrowserWindow.getFocusedWindow();
     let thisType = conditional.type;
@@ -277,7 +286,7 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
         
         let nestedConditions = conditional.nestedConditions;
         for (let nestedCondition of nestedConditions) {
-            let output = evaluateConditionals(nestedCondition, thisSku, config, consolidatedPassedValues);
+            let output = evalNestedConditions(nestedCondition, thisSku, config, consolidatedPassedValues);
 
             if (output) {
                 return output
@@ -286,7 +295,7 @@ function evaluateConditionals(conditional, thisSku, config, passed=false) {
     } else if (passedTest && conditional.nestedType == "AND") {
         let nestedConditions = conditional.nestedConditions;
         for (let nestedCondition of nestedConditions) {
-            let output = evaluateConditionals(nestedCondition, thisSku, config);
+            let output = evalNestedConditions(nestedCondition, thisSku, config);
 
             if (output) {
                 return output

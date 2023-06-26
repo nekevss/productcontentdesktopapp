@@ -97,7 +97,7 @@ function ImportExcelData(importPath, config) {
     let utilityWorksheet = new RegExp("Cover$|STEP|Sheet[0-9]+", "g");
 
     const curatedSheets = workbook.SheetNames.filter(name=>!name.match(utilityWorksheet));
-    console.log(curatedSheets)
+    // console.log(curatedSheets)
     
     // Declare the current SKU array
     let currentSKUs = [];
@@ -118,7 +118,7 @@ function ImportExcelData(importPath, config) {
                 let activeField = fields[i];
                 // Keywords should be in config file as Attribution Entry point
                 if (activeField == config["Import Mapping"]["Attribute Entry Point"]) {
-                    console.log('Found an Entry point')
+                    console.log('Found an entry point for importing.')
                     mapped_sku[activeField] = sku[activeField];
                     mapped_sku.Specs = new Object();
                     for (j = i + 1; j <= fields.length - 2; j++) {
@@ -160,7 +160,7 @@ function ImportExcelData(importPath, config) {
             mapped_sku["Class"] = determinedClass;
             // Push mapped SKU into the current SKUs object
 
-            console.log(mapped_sku)
+            // console.log(mapped_sku)
             currentSKUs.push(mapped_sku)
         })
     })

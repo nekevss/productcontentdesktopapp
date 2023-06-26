@@ -1,6 +1,5 @@
 import React from 'react';
 import './style/BuilderControls.scss';
-import GenerateFormula from '../formula/GenerateFormula.js';
 
 export default function BuilderControls(props) {
     
@@ -35,8 +34,8 @@ export default function BuilderControls(props) {
         if (props.validationState == "Passed") {
             if (exportType == "formula" || exportType == "all") {
                 if (props.formula === "") {
-                    let formula = GenerateFormula(props.StyleGuide);
-                    props.updateFormula(formula);
+                    window.api.invoke("request-formula", props.styleGuide)
+                        .then((formula)=>{props.updateFormula(formula)})
                 } 
             }
             setTimeout(props.export(exportType), 500);

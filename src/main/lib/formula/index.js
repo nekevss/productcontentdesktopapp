@@ -1,14 +1,12 @@
 // GenerateFormula is going to be the first and ideally only instance of a context object.
 // 
-// TODO: Move this function into the main processes and call the value from the renderer to the main
-
 // I've avoided using context where possible in favor of passing a config, because while it 
 // seems to be the standard from what I've been able to tell over the course of some open 
 // source contributions. I find it too abstract and always needing some type of context in 
 // and of itself. When your context needs context, you're being too abstract. You know the 
 // application config is global, but is a context scoped locally or globally? Who knows.
 // I typically don't. I also didn't get a degree in comp sci...so I could just be wrong. 
-
+//
 // Context below refers to an object to be passed in with two distinct values
 // {"Style Guide Builder": {...}, formulaTypes:{...}}
 //
@@ -16,23 +14,22 @@
 // so that's easy, but Formula Types will need to be looped over the config object
 // and reassembled into nested objects...should be fun :)
 
-export default function GenerateFormula(context, thisStyleGuide) {
+function generateFormula(context, thisStyleGuide) {
     let returnGenerator = thisStyleGuide.returnGenerator;
     let lastCall = "";
     let formula = "";
 
-
-    console.log("Here's the context for this formula generation")
-    console.log(context);
+    // console.log("Here's the context for this formula generation")
+    // console.log(context);
 
     if (thisStyleGuide.type == "simple") {
         let thisGenerator = returnGenerator[0].thenReturn;
         formula = evaluateBuilder(context, thisGenerator, "");
     } else if (thisStyleGuide.type == "complex") {
         returnGenerator.forEach((value, index)=>{
-            console.log(`Logging current formula for iteration: ${index}`)
-            console.log(formula);
-            console.log(value);
+            // console.log(`Logging current formula for iteration: ${index}`)
+            // console.log(formula);
+            // console.log(value);
             let evaluatedObject = walkReturnGenerator(context, value, true, "", lastCall)
             lastCall = evaluatedObject.last;
             let evaluatedValue = evaluatedObject.output;
@@ -143,30 +140,52 @@ const evaluateBuilder = (context, incomingGen, pre) => {
             output += value.string;
         } else if (value.type == "spec") {
             let thisValue = "";
-            thisValue = context["Style Guide Builder"]["Call Open"] + value.spec;
+
+            if (value.postType) {
+                thisValue += ", ";
+            }
+            
+            thisValue += context["Style Guide Builder"]["Call Open"] + value.spec;
             if (value.endString || value.leadString) {
                 thisValue += " " + context["Style Guide Builder"]["Condition Phrase Open"];
-                //separating these out for the addition of value.startString
+                // separating these out for the addition of value.startString
                 thisValue += context["Style Guide Builder"]["Present Attribute Phrase"]
-                thisValue += value.leadString ? context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"] : "";
-                thisValue += value.leadString && value.endString ? " and" : "";
-                thisValue += value.endString ? context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.endString + '" ' + context["Style Guide Builder"]["Subsequent String Keyword"] : "";
+
+                if (value.leadString) {
+                    thisValue += context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"]; 
+                }
+
+                if (value.endString) {
+                    if (value.leadString) {
+                        thisValue += " and ";
+                    }
+
+                    thisValue += context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.endString + '" ' + context["Style Guide Builder"]["Subsequent String Keyword"];
+                }
+
                 thisValue += context["Style Guide Builder"]["Conditional Phrase Close"]
             }
 
             thisValue += context["Style Guide Builder"]["Call Close"];
             output += thisValue
         } else if (value.type == "function") {
-            let thisValue = context["Style Guide Builder"]["Call Open"] + value.forAttribute + " " + context["Style Guide Builder"]["Condition Phrase Open"]
+            let thisValue = "";
+            if (value.postType) {
+                thisValue += ", "
+            }
+
+            thisValue += context["Style Guide Builder"]["Call Open"] + value.forAttribute + " " + context["Style Guide Builder"]["Condition Phrase Open"]
             let conditions = value.conditions;
             conditions.forEach((condition, index)=>{
                 let conditionString = evaluateCondition(context, condition, value.forAttribute, true, "");
                 thisValue += conditionString
             })
+
+            // We trim here to remove the space after the period in ".)"
             thisValue = thisValue.trim() + context["Style Guide Builder"]["Conditional Phrase Close"] + context["Style Guide Builder"]["Call Close"];
             output += thisValue;
         } else {
-            console.log("There was an unexpected sub-generator type")
+            console.warn("There was an unexpected sub-generator type")
         }
     })
 
@@ -297,12 +316,15 @@ const parseReturnObject = (context, returnObject, parentAttribute) => {
         returnObjectString += returnObject.leadString 
             ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"] 
             : "";
+
         returnObjectString += returnObject.leadString && returnObject.endString 
             ? " and" 
             : "";
+
         returnObjectString += returnObject.endString !== "" 
             ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.endString + '" '+ context["Style Guide Builder"]["Subsequent String Keyword"] + context["Style Guide Builder"]["Statement Separator"] + " "
             : context["Style Guide Builder"]["Statement Separator"] + " ";
+
     } else if (returnObject.type == "returnNull") {
         returnObjectString = context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Return Error Phrase"] + context["Style Guide Builder"]["Statement Separator"] + " ";
     } else {
@@ -311,3 +333,5 @@ const parseReturnObject = (context, returnObject, parentAttribute) => {
 
     return returnObjectString
 }
+
+module.exports = { generateFormula };

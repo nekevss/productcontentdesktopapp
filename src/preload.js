@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld(
                 'request-class-data',
                 'request-skuset',
                 'request-name',
+                'request-formula',
                 'request-sku-report',
                 "request-cache-data",
                 "export-sng-package",

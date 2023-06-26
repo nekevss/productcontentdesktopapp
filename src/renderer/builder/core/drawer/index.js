@@ -1,11 +1,11 @@
 import React from 'react';
-import './style/treedrawer.scss';
-import RecursiveInputNode from "./FirstLevelConditionCard.js";
-import DefaultGeneratorCard from './FirstLevelDefaultCard.js';
+import './drawer.scss';
+import RecursiveInputNode from "./condition.js";
+import DefaultGeneratorCard from './default.js';
 
 // The TreeDrawer is a probably poorly named componenet that deals with the left hand side drawer of in an active workspace
 
-export default function TreeDrawer(props) {
+export default function WorkspaceDrawer(props) {
     const [styleGuideType, setStyleGuideType] = React.useState(props.StyleGuide.type);
     const [styleGuide, setStyleGuide] = React.useState(props.StyleGuide);
     const [conditionAmount, setConditionAmount] = React.useState(props.StyleGuide.returnGenerator.length);

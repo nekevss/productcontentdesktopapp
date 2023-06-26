@@ -3,8 +3,8 @@ const { BrowserWindow } = electron;
 const { conditionTests } = require("../conditions/condition-tests.js");
 const { getSkuCallValue } = require('../utils/index.js');
 
-// Okay, I super regret naming these Generators. They're basically just an AST Node
-// stack of sorts, and nowadays we call them Builders.
+// Okay, I super regret naming these Generators. They're basically just some AST nodes
+// of sorts, and nowadays we call them Builders.
 
 function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
     let activeWindow = BrowserWindow.getFocusedWindow();

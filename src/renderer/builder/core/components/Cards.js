@@ -38,9 +38,6 @@ export function DefaultGeneratorCard(props) {
 }
 
 export function InputGeneratorCard(props) {
-    const [nested, setNested] = React.useState(false)
-
-
     return (
         <div className="input-node">
             <InputForm {...props} />
@@ -113,21 +110,7 @@ function InputForm(props) {
     )
 }
 
-
-function nestedinput(props) {
-
-    //create another InputGeneratorCard
-
-    return (
-        <div className="nested-condition">
-
-
-        </div>
-    )
-}
-
 function TypeSelection(props) {
-
     return (
         <select className="text-input" value={props.selectionType} onChange={props.handleSelectionChange}>
             <option value={"if"}>If</option>

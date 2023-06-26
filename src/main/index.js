@@ -82,17 +82,25 @@ async function StreamData(readPath, writePath, type) {
 }
 
 async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku) {
-    let styleGuideJSON = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
+    console.log("finding the style guide");
+    let styleGuides;
+    try {
+        let styleGuideJSON = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
+        styleGuides = JSON.parse(styleGuideJSON);
+    } catch (err) {
+        console.log("oh, an error");
+        console.log(err);
+        return err
+    }
     
     const ownBrands = config["Functional Data"]["Staples Brands"];
     const thisBrand = incomingSku[config["Excel Mapping"]["Brand"]];
     const isOwnBrand = ownBrands.includes(thisBrand);
     const ownBrandClass = "Own Brands " + incomingClass
     if (isOwnBrand) {console.log("Found an Own Brand SKU")}
-    console.log(ownBrandClass)
+    // console.log(ownBrandClass)
 
-    let StyleGuides = JSON.parse(styleGuideJSON);
-    let SGArray = StyleGuides.data;
+    let SGArray = styleGuides.data;
     let foundStyleGuide = null;
     for (let index in SGArray) {
         let thisSG = SGArray[index];

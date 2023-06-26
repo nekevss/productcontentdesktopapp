@@ -7,7 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { fetchStateAndData, findStyleGuide, checkForCurrent, fetchConfig } = require('../index.js');
-const { pleaseSirABuilder, builderEngine, reportRunner, fetchAttributes, determineWebClass } = require('../lib/index.js');
+const { pleaseSirABuilder, builderEngine, reportRunner, fetchAttributes, determineWebClass, generateFormula } = require('../lib/index.js');
 
 const activeUser = os.userInfo().username;
 const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
@@ -165,6 +165,33 @@ ipcMain.handle('request-class-details', async(event, arg) => {
 ipcMain.handle("request-name", (event, package)=>{
     const output = builderEngine(package.sku, package.generator, package.config);
     return output
+})
+
+ipcMain.handle("request-formula", async(event, requestStyleGuide)=>{
+    let config = await fetchConfig();
+
+    let formulaTypes = {};
+    let context = {};
+
+    // Carry over the Style Guide Builder Object and values from config
+    context["Style Guide Builder"] = config["Style Guide Builder"];
+
+    let configTypes = config["Formula Types"];
+    for (const [key, value] of Object.entries(configTypes)) {
+        // I'm only doing the below because I know there is only one space...
+        // AKA YOLO LOL
+        const [type, op] = key.split(" ");
+
+        if (Object.keys(formulaTypes).includes(type)) {
+            formulaTypes[type][op] = value;
+        } else {
+            formulaTypes[type] = {};
+            formulaTypes[type][op] = value;
+        }
+    }
+    context.formulaTypes = formulaTypes;
+
+    return generateFormula(context, requestStyleGuide)
 })
 
 ipcMain.handle("request-cache-data", async(event, args)=>{

@@ -53,13 +53,20 @@
 
                 &.checkbox {
                     &>div {
-                        text-align:right;
-                        width: 60%;
-                        margin:auto 0.25em auto auto;
-                    }
+                        display: flex;
+                        flex-direction: row;
+                        width: 90%;
+                        margin: auto 0 auto auto;
 
-                    &>input {
-                        margin:auto 0.25em auto;
+                        &>div {
+                            text-align:right;
+                            width: 70%;
+                            margin:auto 0.25em auto auto;
+                        }
+
+                        &>input {
+                            margin:auto 0.25em auto;
+                        }
                     }
                 }
             }

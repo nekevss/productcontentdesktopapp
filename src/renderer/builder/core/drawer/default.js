@@ -1,5 +1,5 @@
 import React from 'react';
-import './style/treedrawer.scss';
+import './drawer.scss';
 
 //Default Generator Card
 

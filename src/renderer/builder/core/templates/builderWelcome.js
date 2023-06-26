@@ -38,6 +38,7 @@ export default function BuilderWelcome(props) {
                     <li><b>Includes (Spec-Value): </b>Returns true in the case where the expected value is found within the called attribute, if not returns false and moves to next case</li>
                     <li><b>Equals (Spec-Spec): </b>Returns true in the case where the called attribute is equal to secondary called attribute (Please note: expected values are treated as attribute calls), if not returns false and moves to next case</li>
                     <li><b>Not Equals (Spec-Spec): </b>Returns true in the case where the called attribute is not equal to secondary called attribute (Please note: expected values are treated as attribute calls), if not returns false and moves to next case</li>
+                    <li><b>Contains (Spec-Spec): </b>Returns true in the case where the secondary called attribute (Expected) is found within the primary called spec (Attribute), if not returns false and moves to next case</li>
                 </ul>
                 <p>Important Notes:</p>
                 <ul>

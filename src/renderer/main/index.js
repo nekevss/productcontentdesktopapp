@@ -81,10 +81,11 @@ export default function MainInterface(props) {
     }
 
     const returnDataAndState = async(newPosition) => {       
-        //run fetch here
+        // run fetch here
         const responseState = await window.api.invoke("request-sku-and-state", newPosition);
-        //invoke this separate, because it only needs to be invoked when
-        //a class is updated
+
+        // invoke this separate, because it only needs to be invoked when
+        // a class is updated
         console.log("Logging the config");
         console.log(config);
         const activeConfig = config.current;
@@ -96,7 +97,7 @@ export default function MainInterface(props) {
             thisSku: responseState.sku, 
             thisPath: webPath
         }
-        // change channel name from generator-request to request-class-details
+
         // run fetch here
         const classDetails = await window.api.invoke('request-class-details', detailQuery)
 
@@ -126,7 +127,8 @@ export default function MainInterface(props) {
             }
             console.log("Position is being changed to: ")
             console.log(newPosition);
-            //run fetch here
+
+            // run fetch here in future if remote API is implemented.
             let data = await returnDataAndState(newPosition)
             sku.current = data.sku;
             const active = data.type === "current" ? true : false;

@@ -6,6 +6,8 @@ import './style/config-interface.scss';
 // Props for ConfigurationInterace are
 // requestedSections: String[] -> specific headers or ["all"]
 
+// For overview, this was separated out in case of pulling the interface into individual "drawers" or overlays
+
 export default function ConfigInterface(props) {
     const [thisConfig, setThisConfig] = React.useState({});
     const [sectionStack, setSectionStack] = React.useState([]);
@@ -109,7 +111,10 @@ function ConfigurationSection(props) {
         console.log("New section has been input")
 
         sectionValues.forEach((value, index)=>{
-            if (Array.isArray(_section[value])) {
+            if (value.includes("metadata")) {
+                // Reserve metadata fields titles
+                // TODO: Add metadata-summary field for under header
+            } if (Array.isArray(_section[value])) {
                 stack.push(
                     <ArrayConfigurationElement 
                         key={props.sectionTitle+"-element-"+index}

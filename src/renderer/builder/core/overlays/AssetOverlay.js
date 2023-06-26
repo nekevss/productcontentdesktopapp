@@ -1,14 +1,12 @@
 import React from 'react';
 import './style/AssetOverlay.scss';
-import GenerateFormula from '../formula/GenerateFormula.js';
 
 
 export default function AssetOverlay(props) {
     const [thisAsset, setThisAsset] = React.useState('');
-    const [config, setThisConfig] = React.useState({});
 
     React.useEffect(()=>{
-        window.api.invoke('fetch-configuration').then(data=>setThisConfig(data)).then(err=>{if(err){console.log(err)}})        
+        setThisAsset(props.StyleGuide)
     },[])
 
     React.useEffect(()=>{
@@ -19,7 +17,7 @@ export default function AssetOverlay(props) {
     return (
         <div className="asset-overlay" onClick={()=>{props.setOverlay("")}}>
             <div className="asset-interface" onClick={(evt)=>{evt.stopPropagation()}}>
-                <StyleGuideFormula {...props} config={config} asset={thisAsset} />
+                <StyleGuideFormula {...props} asset={thisAsset} />
                 <AssetJSON asset={thisAsset} />
             </div>
         </div>
@@ -76,43 +74,18 @@ function StyleGuideFormula(props) {
 
     React.useEffect(()=>{
         // console.log("Made it to formula Generation level");
-        let formula = "";
-        console.log(props.config)
-
-        if (props.asset && props.config) {
-            // We now should know we are generating a formula, so let's create our context
-            let formulaTypes = {};
-            let context = {};
-            // Carry over the Style Guide Builder Object and values from config
-            context["Style Guide Builder"] = props.config["Style Guide Builder"];
-            
-            let configTypes = props.config["Formula Types"];
-            for (const [key, value] of Object.entries(configTypes)) {
-                // I'm only doing the below because I know there is only one space...
-                // AKA YOLO LOL
-                const [type, op] = key.split(" ");
-
-                if (Object.keys(formulaTypes).includes(type)) {
-                    formulaTypes[type][op] = value;
-                } else {
-                    formulaTypes[type] = {};
-                    formulaTypes[type][op] = value;
-                }
-            }
-            console.log("Here's the generated formula types");
-            console.log(formulaTypes);
-
-            context.formulaTypes = formulaTypes
-            
-            formula = GenerateFormula(context, props.asset);
-
-            console.log("Logging formula being set");
-            console.log(formula);
+        // console.log(props.config)
+        if (props.asset) {
+            window.api.invoke("request-formula", props.asset)
+                .then((formula)=>{
+                    setStyleGuideFormula(formula)
+                    props.updateFormula(formula)
+                })
+        } else {
+            setStyleGuideFormula("");
+            props.updateFormula("");
         }
-        
-        setStyleGuideFormula(formula);
-        props.updateFormula(formula);
-    }, [props.config])
+    }, [props.asset])
 
 
     const handleCopy = () => {

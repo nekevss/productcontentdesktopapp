@@ -5,7 +5,7 @@ import ReactLoading from 'react-loading';
 import './style/legacy.scss'
 import BlankNavbar from '../blank-nav'
 
-
+/*
 export default class LegacyInterface extends React.Component {
     constructor(props) {
         super(props)
@@ -34,6 +34,34 @@ export default class LegacyInterface extends React.Component {
             </>
         );
     }
+}
+*/
+
+export default function LegacyInterface(props) {
+    const [skuDataSet, setSkuDataSet] = React.useState([]);
+    const [config, setConfig] = React.useState([]);
+
+    React.useEffect(()=> {
+        window.api.invoke("fetch-configuration")
+            .then((config)=>{setConfig(config)});
+
+        window.api.invoke("request-skuset")
+            .then((data)=>{setSkuDataSet(data)});
+    }, [])
+
+    React.useEffect(()=>{
+        window.api.invoke("request-skuset")
+            .then((data)=>{setSkuDataSet(data)});
+    }, [props.reload])
+
+    return (
+        <>
+            <BlankNavbar />
+            <div className="legacy-view">
+                <LegacySkuTable {...props} skuset={skuDataSet} config={config} />
+            </div>
+        </>
+    );
 }
 
 function LegacySkuTable(props) {

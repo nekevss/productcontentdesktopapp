@@ -1,5 +1,5 @@
 
-function indexSkuContent(sku, config) {
+function prepareIndexableSkuContent(sku, config) {
     
     let indexableFields = config["Functional Data"]["Reporting Fields"];
     
@@ -17,8 +17,6 @@ function indexSkuContent(sku, config) {
     return nonDuplicateContent.join("").toLowerCase()
 }
 
-
-
 module.exports = {
-    indexSkuContent
+    prepareIndexableSkuContent
 }

@@ -9,35 +9,34 @@ export default function GeneratedName(props) {
 
     React.useEffect(()=>{
         if (props.sku && props.gen) {
-            runRequest().then((response)=>{
-                //set values based on response
-                if (response.check) {
-                    setCheckResult("Pass")
-                } else {
-                    setCheckResult("Failed")
-                }
+            let request = {
+                sku: props.sku,
+                generator:props.gen,
+                config: props.config
+            };
 
-                let confidence = response.confidence.checks === 0 ? 0 : (response.confidence.finds / response.confidence.checks) * 100;
-                let confidenceLevel = confidence === 0 ? 0 + "%" : confidence.toPrecision(4) + "%";
+            // send request to Main Process
+            window.api.invoke("request-name", request)
+                .then((response)=>{
+                    // set values based on response
+                    if (response.check) {
+                        setCheckResult("Pass")
+                    } else {
+                        setCheckResult("Failed")
+                    }
 
-                setConfidenceLevel(confidenceLevel)
-                setGeneratorReturn(response.name)
-            }).catch((err)=>{if(err){console.log(err)}});
+                    let confidence = response.confidence.checks === 0 ? 0 : (response.confidence.finds / response.confidence.checks) * 100;
+                    let confidenceLevel = confidence === 0 ? 0 + "%" : confidence.toPrecision(4) + "%";
+
+                    setConfidenceLevel(confidenceLevel)
+                    setGeneratorReturn(response.name)
+                })
+                .catch((err)=>{if(err){console.log(err)}});
         } else {
             console.log("Current SKU or Generator is null");
         }
     }, [props.sku])
     
-    const runRequest  = async() => {
-        const request = {
-            sku: props.sku,
-            generator:props.gen,
-            config: props.config
-        };
-        //send request to Main Process
-        return await window.api.invoke("request-name", request);
-    }
-
     return (
         <div className="gen-name-container">
             <div><b>Recommended SKU Name:</b></div>

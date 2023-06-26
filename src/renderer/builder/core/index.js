@@ -1,7 +1,7 @@
 import React from 'react';
 import './style/BuilderWorkspace.scss';
-import ActiveBuilder from './active.js';
-import TreeDrawer from './components/TreeDrawer.js';
+import ActiveBuilder from './workspace/index.js';
+import WorkspaceDrawer from './drawer/index.js';
 import BuilderWelcome from './templates/builderWelcome.js';
 
 export default function BuilderWorkspace(props) {
@@ -75,7 +75,7 @@ export default function BuilderWorkspace(props) {
     )
 }
 
-//Move active workspace to a separate file and import.
+// Move active workspace to a separate file and import.
 function ActiveWorkspace(props) {
     const [drawerStack, setDrawerStack] = React.useState([])
     const [activeSGIndex, setActiveSGIndex] = React.useState(0)
@@ -106,7 +106,7 @@ function ActiveWorkspace(props) {
                 <div className="drawer-header">
                     <div className="minimize-div"><img onClick={()=>{toggleDrawer()}} src="./assets/Staple.png"></img></div>
                 </div>
-                <TreeDrawer {...props} 
+                <WorkspaceDrawer {...props} 
                     OpenStyleGuide={(g,l,i)=>OpenInDisplay(g,l,i)}
                 />
             </div>

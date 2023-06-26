@@ -174,6 +174,7 @@ class App extends React.Component {
             case "legacy":
                 return (
                     <LegacyInterface
+                        reload={this.state.reload}
                         focusSKU={this.focusSKU}
                         changeViewWithFocus={(newView, newFocus) => {this.changeViewWithFocus(newView, newFocus)}}
                         />
