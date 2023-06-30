@@ -31,14 +31,14 @@ export default function BuilderWelcome(props) {
                 </ul>
                 <p>Logic Types Overview</p>
                 <ul>
-                    <li><b>If (Spec-Value): </b>Returns true in the case where the called attribute is equal to expected value(s), if not returns false and moves to next case</li>
-                    <li><b>Else (Default): </b>Provides true in all cases, never returns false</li>
-                    <li><b>If Not (Spec-Value): </b>Returns true in the case where the called attribute is not equal to expected value(s), if not returns false and moves to next case</li>
-                    <li><b>If Null (Spec): </b>Returns a null value, which throws an error on the case, if not returns false and moves to next case</li>
-                    <li><b>Includes (Spec-Value): </b>Returns true in the case where the expected value is found within the called attribute, if not returns false and moves to next case</li>
-                    <li><b>Equals (Spec-Spec): </b>Returns true in the case where the called attribute is equal to secondary called attribute (Please note: expected values are treated as attribute calls), if not returns false and moves to next case</li>
-                    <li><b>Not Equals (Spec-Spec): </b>Returns true in the case where the called attribute is not equal to secondary called attribute (Please note: expected values are treated as attribute calls), if not returns false and moves to next case</li>
-                    <li><b>Contains (Spec-Spec): </b>Returns true in the case where the secondary called attribute (Expected) is found within the primary called spec (Attribute), if not returns false and moves to next case</li>
+                    <li><b>If (SpecAttribute-Expected Value): </b>Returns true in the case where the called attribute is equal to expected value(s), if not returns false and moves to next case</li>
+                    <li><b>Else (SpecAttribute): </b>Provides true in all cases where a value exists, never returns false</li>
+                    <li><b>If Not (SpecAttribute-Expected Value): </b>Returns true in the case where the called attribute is not equal to expected value(s), if not returns false and moves to next case</li>
+                    <li><b>If Blank (SpecAttribute): </b>Returns a null value, which throws an error on the case, if not returns false and moves to next case</li>
+                    <li><b>Includes (SpecAttribute-Expected Value): </b>Returns true in the case where the expected value is found within the called attribute, if not returns false and moves to next case</li>
+                    <li><b>Equals (Attribute Value-Attribute Value): </b>Returns true in the case where the called attribute is equal to secondary called attribute (Please note: expected values are treated as attribute calls), if not returns false and moves to next case</li>
+                    <li><b>Not Equals (Attribute Value-Attribute Value): </b>Returns true in the case where the called attribute is not equal to secondary called attribute (Please note: expected values are treated as attribute calls), if not returns false and moves to next case</li>
+                    <li><b>Contains (Attribute Value-Attribute Value): </b>Returns true in the case where the secondary called attribute (Expected) is found within the primary called spec (Attribute), if not returns false and moves to next case</li>
                 </ul>
                 <p>Important Notes:</p>
                 <ul>

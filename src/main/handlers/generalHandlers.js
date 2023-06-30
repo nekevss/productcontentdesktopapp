@@ -246,6 +246,7 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
                 skuClass: activeClass,
                 generatedName: generatorReturn.name,
                 confidence: generatorReturn.confidence,
+                confidenceGrade: generatorReturn.confidenceGrade,
                 check: generatorReturn.check
             })
             //calculate for the report

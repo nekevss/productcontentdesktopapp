@@ -152,7 +152,7 @@ export default function ActiveBuilder(props) {
             return {
                 type: callType,
                 report: true,
-                postType: false,
+                commaLed: false,
                 spec : "",
                 leadString:"",
                 endString : ""
@@ -161,7 +161,7 @@ export default function ActiveBuilder(props) {
             return {
                 type: callType,
                 report : true,
-                postType: false,
+                commaLed: false,
                 forAttribute : "",
                 conditions: []
             }

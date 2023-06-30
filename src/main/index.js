@@ -5,6 +5,7 @@ const { app, BrowserWindow, dialog } = electron;
 const fsp = require('fs').promises;
 const fs = require('fs');
 const path = require('path');
+const { fetchStyleGuideAsset } = require("./fetch");
 
 //the below isn't in use. Just practice/test.
 //would need to manage passing the reference to the mainWindow and import dialog

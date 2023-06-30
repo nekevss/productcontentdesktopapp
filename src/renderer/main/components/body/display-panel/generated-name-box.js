@@ -18,6 +18,8 @@ export default function GeneratedName(props) {
             // send request to Main Process
             window.api.invoke("request-name", request)
                 .then((response)=>{
+                    console.log("Logging generated name report")
+                    console.log(response)
                     // set values based on response
                     if (response.check) {
                         setCheckResult("Pass")
@@ -25,8 +27,7 @@ export default function GeneratedName(props) {
                         setCheckResult("Failed")
                     }
 
-                    let confidence = response.confidence.checks === 0 ? 0 : (response.confidence.finds / response.confidence.checks) * 100;
-                    let confidenceLevel = confidence === 0 ? 0 + "%" : confidence.toPrecision(4) + "%";
+                    let confidenceLevel = response.confidenceGrade === 0 ? 0 + "%" : response.confidenceGrade + "%";
 
                     setConfidenceLevel(confidenceLevel)
                     setGeneratorReturn(response.name)
@@ -42,10 +43,7 @@ export default function GeneratedName(props) {
             <div><b>Recommended SKU Name:</b></div>
             <div className="gen-name" dangerouslySetInnerHTML={{__html: generatorReturn}}></div>
             <div><b>Recommended Name Check:</b></div>
-            {checkResult === "Pass"
-            ? <div dangerouslySetInnerHTML={{__html:checkResult + " with " + confidenceLevel + " confidence"}}></div>
-            :<div dangerouslySetInnerHTML={{__html:checkResult}}></div>
-            }
+            <div dangerouslySetInnerHTML={{__html:checkResult + " with a score of " + confidenceLevel}}></div>
         </div>
         
     )

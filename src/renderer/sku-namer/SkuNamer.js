@@ -40,7 +40,7 @@ export default function BulkSkuNamer(props) {
 
         if (firstTableValues.length == 0) {
             firstTableValues.push(<tr key={"first-table-hrow"}><th key={"P-ID-header"}>Pyramid ID</th><th key={"class-header"}>Class</th></tr>)
-            secondTableValues.push(<tr key={"second-table-hrow"}><th key={"gen-name-header"}>Generated Name</th><th key={"pass-fail-header"}>Pass/Fail</th><th key={"confidence"}>Confidence Level</th></tr>)
+            secondTableValues.push(<tr key={"second-table-hrow"}><th key={"gen-name-header"}>Generated Name</th><th key={"pass-fail-header"}>Pass/Fail</th><th key={"confidence"}>Confidence Score</th></tr>)
         }
 
         let batchStartIndex = firstTableValues.length
@@ -57,8 +57,7 @@ export default function BulkSkuNamer(props) {
                 </tr>
             );
             let checkResult = value.check ? "Pass" : "Fail";
-            const confidenceLevel = value.confidence.checks === 0 ? 0 : (value.confidence.finds / value.confidence.checks) * 100;
-            const confidenceDisplayValue = confidenceLevel === 0 ? 0 + "%" : confidenceLevel.toPrecision(4) + "%"
+            const confidenceDisplayValue = value.confidenceGrade === 0 ? 0 + "%" : value.confidenceGrade + "%"
             secondTableValues.push(
                 <tr key={"second-table-"+batchIndex}>
                     <td key={"GeneratedName"+batchIndex} dangerouslySetInnerHTML={{__html:value.generatedName}}></td>

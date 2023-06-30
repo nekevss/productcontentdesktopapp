@@ -8,19 +8,22 @@ function builderEngine(sku, gen, config) {
     let activeWindow = BrowserWindow.getFocusedWindow()
     let genreport = {};
     let failureCount = 0;
-    //the check is assumed true until proven false.
-    //Logic dictates that an assumed false until proven true approach would be best, but
-    //but how would result remain persistent across all calls without recording all calls.
+    // the check is assumed true until proven false.
+    // Logic dictates that an assumed false until proven true approach would be best, but
+    // but how would result remain persistent across all calls without recording all calls.
 
-    //that being said we are innocent until proven guilty. Perhaps this holds here.
+    // that being said we are innocent until proven guilty. Perhaps this holds here.
 
-    //init return object
+    // init return object
     let builderOutput = {
         check: true, 
         confidence: {
+            fails: 0,
+            weightedFails:0,
             checks: 0,
             finds: 0
         },
+        confidenceGrade: 0,
         name: "", 
         report: {},
         log: []
@@ -42,9 +45,12 @@ function builderEngine(sku, gen, config) {
         return {
             check: false,
             confidence: {
+                fails: 0,
+                weightedFails: 0,
                 checks: 0,
                 finds: 0
             },
+            confidenceGrade: 0,
             name: "*Error*",
             report: {},
             log:[`${skuId}: Null generator error`]
@@ -75,7 +81,7 @@ function builderEngine(sku, gen, config) {
                 builderOutput.confidence.finds += f
 
                 // Add values to output
-                if (value.postType) {
+                if (value.commaLed) {
                     name+= ", "
                 }
                 name += functionOutput;
@@ -83,10 +89,16 @@ function builderEngine(sku, gen, config) {
                 if (functionData.report) {
                     activeWindow.webContents.send("console-log",`Sku failed report at ${funcname}`)
                     builderOutput.log.push(`${skuId} failed at ${funcname} call`);
-                    builderOutput.confidence.checks += (2 ** failureCount); // This is a pretty naive way to weight the confidence lower on failures. Maybe adjust later?
-                    failureCount += 1;
                     perCallCheck = false;
+                    // We're going to weight mandatory attributes here quite a bit. The reason being
+                    // that if a mandatory attribute is failed, then the SKU name is guaranteed to 
+                    // be off. So confidence in the output should be rock bottom.
+                    builderOutput.confidence.weightedFails += 1
+                } else {
+                    builderOutput.confidence.fails += 1
                 }
+                // Confidence check should run regardless of mandatory-ness
+                builderOutput.confidence.checks += 1; // This is a pretty naive way to weight the confidence lower on failures. Maybe adjust later?
             }   
         } else if (value.type == "spec") {
             let generatorcall = value.spec;
@@ -115,14 +127,14 @@ function builderEngine(sku, gen, config) {
                     if (specval.includes(brand_to_test)) {
                         activeWindow.webContents.send("console-log","Sku failed the report at Brand/Series or Collection duplication")
                         builderOutput.log.push(`${skuId} failed due to duplicate value in brand and series or collection`)
-                        builderOutput.confidence.checks += (4 ** failureCount);
-                        failureCount += 1;
+                        builderOutput.confidence.checks += 1;
+                        builderOutput.confidence.fails += 1;
                         perCallCheck = false;
                     }
                 }
 
                 let nameAddition = "";
-                if (value.postType) {
+                if (value.commaLed) {
                     nameAddition += ", "
                 }
 
@@ -144,10 +156,14 @@ function builderEngine(sku, gen, config) {
                 if (value.report) {
                     activeWindow.webContents.send("console-log",`Sku failed the report at ${generatorcall}`);
                     builderOutput.log.push(`${skuId} failed at ${generatorcall} call`)
-                    builderOutput.confidence.checks += (4 ** failureCount);
-                    failureCount += 1;
                     perCallCheck = false;
+                    // Same as above: weighting the mandatory attributes.
+                    builderOutput.confidence.weightedFails += 1;
+                } else {
+                    builderOutput.confidence.fails += 1;
                 }
+                // Confidence checks should run regardless of reporting mandatory-ness.
+                builderOutput.confidence.checks += 1;
             }
         } else if (value.type == "string") {
             //This else statement handles strings
@@ -156,12 +172,13 @@ function builderEngine(sku, gen, config) {
             builderOutput.confidence.finds += f
             name += value.string;
         } else {
-            //This else statement handles errors
+            // This else statement handles errors
             name += "*Error*";
             builderOutput.log.push(`${skuId} contains an unknown call type`)
             perCallCheck = false;
-            builderOutput.confidence.checks += (10 * (2 ** failureCount));
-            failureCount += 1;
+            // Special error -> if this happens we confidence has to be dirt.
+            builderOutput.confidence.checks += 1;
+            builderOutput.confidence.weightedFails += 1;
         }
 
         //setting return objects checker to false if null is found
@@ -199,6 +216,7 @@ function builderEngine(sku, gen, config) {
 
     builderOutput.report = genreport;
     builderOutput.name = name;
+    builderOutput.confidenceGrade = calculateConfidenceScore(builderOutput.confidence)
     return builderOutput;
 }
 
@@ -440,6 +458,11 @@ function confidenceCheck(addValue, indexedContent) {
     return [checks, finds]
 }
 
+function calculateConfidenceScore(confidence) {
+    let failureWeight = 2 ** (confidence.fails + (confidence.weightedFails * 4));
+    let score = (confidence.finds / (confidence.checks + failureWeight)) * 100
+    return score.toPrecision(4);
+}
 
 module.exports = {
     builderEngine

@@ -13,6 +13,12 @@
 // Style Guide Builder should just carry over the values of the config object,
 // so that's easy, but Formula Types will need to be looped over the config object
 // and reassembled into nested objects...should be fun :)
+//
+//
+// Configuration Rules pertaining to formulas:
+//   - Phrases can include spaces
+//   - Keywords, Operators, and Separators are not responsible for their spaces.
+//
 
 function generateFormula(context, thisStyleGuide) {
     let returnGenerator = thisStyleGuide.returnGenerator;
@@ -46,7 +52,7 @@ const walkReturnGenerator = (context, incomingReturnGenerator, isFirstLevel, pre
     let output = "";
     let lastCall = last;
     let evaluatedObject = {};
-    const formulaValues = context["Style Guide Builder"];
+    const lexicalValues = context["Style Guide Builder"];
     const formulaTypes = context.formulaTypes;
 
     // console.log(`Here's last call in the lower level: ${last}`);
@@ -58,18 +64,18 @@ const walkReturnGenerator = (context, incomingReturnGenerator, isFirstLevel, pre
 
         if (incomingReturnGenerator.type != "else") {
             let tempString = isFirstLevel 
-                ? formulaValues["Conditional SG Open"] + " " + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operator 
-                :  pre + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operator;
+                ? lexicalValues["Conditional Guide Open Separator"] + " " + lexicalValues["Call Open Separator"] + incomingReturnGenerator.spec + lexicalValues["Call Close Separator"] + operationValues.operator 
+                :  pre + lexicalValues["Call Open Separator"] + incomingReturnGenerator.spec + lexicalValues["Call Close Separator"] + operationValues.operator;
             
             const SpecToSpec = ["equals", "notEquals","contains"];
             if (SpecToSpec.includes(incomingReturnGenerator.type)){
-                tempString += formulaValues["Call Open"] + incomingReturnGenerator.ifCalled.join(formulaValues["Call Close"] + operationValues.returnGenJoinClause + formulaValues["Call Open"]) + formulaValues["Call Close"];
+                tempString += lexicalValues["Call Open Separator"] + incomingReturnGenerator.ifCalled.join(lexicalValues["Call Close Separator"] + operationValues.returnGenJoinClause + lexicalValues["Call Open Separator"]) + lexicalValues["Call Close Separator"];
             } else {
                 tempString += '"' + incomingReturnGenerator.ifCalled.join('"' + operationValues.returnGenJoinClause+'"') + '"';
             }
             
             if (incomingReturnGenerator.thenReturn) {
-                tempString += formulaValues["Conditional SG Close"] + " ";
+                tempString += lexicalValues["Conditional Guide Close Separator"] + " ";
                 lastCall = incomingReturnGenerator.spec;
                 output += evaluateBuilder(context, incomingReturnGenerator.thenReturn, tempString);
                 output += "<br><br>";
@@ -77,7 +83,7 @@ const walkReturnGenerator = (context, incomingReturnGenerator, isFirstLevel, pre
                 //meant to verify if a leaf exists, but has not style guide on the end
                 console.log("Found an empty Style Guide.")
                 console.log(output)
-                output += tempString + formulaValues["Conditional SG Close"] + " ";
+                output += tempString + lexicalValues["Conditional Guide Close Separator"] + " ";
             } else {
                 let nestedConditions = incomingReturnGenerator.nestedConditions;
                 tempString += incomingReturnGenerator.nestedType == "AND" ? " and " : " or ";
@@ -96,18 +102,18 @@ const walkReturnGenerator = (context, incomingReturnGenerator, isFirstLevel, pre
 
             let tempString = isFirstLevel
                 ? incomingReturnGenerator.spec
-                    ? formulaValues["Conditional SG Open"] + " " + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operator
-                    : formulaValues["Conditional SG Open"] + " " + formulaValues["Call Open"] + lastCall + formulaValues["Call Close"] + operationValues.operator
+                    ? lexicalValues["Conditional Guide Open Separator"] + " " + lexicalValues["Call Open Separator"] + incomingReturnGenerator.spec + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Else Phrase"]
+                    : lexicalValues["Conditional Guide Open Separator"] + " " + lexicalValues["Call Open Separator"] + lastCall + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Else Phrase"]
                 : incomingReturnGenerator.spec
-                    ? pre + formulaValues["Call Open"] + incomingReturnGenerator.spec + formulaValues["Call Close"] + operationValues.operator
-                    : pre + formulaValues["Call Open"] + lastCall + formulaValues["Call Close"] + operationValues.operator;
+                    ? pre + lexicalValues["Call Open Separator"] + incomingReturnGenerator.spec + lexicalValues["Call Close Separator"] + operationValues.operator
+                    : pre + lexicalValues["Call Open Separator"] + lastCall + lexicalValues["Call Close Separator"] + operationValues.operator;
             if (incomingReturnGenerator.thenReturn) {
-                tempString += formulaValues["Conditional SG Close"] + " ";
+                tempString += lexicalValues["Conditional Guide Close Separator"] + " ";
                 output += evaluateBuilder(context, incomingReturnGenerator.thenReturn, tempString);
                 output += "<br><br>";
             } else if (!incomingReturnGenerator.nestedType && !incomingReturnGenerator.thenReturn) {
                 //meant to verify if a leaf exists, but has not style guide on the end
-                output += tempString + formulaValues["Conditional SG Close"] + " ";
+                output += tempString + lexicalValues["Conditional Guide Close Separator"] + " ";
             } else {
                 let nestedConditions = incomingReturnGenerator.nestedConditions;
                 tempString += incomingReturnGenerator.nestedType == "AND" ? " and " : " or ";
@@ -134,6 +140,7 @@ const walkReturnGenerator = (context, incomingReturnGenerator, isFirstLevel, pre
 
 const evaluateBuilder = (context, incomingGen, pre) => {
     let output = pre;
+    const lexicalValues = context["Style Guide Builder"];
 
     incomingGen.forEach((value, index)=>{
         if (value.type == "string") {
@@ -141,40 +148,42 @@ const evaluateBuilder = (context, incomingGen, pre) => {
         } else if (value.type == "spec") {
             let thisValue = "";
 
-            if (value.postType) {
+            if (value.commaLed) {
                 thisValue += ", ";
             }
             
-            thisValue += context["Style Guide Builder"]["Call Open"] + value.spec;
+            thisValue += lexicalValues["Call Open Separator"] + value.spec;
             if (value.endString || value.leadString) {
-                thisValue += " " + context["Style Guide Builder"]["Condition Phrase Open"];
+                thisValue += " " + lexicalValues["Condition Open Separator"];
                 // separating these out for the addition of value.startString
-                thisValue += context["Style Guide Builder"]["Present Attribute Phrase"]
+                thisValue += lexicalValues["Present Attribute Phrase"]
+
+                if (value.leadString || value.endString) {
+                    thisValue += " " + lexicalValues["Conditional Clause Separator"] + " "
+                }
 
                 if (value.leadString) {
-                    thisValue += context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"]; 
+                    thisValue += lexicalValues["Conditional String Keyword"] + ' "' + value.leadString + '" ' + lexicalValues["Leading String Keyword"]; 
                 }
 
                 if (value.endString) {
-                    if (value.leadString) {
-                        thisValue += " and ";
-                    }
-
-                    thisValue += context["Style Guide Builder"]["Conditional String Keyword"] + '"' + value.endString + '" ' + context["Style Guide Builder"]["Subsequent String Keyword"];
+                    thisValue += value.leadString
+                        ? " and " + lexicalValues["Conditional String Keyword"].toLowerCase() + ' "' + value.endString + '" ' + lexicalValues["Subsequent String Keyword"]
+                        : lexicalValues["Conditional String Keyword"] + ' "' + value.endString + '" ' + lexicalValues["Subsequent String Keyword"];
                 }
 
-                thisValue += context["Style Guide Builder"]["Conditional Phrase Close"]
+                thisValue += lexicalValues["Statement Separator"] + lexicalValues["Condition Close Separator"]
             }
 
-            thisValue += context["Style Guide Builder"]["Call Close"];
+            thisValue += lexicalValues["Call Close Separator"];
             output += thisValue
         } else if (value.type == "function") {
             let thisValue = "";
-            if (value.postType) {
+            if (value.commaLed) {
                 thisValue += ", "
             }
 
-            thisValue += context["Style Guide Builder"]["Call Open"] + value.forAttribute + " " + context["Style Guide Builder"]["Condition Phrase Open"]
+            thisValue += lexicalValues["Call Open Separator"] + value.forAttribute + " " + lexicalValues["Condition Open Separator"]
             let conditions = value.conditions;
             conditions.forEach((condition, index)=>{
                 let conditionString = evaluateCondition(context, condition, value.forAttribute, true, "");
@@ -182,7 +191,7 @@ const evaluateBuilder = (context, incomingGen, pre) => {
             })
 
             // We trim here to remove the space after the period in ".)"
-            thisValue = thisValue.trim() + context["Style Guide Builder"]["Conditional Phrase Close"] + context["Style Guide Builder"]["Call Close"];
+            thisValue = thisValue.trim() + lexicalValues["Condition Close Separator"] + lexicalValues["Call Close Separator"];
             output += thisValue;
         } else {
             console.warn("There was an unexpected sub-generator type")
@@ -197,6 +206,7 @@ const evaluateCondition = (context, condition, parentAttribute, isFirstLevel, pr
     let conditionString = pre;
     let tempString = "";
     const formulaTypes = context.formulaTypes;
+    const lexicalValues = context["Style Guide Builder"];
     let valid_ops = Object.keys(formulaTypes);
     
 
@@ -207,18 +217,18 @@ const evaluateCondition = (context, condition, parentAttribute, isFirstLevel, pr
         //console.log(operationValues);
         if (condition.type != "else") {
             // Initiate the temporary string that stores the initial value of this evaluation
-            tempString = parentAttribute === condition.call && context["Style Guide Builder"]["Assumptive Formula"]
-                ? context["Style Guide Builder"]["Conditional Statement Keyword"] + operationValues.parentOp
+            tempString = parentAttribute === condition.call && lexicalValues["Assumptive Formula Flag"]
+                ? lexicalValues["Conditional Statement Keyword"] + operationValues.assumptiveOperator
                 : isFirstLevel 
-                    ? context["Style Guide Builder"]["Conditional Statement Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operator
-                    : context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operator;
+                    ? lexicalValues["Conditional Statement Keyword"] + " " + lexicalValues["Call Open Separator"] + condition.call + lexicalValues["Call Close Separator"] + operationValues.operator
+                    : lexicalValues["Call Open Separator"] + condition.call + lexicalValues["Call Close Separator"] + operationValues.operator;
 
             const SpecToSpec = ["equals", "notEquals","contains"];
 
             // Add expected values to the temporary string that will be evaluated for
             // Will need to check if spec-spec comparison vs spec-value comparison 
             if (SpecToSpec.includes(condition.type)){
-                tempString += context["Style Guide Builder"]["Call Open"] + condition.expectedValue.join(context["Style Guide Builder"]["Call Open"] + operationValues.conditionJoinClause + context["Style Guide Builder"]["Call Close"]) + context["Style Guide Builder"]["Call Close"];
+                tempString += lexicalValues["Call Open Separator"] + condition.expectedValue.join(lexicalValues["Call Open Separator"] + operationValues.conditionJoinClause + lexicalValues["Call Close Separator"]) + lexicalValues["Call Close Separator"];
             } else {
                 tempString += condition.expectedValue.join(operationValues.conditionJoinClause);
             }
@@ -228,8 +238,8 @@ const evaluateCondition = (context, condition, parentAttribute, isFirstLevel, pr
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
                     nestedTemp = condition.nestedType == "AND" 
-                        ? tempString + context["Style Guide Builder"]["Nested AND Phrase"] 
-                        : tempString + context["Style Guide Builder"]["Nested OR Phrase"];
+                        ? tempString + lexicalValues["Nested AND Phrase"] 
+                        : tempString + lexicalValues["Nested OR Phrase"];
                     conditionString += evaluateCondition(context, value, parentAttribute, false, nestedTemp);
                 })
             } else {
@@ -238,18 +248,18 @@ const evaluateCondition = (context, condition, parentAttribute, isFirstLevel, pr
             }
         } else {
             //if condition.type is else
-            tempString = parentAttribute == condition.call && context["Style Guide Builder"]["Assumptive Formula"]
-                    ? context["Style Guide Builder"]["Conditional Statement Keyword"] + " " + operationValues.parentOp
+            tempString = parentAttribute == condition.call && lexicalValues["Assumptive Formula Flag"]
+                    ? lexicalValues["Conditional Statement Keyword"] + operationValues.assumptiveOperator + lexicalValues["Else Phrase"]
                     : isFirstLevel 
-                        ? context["Style Guide Builder"]["Conditional Statement Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operator
-                        : context["Style Guide Builder"]["Call Open"] + condition.call + context["Style Guide Builder"]["Call Close"] + operationValues.operator;
+                        ? lexicalValues["Conditional Statement Keyword"] + " " + lexicalValues["Call Open Separator"] + condition.call + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Return All Phrase"]
+                        : lexicalValues["Call Open Separator"] + condition.call + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Else Phrase"]
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;
                 nestedConditions.forEach((value, index)=>{
                     let nestedTemp = "";
                     nestedTemp = condition.nestedType == "AND" 
-                        ? tempString + context["Style Guide Builder"]["Nested AND Phrase"] 
-                        : tempString + context["Style Guide Builder"]["Nested OR Phrase"];
+                        ? tempString + lexicalValues["Nested AND Phrase"] 
+                        : tempString + lexicalValues["Nested OR Phrase"];
                     conditionString += evaluateCondition(context, value, parentAttribute, false, nestedTemp);
                 })
             } else {
@@ -277,44 +287,55 @@ const evaluateCondition = (context, condition, parentAttribute, isFirstLevel, pr
 
 const parseReturnObject = (context, returnObject, parentAttribute) => {
     let returnObjectString = "";
+    const lexicalValues = context["Style Guide Builder"];
 
     if (!returnObject) {console.log("There was an error!!!"); return "*ERROR*"}
     if (returnObject.type == "returnString") {
         // In this section we create the string for when a string is to be returned.
         returnObjectString = returnObject.string !== "" 
-            ? context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.string + '"' + context["Style Guide Builder"]["Statement Separator"] + " " 
-            : context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Return Blank Keyword"] + context["Style Guide Builder"]["Statement Separator"] + " ";
+            ? " " + lexicalValues["Conditional Clause Separator"] + " " + lexicalValues["Conditional String Keyword"] + ' "' + returnObject.string + '"' + lexicalValues["Statement Separator"] + " " 
+            : " " + lexicalValues["Conditional Clause Separator"] + " " + lexicalValues["Return Blank Keyword"] + lexicalValues["Statement Separator"] + " ";
     } else if (returnObject.type == "returnSpec") {
         // This section is rather dense. Mainly it contains the logic the determines the string
         // for when an attribute is simply returned.
-         // First we determine the wording for the attribute itself.
-        returnObjectString = parentAttribute === returnObject.call && context["Style Guide Builder"]["Assumptive Return"]
-            ? context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Return Assumptive Phrase"]
-            : context["Style Guide Builder"]["Conditional Clause Separator"] + " "+ context["Style Guide Builder"]["Return Call Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + returnObject.call + context["Style Guide Builder"]["Call Close"];
+        //
+        // First we determine the wording for the attribute itself.
+        // NOTE: Assumptive Return Flag is not a lexical string value, but a boolean that determines a lexical setting
+        returnObjectString = parentAttribute === returnObject.call && lexicalValues["Assumptive Return Flag"]
+            ? " " + lexicalValues["Conditional Clause Separator"] + " " + lexicalValues["Return Assumptive Phrase"]
+            : " " + lexicalValues["Conditional Clause Separator"] + " " + lexicalValues["Return Attribute Call Keyword"] + " " + lexicalValues["Call Open Separator"] + returnObject.call + lexicalValues["Call Close Separator"];
         
+        if (returnObject.leadString || returnObject.endString) {
+            returnObjectString += " and ";
+        }
+
         // Below commences the section that adds the wording for the leading and ending string.
         returnObjectString += returnObject.leadString 
-            ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"] 
+            ? lexicalValues["Conditional String Keyword"].toLowerCase() + ' "' + returnObject.leadString + '" ' + lexicalValues["Leading String Keyword"] 
             : "";
-        returnObjectString += returnObject.leadString && returnObject.endString 
-            ? " and" 
-            : "";
-        returnObjectString += returnObject.endString !== "" 
-            ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.endString + '" '+ context["Style Guide Builder"]["Subsequent String Keyword"] + context["Style Guide Builder"]["Statement Separator"] + " "
-            : context["Style Guide Builder"]["Statement Separator"] + " ";
+        
+        // Handle adding the endstring if it exists.
+        if (returnObject.endString) {
+            returnObjectString += returnObject.leadString
+                ? " and " + lexicalValues["Conditional String Keyword"].toLowerCase() + ' "' + returnObject.endString + '" '+ lexicalValues["Subsequent String Keyword"]
+                : lexicalValues["Conditional String Keyword"].toLowerCase() + ' "' + returnObject.endString + '" '+ lexicalValues["Subsequent String Keyword"]
+        }
+
+        // Add statement separator
+        returnObjectString += lexicalValues["Statement Separator"] + " ";
     } else if (returnObject.type == "replaceAndReturn") {
         // First we determine the attribute wording
-        returnObjectString = parentAttribute === returnObject.call && context["Style Guide Builder"]["Assumptive Return"]
-            ? context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Return Assumptive Phrase"]
-            : context["Style Guide Builder"]["Conditional Clause Separator"] + " "+ context["Style Guide Builder"]["Return Call Keyword"] + " " + context["Style Guide Builder"]["Call Open"] + returnObject.call + context["Style Guide Builder"]["Call Close"];
+        returnObjectString = parentAttribute === returnObject.call && lexicalValues["Assumptive Return Flag"]
+            ? " " + lexicalValues["Conditional Clause Separator"] + " " + lexicalValues["Return Assumptive Phrase"]
+            : " " + lexicalValues["Conditional Clause Separator"] + " " + lexicalValues["Return Attribute Call Keyword"] + " " + lexicalValues["Call Open Separator"] + returnObject.call + lexicalValues["Call Close Separator"];
         
         // This is the section specific to replace and return where we state the value that we find and the
         // value we replace with.
-        returnObjectString += context["Style Guide Builder"]["Return Find Phrase"] + "\"" + returnObject.find + "\"";
-        returnObjectString += context["Style Guide Builder"]["Return Replace Phrase"] + "\"" + returnObject.replace + "\"";
+        returnObjectString += lexicalValues["Return Find Phrase"] + "\"" + returnObject.find + "\"";
+        returnObjectString += lexicalValues["Return Replace Phrase"] + "\"" + returnObject.replace + "\"";
         // Below we determine the wording for the leading string and ending string.
         returnObjectString += returnObject.leadString 
-            ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.leadString + '" ' + context["Style Guide Builder"]["Leading String Keyword"] 
+            ? " " + lexicalValues["Conditional String Keyword"] + ' "' + returnObject.leadString + '" ' + lexicalValues["Leading String Keyword"] 
             : "";
 
         returnObjectString += returnObject.leadString && returnObject.endString 
@@ -322,11 +343,11 @@ const parseReturnObject = (context, returnObject, parentAttribute) => {
             : "";
 
         returnObjectString += returnObject.endString !== "" 
-            ? " " + context["Style Guide Builder"]["Conditional String Keyword"] + ' "' + returnObject.endString + '" '+ context["Style Guide Builder"]["Subsequent String Keyword"] + context["Style Guide Builder"]["Statement Separator"] + " "
-            : context["Style Guide Builder"]["Statement Separator"] + " ";
+            ? " " + lexicalValues["Conditional String Keyword"] + ' "' + returnObject.endString + '" '+ lexicalValues["Subsequent String Keyword"] + lexicalValues["Statement Separator"] + " "
+            : lexicalValues["Statement Separator"] + " ";
 
     } else if (returnObject.type == "returnNull") {
-        returnObjectString = context["Style Guide Builder"]["Conditional Clause Separator"] + context["Style Guide Builder"]["Return Error Phrase"] + context["Style Guide Builder"]["Statement Separator"] + " ";
+        returnObjectString = lexicalValues["Conditional Clause Separator"] + lexicalValues["Return Error Phrase"] + lexicalValues["Statement Separator"] + " ";
     } else {
         console.log(`Unexpected returnObject type found: ${returnObject.type}`)
     }

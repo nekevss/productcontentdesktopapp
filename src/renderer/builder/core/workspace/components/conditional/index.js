@@ -5,7 +5,7 @@ import RecursiveConditionNode from './node';
 export default function ConditionalAttributeRoot(props) {
     const [thisStyleGuide, setStyleGuide] = React.useState(props.styleGuide);
     const [thisReport, setThisReport] = React.useState(props.styleGuide.report);
-    const [thisPostType, setThisPostType] = React.useState(props.styleGuide.postType);
+    const [thisCommaLed, setThisCommaLed] = React.useState(props.styleGuide.postType);
     const [thisAttribute, setThisAttribute] = React.useState(props.styleGuide.forAttribute);
     const [conditionAmount, setConditionAmount] = React.useState(props.styleGuide.conditions.length)
     const [displayConditions, setDisplayConditions] = React.useState([]);
@@ -56,10 +56,10 @@ export default function ConditionalAttributeRoot(props) {
         setStyleGuide(sg);
     }
 
-    const handlePostTypeChange = (event) => {
+    const handleCommaLedChange = (event) => {
         let sg = thisStyleGuide;
-        setThisPostType(event.target.checked);
-        sg["postType"] = event.target.checked;
+        setThisCommaLed(event.target.checked);
+        sg["commaLed"] = event.target.checked;
         setStyleGuide(sg);
     }
 
@@ -117,8 +117,8 @@ export default function ConditionalAttributeRoot(props) {
                     <button onClick={()=>{remove()}}>Remove</button>
                     <div className="condition-row checkbox">
                         <div>
-                            <div className="posttype-title">Post-Type:</div>
-                            <input type="checkbox" checked={thisPostType} onChange={handlePostTypeChange} />
+                            <div className="posttype-title">Comma-Led:</div>
+                            <input type="checkbox" checked={thisCommaLed} onChange={handleCommaLedChange} />
                         </div>
                         <div>
                             <div className="report-title">Mandatory:</div>

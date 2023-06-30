@@ -7,7 +7,7 @@ export default function AttributeCard(props) {
     const [endString, setEndString] = React.useState(props.styleGuide.endString);
     const [leadString, setLeadString] = React.useState(props.styleGuide.leadString);
     const [report, setReport] = React.useState(props.styleGuide.report)
-    const [postType, setPostType] = React.useState(props.styleGuide.postType);
+    const [commaLed, setCommaLed] = React.useState(props.styleGuide.postType);
 
     React.useEffect(()=>{
         setStyleGuide(props.styleGuide);
@@ -44,10 +44,10 @@ export default function AttributeCard(props) {
         setReport(event.target.checked);
     }
 
-    const handlePostType = (event) => {
+    const handleCommaLed = (event) => {
         let _styleGuide = StyleGuide;
-        _styleGuide["postType"] = event.target.checked;
-        setPostType(event.target.checked);
+        _styleGuide["commaLed"] = event.target.checked;
+        setCommaLed(event.target.checked);
     }
 
     const remove = () => {
@@ -74,8 +74,8 @@ export default function AttributeCard(props) {
                 <button onClick={()=>{remove()}}>Remove</button>
                 <div className="toggle-inputs">
                     <div>
-                        <div>Post-Type:</div>
-                        <input type="checkbox" onChange={handlePostType} checked={postType}/> 
+                        <div>Comma-Led:</div>
+                        <input type="checkbox" onChange={handleCommaLed} checked={commaLed}/> 
                     </div>
                     <div>
                         <div>Mandatory:</div>
