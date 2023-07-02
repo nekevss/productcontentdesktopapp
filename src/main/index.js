@@ -5,7 +5,7 @@ const { app, BrowserWindow, dialog } = electron;
 const fsp = require('fs').promises;
 const fs = require('fs');
 const path = require('path');
-const { fetchStyleGuideAsset } = require("./fetch");
+const { fetchStyleGuideAsset, fetchStateAsset, fetchSpecificCachedData, fetchCurrentData, fetchConfigAsset } = require("./fetch");
 
 //the below isn't in use. Just practice/test.
 //would need to manage passing the reference to the mainWindow and import dialog
@@ -86,8 +86,7 @@ async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku)
     console.log("finding the style guide");
     let styleGuides;
     try {
-        let styleGuideJSON = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
-        styleGuides = JSON.parse(styleGuideJSON);
+        styleGuides = await fetchStyleGuideAsset();
     } catch (err) {
         console.log("oh, an error");
         console.log(err);
@@ -162,8 +161,7 @@ async function fetchStateAndData() {
     let state;
 
     try {
-        let stateJSON = await fsp.readFile(resourcesPath + '/state.json', "utf-8");
-        state = JSON.parse(stateJSON);
+        state = await fetchStateAsset();
     } catch(err) {
         let options = {
             type: "none",
@@ -180,10 +178,10 @@ async function fetchStateAndData() {
         //checking that the history file exists -> defaults to current if it doesn't
         if (fs.existsSync(path.join(cachePath, fileName))) {
             try {
-                let historyJSON = await fsp.readFile(path.join(cachePath, fileName), "utf-8");
+                let historyData = await fetchSpecificCachedData(fileName);
                 return {
                     state: state,
-                    json: JSON.parse(historyJSON)
+                    json: historyData
                 };
             } catch(err) {
                 let options = {
@@ -198,10 +196,10 @@ async function fetchStateAndData() {
             //if they file name doesn't exist, then change the type to current
             state.type = "current";
             try {
-                let currentJSON = await fsp.readFile(resourcesPath + '/current.json', "utf-8");
+                let current = await fetchCurrentData()
                 return {
                     state: state,
-                    json: JSON.parse(currentJSON)
+                    json: current
                 };
             } catch(err) {
                 // Check if the current.json file has been written yet or if it is problem with reading the file.
@@ -228,10 +226,10 @@ async function fetchStateAndData() {
         //this block will implement the custom/filtered SKU set fetch
     } else {
         try {
-            let currentJSON = await fsp.readFile(resourcesPath + '/current.json', "utf-8");
+            let current = await fetchCurrentData()
             return {
                 state: state,
-                json: JSON.parse(currentJSON)
+                json: current
             };
         } catch(err) {
             // Check if the current.json file has been written yet or if it is problem with reading the file.
@@ -260,8 +258,8 @@ async function fetchConfig() {
     let activeWindow = BrowserWindow.fromId(1);
     
     try {
-        let rawConfig = await fsp.readFile(path.join(resourcesPath, '/config.json'), "utf-8")
-        return JSON.parse(rawConfig)
+        let config = fetchConfigAsset()
+        return config
     } catch(err) {
         let errorOptions = {
             type: "none",

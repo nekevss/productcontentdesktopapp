@@ -1,17 +1,13 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 const electron = require('electron');
-const { app, BrowserWindow, dialog, webContents, ipcMain, shell } = electron;
-const fsp = require('fs').promises;
+const { BrowserWindow, dialog, webContents, ipcMain } = electron;
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { StreamData, fetchStateAndData, fetchConfig, cleanResourceFiles } = require('../index.js');
 const { pleaseSirABuilder, builderEngine, basicContentSearch, recommendedContentSearch, cleanSpec, determineWebClass } = require('../lib/index.js');
-
-const activeUser = os.userInfo().username;
-const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
-const resourcesPath = userDataPath + "/Resources";
+const { fetchAstAssets, fetchStyleGuideAsset } = require("../fetch.js");
+const { cachePath, configurationFileName, configurationPath, styleGuideFileName, styleGuidePath, astDataFileName, astDataPath, statePath } = require("../applicationPaths.js");
 
 // Table of Contents
 // ------------------
@@ -54,8 +50,8 @@ ipcMain.handle("update-local", async(event, package)=>{
     console.log(fullPath);
 
     if (updateType == "config" || updateType == "all") {
-        let configPath = path.join(fullPath, "\config.json");
-        let localPath = path.join(resourcesPath, "\config.json");
+        let configPath = path.join(fullPath, configurationFileName);
+        let localPath = configurationPath;
         
         let feedbackValue = updateType == "all" ? "" : "import"
         StreamData(configPath, localPath, feedbackValue).then(()=>{
@@ -71,8 +67,8 @@ ipcMain.handle("update-local", async(event, package)=>{
         })
     }
     if (updateType == "sg" || updateType == "all") {
-        let StyleGuidePath = path.join(fullPath, "\StyleGuide.json");
-        let localPath = path.join(resourcesPath, "\StyleGuide.json");
+        let StyleGuidePath = path.join(fullPath, styleGuideFileName);
+        let localPath = styleGuidePath
         
         let feedbackValue = updateType == "all" ? "" : "import"
         StreamData(StyleGuidePath, localPath, feedbackValue).then(()=>{
@@ -88,8 +84,8 @@ ipcMain.handle("update-local", async(event, package)=>{
         })
     }
     if (updateType == "sng" || updateType == "all") {
-        let builderPath = path.join(fullPath, "\Builders.json");
-        let localPath = path.join(resourcesPath, "\Builders.json");
+        let builderPath = path.join(fullPath, astDataFileName);
+        let localPath = astDataPath;
         //update later
         StreamData(builderPath, localPath, "import").then(()=>{
             console.log(`Stream initialized from ${builderPath} to ${localPath}`)
@@ -126,12 +122,12 @@ ipcMain.handle("post-local", async(event, package)=>{
 
     if (feedback.response === 0) {
         if (updateType == "config" || updateType == "all") {
-            let configPath = path.join(fullPath, "\config.json");
-            let localPath = path.join(resourcesPath, "\config.json");
+            let remoteConfigPath = path.join(fullPath, configurationFileName);
+            let localPath = configurationPath;
             
             let feedbackValue = updateType == "all" ? "" : "export"
-            StreamData(localPath, configPath, feedbackValue).then(()=>{
-                console.log(`Stream initialized from ${localPath} to ${configPath}`)
+            StreamData(localPath, remoteConfigPath, feedbackValue).then(()=>{
+                console.log(`Stream initialized from ${localPath} to ${remoteConfigPath}`)
             }).catch((err)=>{
                 let errOptions = {
                     type: "none",
@@ -143,12 +139,12 @@ ipcMain.handle("post-local", async(event, package)=>{
             })
         }
         if (updateType == "sg" || updateType == "all") {
-            let StyleGuidePath = path.join(fullPath, "\StyleGuide.json");
-            let localPath = path.join(resourcesPath, "\StyleGuide.json");
+            let remoteStyleGuidePath = path.join(fullPath, styleGuideFileName);
+            let localPath = styleGuidePath;
             
             let feedbackValue = updateType == "all" ? "" : "export"
-            StreamData(localPath, StyleGuidePath, feedbackValue).then(()=>{
-                console.log(`Stream initialized from ${localPath} to ${StyleGuidePath}`)
+            StreamData(localPath, remoteStyleGuidePath, feedbackValue).then(()=>{
+                console.log(`Stream initialized from ${localPath} to ${remoteStyleGuidePath}`)
             }).catch((err)=>{
                 let errOptions = {
                     type: "none",
@@ -160,11 +156,11 @@ ipcMain.handle("post-local", async(event, package)=>{
             })
         }
         if (updateType == "sng" || updateType == "all") {
-            let builderPath = path.join(fullPath, "\Builders.json");
-            let localPath = path.join(resourcesPath, "\Builders.json");
+            let remoteBuilderPath = path.join(fullPath, astDataFileName);
+            let localPath = astDataPath;
     
-            StreamData(localPath, builderPath, "export").then(()=>{
-                console.log(`Stream initialized from ${localPath} to ${builderPath}`)
+            StreamData(localPath, remoteBuilderPath, "export").then(()=>{
+                console.log(`Stream initialized from ${localPath} to ${remoteBuilderPath}`)
             }).catch((err)=>{
                 let errOptions = {
                     type: "none",
@@ -199,9 +195,8 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     const FullSkuSet = frame.json;
 
     try {
-        let builders = await Promise.resolve(fsp.readFile(resourcesPath + '/Builders.json', "utf-8"));
-        let buildersFull = JSON.parse(builders);
-        buildersArray = buildersFull.data
+        let builders = await Promise.resolve(fetchAstAssets());
+        buildersArray = builders.data
         //console.log(SngArray)
     } catch(err) {
         let errorOptions = {
@@ -296,8 +291,7 @@ ipcMain.handle('register-report', async(event, incomingReport)=>{
     let styleGuides;
     
     try {
-        let rawData = await fsp.readFile(path.join(resourcesPath, '/StyleGuide.json'), "utf-8")
-        styleGuides = JSON.parse(rawData)
+        styleGuides = await fetchStyleGuideAsset()
     } catch (err) {
         let errorOptions = {
             type: "none",
@@ -333,7 +327,7 @@ ipcMain.handle('register-report', async(event, incomingReport)=>{
         //no new metadata, as this is a ghost process
         let newStyleGuide = {metadata:styleGuides.metadata, data:sgArray}
 
-        fs.writeFile(path.join(resourcesPath, '/StyleGuide.json'), JSON.stringify(newStyleGuide), "utf-8", (err)=>{
+        fs.writeFile(styleGuidePath, JSON.stringify(newStyleGuide), "utf-8", (err)=>{
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -357,7 +351,7 @@ ipcMain.handle('fetch-configuration', async(event, arg)=>{
 
 ipcMain.handle('post-configuration', async(event, arg)=>{
     let activeWindow = BrowserWindow.fromId(1);
-    fs.writeFile(path.join(resourcesPath, '/config.json'), JSON.stringify(arg, null, 4), "utf-8", (err) => {
+    fs.writeFile(configurationPath, JSON.stringify(arg, null, 4), "utf-8", (err) => {
         if (err) {console.log(err)};
     })
 
@@ -379,8 +373,7 @@ ipcMain.handle("fetch-resource", async(event, incoming)=>{
     let thisResource;
     if (incoming == "style guide") {
         try {
-            let styleGuideJSON = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8");
-            thisResource = JSON.parse(styleGuideJSON);
+            thisResource = await fetchStyleGuideAsset()
         } catch(err) {
             let errorOptions = {
                 type: "none",
@@ -393,8 +386,7 @@ ipcMain.handle("fetch-resource", async(event, incoming)=>{
     }
     if (incoming == "generators") {
         try {
-            let buildersJSON = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8");
-            thisResource = JSON.parse(buildersJSON);
+            thisResource = await fetchAstAssets()
         } catch(err) {
             let errorOptions = {
                 type: "none",
@@ -422,7 +414,7 @@ ipcMain.handle("escape-history", async(event, args)=>{
         ...current.metadata
     }
 
-    fs.writeFile(resourcesPath + '/state.json', JSON.stringify(newState, null, 4), "utf-8", (err) => {
+    fs.writeFile(statePath, JSON.stringify(newState, null, 4), "utf-8", (err) => {
         if (err) {console.log(err)};
     })
 
@@ -430,7 +422,6 @@ ipcMain.handle("escape-history", async(event, args)=>{
 })
 
 ipcMain.handle("delete-cache-item", async(event, args)=>{
-    const cachePath = resourcesPath + "/cache"
     const fileName = args.fileName + ".json";
 
     fs.unlink(path.join(cachePath, fileName), (err)=>{
@@ -441,7 +432,6 @@ ipcMain.handle("delete-cache-item", async(event, args)=>{
 
 ipcMain.handle("nuke-history", async(event, _args)=>{
     let activeWindow = BrowserWindow.getFocusedWindow()
-    const cachePath = resourcesPath + "/cache"
 
     let options = {
         type: "question",

@@ -4,42 +4,37 @@
 //
 require("regenerator-runtime/runtime");
 require("core-js/stable");
-const electron = require("electron");
-const { app } = electron;
 const fsp = require('fs').promises;
 const fs = require("fs");
 const path = require('path');
+const { styleGuidePath, astDataPath, configurationPath, statePath, currentDataPath, cachePath } = require("./applicationPaths");
 
-// Relevant paths for 
-const userDataPath = app.getPath('userData');
-const resourcesPath = userDataPath + "/Resources";
-const cachePath = resourcesPath + "/cache";
 
 // NOTE: Can return error
 async function fetchStyleGuideAsset() {
-    let fetchedData = await fsp.readFile(resourcesPath + "/StyleGuide.json", "utf-8");
+    let fetchedData = await fsp.readFile(styleGuidePath, "utf-8");
     return JSON.parse(fetchedData);
 }
 
 // NOTE: Can return error
 async function fetchAstAssets() {
-    let fetchedData = await fsp.readFile(resourcesPath + "/Builders.json", "utf-8");
+    let fetchedData = await fsp.readFile(astDataPath, "utf-8");
     return JSON.parse(fetchedData)
 }
 
 // NOTE: Can return error
 async function fetchConfigAsset() {
-    let fetchedData = await fsp.readFile(resourcesPath + "/config.json", "utf-8");
+    let fetchedData = await fsp.readFile(configurationPath, "utf-8");
     return JSON.parse(fetchedData)
 }
 
 async function fetchStateAsset() {
-    let fetchedData = await fsp.readFile(resourcesPath + "/state.json", "utf-8");
+    let fetchedData = await fsp.readFile(statePath, "utf-8");
     return JSON.parse(fetchedData)
 }
 
 async function fetchCurrentData() {
-    let fetchedData = await fsp.readFile(resourcesPath + "/current.json", "utf-8");
+    let fetchedData = await fsp.readFile(currentDataPath, "utf-8");
     return JSON.parse(fetchedData)
 }
 
@@ -80,5 +75,5 @@ async function fetchAllCachedData() {
 
 module.exports = {
     fetchStyleGuideAsset, fetchAstAssets, fetchConfigAsset, fetchStateAsset,
-    fetchCurrentData, fetchSpecificCachedData
+    fetchCurrentData, fetchSpecificCachedData, fetchAllCachedData
 }

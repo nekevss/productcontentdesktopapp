@@ -1,18 +1,13 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 const electron = require('electron');
-const { app, BrowserWindow, dialog, webContents, ipcMain, shell } = electron;
-const os = require('os');
+const { BrowserWindow, dialog, webContents, ipcMain } = electron;
 const { fetchConfig } = require('../index.js');
 //const { runAttributeImport } = require('../lib/attribute-mapper.js');
 const { runSkuDataImport } = require('../sku-importer/index.js');
 const { runAttributeImport } = require('../attribute-importer/index.js');
+const { resourcesPath } = require("../applicationPaths.js");
 
-
-
-const activeUser = os.userInfo().username;
-const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
-const resourcesPath = userDataPath + "/Resources";
 
 // the below handler takes an incoming package:
 // 

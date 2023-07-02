@@ -1,17 +1,13 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 const electron = require('electron');
-const { app, BrowserWindow, dialog, webContents, ipcMain, shell } = electron;
-const fsp = require('fs').promises;
+const { BrowserWindow, dialog, webContents, ipcMain } = electron;
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { fetchStateAndData, findStyleGuide, checkForCurrent, fetchConfig } = require('../index.js');
 const { pleaseSirABuilder, builderEngine, reportRunner, fetchAttributes, determineWebClass, generateFormula } = require('../lib/index.js');
-
-const activeUser = os.userInfo().username;
-const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
-const resourcesPath = userDataPath + "/Resources";
+const { fetchAstAssets, fetchAllCachedData } = require("../fetch.js");
+const { resourcesPath, cachePath, statePath } = require("../applicationPaths.js");
 
 // Table of Contents
 // ---------------------
@@ -36,7 +32,6 @@ ipcMain.handle('request-skuset', async(event, arg) => {
 //main function for determining application state and returning SKU
 ipcMain.handle('request-sku-and-state', async(event, arg) => {
     console.log("Making it into the request handler");
-    const cachePath = resourcesPath + "/cache";
     const frame = await fetchStateAndData();
 
     const state = frame.state;
@@ -64,7 +59,7 @@ ipcMain.handle('request-sku-and-state', async(event, arg) => {
     if (!isCurrent) {
         // The below code should only run on a new upload
         console.log("Found a new sheet!")
-        //write new cache version for the history
+        // write new cache version for the history
         const fileName = current.metadata.name + ".json";
         fs.writeFile(path.join(cachePath, fileName), JSON.stringify(current), (err)=>{
             if (err) {console.log(err)}
@@ -76,7 +71,8 @@ ipcMain.handle('request-sku-and-state', async(event, arg) => {
             length: current.data.length,
             ...current.metadata 
         }
-        fs.writeFile(resourcesPath + '/state.json', JSON.stringify(newState, null, 4), "utf-8", (err) => {
+
+        fs.writeFile(statePath, JSON.stringify(newState, null, 4), "utf-8", (err) => {
             if (err) {console.log(err)};
         })
 
@@ -121,9 +117,8 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     console.log(determinedClass)
 
     try {
-        let builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
-        let buildersContainer = JSON.parse(builders);
-        let buildersArray = buildersContainer.data;
+        let builders = await fetchAstAssets()
+        let buildersArray = builders.data;
         found_generator = pleaseSirABuilder(config, buildersArray, determinedClass, querySku)
     } catch (err) {
         let errOptions = {
@@ -196,32 +191,10 @@ ipcMain.handle("request-formula", async(event, requestStyleGuide)=>{
 
 ipcMain.handle("request-cache-data", async(event, args)=>{
     const activeWindow = BrowserWindow.fromId(1);
-    const cachePath = path.join(resourcesPath, "\cache")
-    let files;
     let cacheData = [];
-    let jsonRegex = new RegExp("\\.json$", "gi")
 
     try {
-        files = await fsp.readdir(cachePath);
-        for await (let file of files) {
-            //iterate through files in array and verify they are jsons
-            if (jsonRegex.test(file)) {
-                let fileData = {fileName : file.replace(jsonRegex, "")}
-                
-                let filePath = path.join(cachePath, file);
-                let contents = fs.readFileSync(filePath, {encoding:"utf8"});
-                let fileJson = JSON.parse(contents)
-                let metadata = fileJson.metadata;
-                let metaKeys = Object.keys(metadata);
-                metaKeys.forEach((value)=>{
-                    fileData[value] = metadata[value];
-                })
-
-                fileData["length"] = fileJson.data.length;
-
-                cacheData.push(fileData);
-            }
-        }
+        cacheData = await fetchAllCachedData();
     } catch (err) {
         let errorOptions = {
             type: "none",

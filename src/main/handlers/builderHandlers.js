@@ -1,16 +1,13 @@
 require("regenerator-runtime/runtime");
 require("core-js/stable");
 const electron = require('electron');
-const { app, BrowserWindow, dialog, webContents, ipcMain, shell } = electron;
-const fsp = require('fs').promises;
+const { BrowserWindow, dialog, webContents, ipcMain } = electron;
 const fs = require('fs');
-const os = require('os');
 const { constructDate } = require('../index.js');
 const { validateBuilder } = require("../lib/builder/formulaValidation.js");
+const { fetchAstAssets, fetchStyleGuideAsset } = require("../fetch.js");
+const { resourcesPath, astDataPath, styleGuidePath } = require("../applicationPaths.js");
 
-const activeUser = os.userInfo().username;
-const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
-const resourcesPath = userDataPath + "/Resources";
 
 /*--------------------------------------------------------------------------------------*/
 //Style Guide Builder handlers
@@ -23,8 +20,7 @@ ipcMain.handle("export-sng-package", async(event, incomingPackage)=>{
     const dateString = constructDate()
 
     try {
-        const builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
-        current = JSON.parse(builders);
+        current = await fetchAstAssets();
     } catch (err) {
         let errorOptions = {
             type: "none",
@@ -57,7 +53,7 @@ ipcMain.handle("export-sng-package", async(event, incomingPackage)=>{
         }
     
         //write new assets into local file
-        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(updatedSNG, null, 4), "utf-8", (err) => {
+        fs.writeFile(astDataPath, JSON.stringify(updatedSNG, null, 4), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -96,8 +92,7 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
         let styleGuideObj;
         let skuNameGenObj;
         try{
-            let skuNameGensRaw = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
-            skuNameGenObj = JSON.parse(skuNameGensRaw);
+            skuNameGenObj = await fetchAstAssets()
         } catch(err) {
             let errorOptions = {
                 type: "none",
@@ -108,8 +103,7 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
             dialog.showMessageBox(activeWindow, errorOptions)
         }
         try{
-            let styleGuideRaw = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
-            styleGuideObj = JSON.parse(styleGuideRaw);
+            styleGuideObj = await fetchStyleGuideAsset();
         } catch(err) {
             let errorOptions = {
                 type: "none",
@@ -145,7 +139,7 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
             metadata: {Updated:dateString},
             data: newBuildersData
         }
-        fs.writeFile(resourcesPath + '/StyleGuide.json', JSON.stringify(newStyleGuidesObj), "utf-8", (err) => {
+        fs.writeFile(styleGuidePath, JSON.stringify(newStyleGuidesObj), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -156,7 +150,7 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
                 dialog.showMessageBox(activeWindow, errorOptions)
             }
         })
-        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(newBuilders), "utf-8", (err) => {
+        fs.writeFile(astDataPath, JSON.stringify(newBuilders), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -168,8 +162,8 @@ ipcMain.handle('delete-style-guide', async(event, styleGuideToDelete)=>{
             }
         })
         //caching the version being deleted for restoring;
-        if (!fs.existsSync(resourcesPath+"archived/Resources")) {
-            fs.mkdir(resourcesPath+"archived/Resources", {recursive: true}, (err) => {
+        if (!fs.existsSync(resourcesPath +"archived/Resources")) {
+            fs.mkdir(resourcesPath +"archived/Resources", {recursive: true}, (err) => {
                 if (err) {
                     activeWindow.webContents.send("console-log", "Error creating resources cache")
                 } else {
@@ -227,8 +221,7 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
         const dateString = constructDate()
 
         try{
-            let skuNameGensRaw = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
-            skuNameGenObj = JSON.parse(skuNameGensRaw);
+            skuNameGenObj = await fetchAstAssets();
         } catch(err) {
             let errorOptions = {
                 type: "none",
@@ -239,8 +232,7 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
             dialog.showMessageBox(activeWindow, errorOptions)
         }
         try{
-            let styleGuideRaw = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
-            styleGuideObj = JSON.parse(styleGuideRaw);
+            styleGuideObj = await fetchStyleGuideAsset()
         } catch(err) {
             let errorOptions = {
                 type: "none",
@@ -282,7 +274,8 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
             metadata: newGuidesMeta,
             data: styleGuides
         }
-        fs.writeFile(resourcesPath + '/StyleGuide.json', JSON.stringify(newStyleGuidesObj), "utf-8", (err) => {
+
+        fs.writeFile(styleGuidePath, JSON.stringify(newStyleGuidesObj), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -293,7 +286,7 @@ ipcMain.handle('rename-style-guide', async(event, incoming)=>{
                 dialog.showMessageBox(activeWindow, errorOptions)
             }
         })
-        fs.writeFile(resourcesPath + '/Builders.json', JSON.stringify(newGeneratorsObject), "utf-8", (err) => {
+        fs.writeFile(astDataPath, JSON.stringify(newGeneratorsObject), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -356,8 +349,7 @@ ipcMain.handle('update-formula', async(event, incomingPackage)=>{
     const dateString = mm + "/" + dd + "/" + yyyy;
 
     try {
-        const styleGuide = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
-        current = JSON.parse(styleGuide);
+        current = await fetchStyleGuideAsset()
     } catch (err) {
         let errorOptions = {
             type: "none",
@@ -395,7 +387,7 @@ ipcMain.handle('update-formula', async(event, incomingPackage)=>{
             data: sgArray 
         }
     
-        fs.writeFile(resourcesPath + '/StyleGuide.json', JSON.stringify(updateStyleGuide), "utf-8", (err) => {
+        fs.writeFile(styleGuidePath, JSON.stringify(updateStyleGuide), "utf-8", (err) => {
             if (err) {
                 let errorOptions = {
                     type: "none",
@@ -422,8 +414,7 @@ ipcMain.handle("fetch-class-index", async(event, args)=>{
     let current;
 
     try {
-        const styleGuide = await fsp.readFile(resourcesPath + '/StyleGuide.json', "utf-8",);
-        current = JSON.parse(styleGuide);
+        current = await fetchStyleGuideAsset()
     } catch (err) {
         let errorOptions = {
             type: "none",
@@ -452,7 +443,7 @@ ipcMain.handle('request-class-data', async(event, arg)=>{
     let activeWindow = BrowserWindow.getFocusedWindow()
     let builders;
     try {
-        builders = await fsp.readFile(resourcesPath + '/Builders.json', "utf-8",);
+        builders = await fetchAstAssets();
     } catch (err) {
         let options = {
             type: "none",
@@ -463,9 +454,7 @@ ipcMain.handle('request-class-data', async(event, arg)=>{
         dialog.showMessageBox(activeWindow, options)
     }
 
-
-    let buildersContainer = JSON.parse(builders);
-    let buildersArray = buildersContainer.data;
+    let buildersArray = builders.data;
 
     for (let index in buildersArray) {
         if (buildersArray[index].class == arg) {
