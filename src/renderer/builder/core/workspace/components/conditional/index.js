@@ -5,17 +5,17 @@ import RecursiveConditionNode from './node';
 export default function ConditionalAttributeRoot(props) {
     const [thisStyleGuide, setStyleGuide] = React.useState(props.styleGuide);
     const [thisReport, setThisReport] = React.useState(props.styleGuide.report);
-    const [thisCommaLed, setThisCommaLed] = React.useState(props.styleGuide.postType);
-    const [thisAttribute, setThisAttribute] = React.useState(props.styleGuide.forAttribute);
+    const [thisCommaLed, setThisCommaLed] = React.useState(props.styleGuide.commaLed);
+    const [thisAttribute, setThisAttribute] = React.useState(props.styleGuide.rootAttribute);
     const [conditionAmount, setConditionAmount] = React.useState(props.styleGuide.conditions.length)
     const [displayConditions, setDisplayConditions] = React.useState([]);
 
     React.useEffect(()=> {
-        
         createDisplay(props.styleGuide.conditions);
         setStyleGuide(props.styleGuide);
         setThisReport(props.styleGuide.report);
-        setThisAttribute(props.styleGuide.forAttribute);
+        setThisCommaLed(props.styleGuide.commaLed);
+        setThisAttribute(props.styleGuide.rootAttribute);
         setConditionAmount(props.styleGuide.conditions.length);
     }, [props.styleGuide])
 
@@ -66,7 +66,7 @@ export default function ConditionalAttributeRoot(props) {
     const handleAttributeChange = (event) => {
         let styleGuide = thisStyleGuide;
         setThisAttribute(event.target.value);
-        styleGuide["forAttribute"] = event.target.value;
+        styleGuide["rootAttribute"] = event.target.value;
         setStyleGuide(styleGuide);
         props.updateValidationState("none")
     }
@@ -77,8 +77,8 @@ export default function ConditionalAttributeRoot(props) {
         let _thisStyleGuide = thisStyleGuide;
         const newCondition = {
             type: "if",
-            call: "",
-            expectedValue : [""],
+            attributeName: "",
+            conditionTargets : [""],
             nestedType: "",
             nestedConditions: []
         }

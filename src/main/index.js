@@ -20,66 +20,56 @@ function post(url, data) {
 //This function opens a read write stream at the provided paths.
 //Type also determine what type of message is displayed (import vs. export)
 async function StreamData(readPath, writePath, type) {
-    let activeWindow = BrowserWindow.fromId(1);
-    const readStream = fs.createReadStream(readPath, {encoding:"utf8"});
-    const writeStream = fs.createWriteStream(writePath, {encoding:"utf8"});
+    return new Promise((resolve, reject)=>{
+        let activeWindow = BrowserWindow.fromId(1);
+        const readStream = fs.createReadStream(readPath, {encoding:"utf8"});
+        const writeStream = fs.createWriteStream(writePath, {encoding:"utf8"});
 
-    readStream.on("open", ()=>{
-        activeWindow.webContents.send("console-log", "Read stream is open");
-        readStream.pipe(writeStream);
-    })
-    readStream.on("end", ()=>{
-        activeWindow.webContents.send("console-log", "Read Stream has ended.")
-    })
-    readStream.on("close", ()=>{
-        activeWindow.webContents.send("console-log", "Read stream has closed")
-    })
-    readStream.on("error", (err)=>{
-        let errOptions = {
-            type: "none",
-            buttons: ["Okay"],
-            title: "Read File Error",
-            message: `There was an error attempting to read file at path ${readPath}: ${err}`
-        }
-        dialog.showMessageBox(activeWindow, errOptions)
-    })
-    writeStream.on("open", ()=>{
-        activeWindow.webContents.send("console-log", "Write stream is open")
-    })
-    writeStream.on("end", ()=>{
-        activeWindow.webContents.send("console-log", "Write Steam has ended.")
-    })
-    writeStream.on("close", ()=>{
-        activeWindow.webContents.send("console-log", "Write Stream has closed")
-        if (type == "export") {
-            let options = {
-                type: "none",
-                buttons: ["Okay"],
-                title: "Export Finished",
-                message: "Export of assets has completed succesfully"
+        readStream.on("open", ()=>{
+            activeWindow.webContents.send("console-log", "Read stream is open");
+            readStream.pipe(writeStream);
+        })
+        readStream.on("end", ()=>{
+            activeWindow.webContents.send("console-log", "Read Stream has ended.")
+        })
+        readStream.on("close", ()=>{
+            activeWindow.webContents.send("console-log", "Read stream has closed")
+        })
+        readStream.on("error", (err)=>{reject(err)});
+
+        writeStream.on("open", ()=>{
+            activeWindow.webContents.send("console-log", "Write stream is open")
+        })
+        writeStream.on("end", ()=>{
+            activeWindow.webContents.send("console-log", "Write Steam has ended.")
+        })
+        writeStream.on("close", ()=>{
+            console.log("Write Stream is closed.")
+            activeWindow.webContents.send("console-log", "Write Stream has closed")
+            if (type == "export") {
+                let options = {
+                    type: "none",
+                    buttons: ["Okay"],
+                    title: "Export Finished",
+                    message: "Export of assets has completed succesfully"
+                }
+                dialog.showMessageBox(activeWindow, options)
             }
-            dialog.showMessageBox(activeWindow, options)
-        }
-        if (type == "import") {
-            let options = {
-                type: "none",
-                buttons: ["Okay"],
-                title: "Import Finished",
-                message: "Import of assets has completed succesfully"
+            if (type == "import") {
+                let options = {
+                    type: "none",
+                    buttons: ["Okay"],
+                    title: "Import Finished",
+                    message: "Import of assets has completed succesfully"
+                }
+                dialog.showMessageBox(activeWindow, options)
+                cleanResourceFiles("all")
             }
-            dialog.showMessageBox(activeWindow, options)
-            cleanResourceFiles("all")
-        }
+            resolve()
+        })
+        writeStream.on("error", (err)=>{reject(err)})
     })
-    writeStream.on("error", (err)=>{
-        let errOptions = {
-            type: "none",
-            buttons: ["Okay"],
-            title: "Write File Error",
-            message: `There was an error attempting to write file at path ${writePath}: ${err}`
-        }
-        dialog.showMessageBox(activeWindow, errOptions)
-    })
+
 }
 
 async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku) {

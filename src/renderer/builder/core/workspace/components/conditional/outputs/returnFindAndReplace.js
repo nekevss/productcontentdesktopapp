@@ -4,25 +4,25 @@ import '../Conditional.scss';
 
 export default function FindAndReplaceOutput(props) {
     const [thisCondition, setThisCondition] = React.useState(props.condition);
-    const [thisCall, setThisCall] = React.useState(props.condition.thenReturn.call);
-    const [thisFind, setThisFind] = React.useState(props.condition.thenReturn.find);
-    const [thisReplace, setThisReplace] = React.useState(props.condition.thenReturn.replace);
-    const [thisLeadString, setThisLeadString] = React.useState(props.condition.thenReturn.leadString);
-    const [thisEndString, setThisEndString] = React.useState(props.condition.thenReturn.endString);
+    const [thisCall, setThisCall] = React.useState(props.condition.conditionOutput.attributeName);
+    const [thisFind, setThisFind] = React.useState(props.condition.conditionOutput.find);
+    const [thisReplace, setThisReplace] = React.useState(props.condition.conditionOutput.replace);
+    const [thisLeadString, setThisLeadString] = React.useState(props.condition.conditionOutput.leadString);
+    const [thisEndString, setThisEndString] = React.useState(props.condition.conditionOutput.endString);
 
     React.useEffect(()=>{
         setThisCondition(props.condition);
-        setThisCall(props.condition.thenReturn.call);
-        setThisFind(props.condition.thenReturn.find);
-        setThisReplace(props.condition.thenReturn.replace);
-        setThisLeadString(props.condition.thenReturn.leadString);
-        setThisEndString(props.condition.thenReturn.endString);
+        setThisCall(props.condition.conditionOutput.attributeName);
+        setThisFind(props.condition.conditionOutput.find);
+        setThisReplace(props.condition.conditionOutput.replace);
+        setThisLeadString(props.condition.conditionOutput.leadString);
+        setThisEndString(props.condition.conditionOutput.endString);
     }, [props.condition])
 
     const handleCallChange = (event) => {
         let _condition = thisCondition;
         setThisCall(event.target.value);
-        _condition.thenReturn.call = event.target.value;
+        _condition.conditionOutput.attributeName = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }
@@ -30,7 +30,7 @@ export default function FindAndReplaceOutput(props) {
     const handleFindChange = (event) => {
         let _condition = thisCondition;
         setThisFind(event.target.value);
-        _condition.thenReturn.find = event.target.value;
+        _condition.conditionOutput.find = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }
@@ -38,7 +38,7 @@ export default function FindAndReplaceOutput(props) {
     const handleReplaceChange = (event) => {
         let _condition = thisCondition;
         setThisReplace(event.target.value);
-        _condition.thenReturn.replace = event.target.value;
+        _condition.conditionOutput.replace = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }
@@ -46,7 +46,7 @@ export default function FindAndReplaceOutput(props) {
     const handleStringChange = (event) => {
         let _condition = thisCondition;
         setThisEndString(event.target.value);
-        _condition.thenReturn.endString = event.target.value;
+        _condition.conditionOutput.endString = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }
@@ -54,7 +54,7 @@ export default function FindAndReplaceOutput(props) {
     const handleLeadChange = (event) => {
         let _condition = thisCondition;
         setThisLeadString(event.target.value);
-        _condition.thenReturn.leadString = event.target.value;
+        _condition.conditionOutput.leadString = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }

@@ -5,13 +5,13 @@ import React from 'react';
 export default function GeneratedName(props) {
     const [generatorReturn, setGeneratorReturn] = React.useState("")
     const [checkResult, setCheckResult] = React.useState("");
-    const [confidenceLevel, setConfidenceLevel] = React.useState("")
+    const [confidenceLevelPhrase, setConfidenceLevelPhrase] = React.useState("")
 
     React.useEffect(()=>{
-        if (props.sku && props.gen) {
+        if (props.sku && props.skuNameTokens) {
             let request = {
                 sku: props.sku,
-                generator:props.gen,
+                skuNameBuilder:props.skuNameTokens,
                 config: props.config
             };
 
@@ -28,13 +28,13 @@ export default function GeneratedName(props) {
                     }
 
                     let confidenceLevel = response.confidenceGrade === 0 ? 0 + "%" : response.confidenceGrade + "%";
-
-                    setConfidenceLevel(confidenceLevel)
+                    let phrase = " with a score of " + confidenceLevel;
+                    setConfidenceLevelPhrase(phrase)
                     setGeneratorReturn(response.name)
                 })
                 .catch((err)=>{if(err){console.log(err)}});
         } else {
-            console.log("Current SKU or Generator is null");
+            console.log("Current SKU or builder is null");
         }
     }, [props.sku])
     
@@ -43,7 +43,7 @@ export default function GeneratedName(props) {
             <div><b>Recommended SKU Name:</b></div>
             <div className="gen-name" dangerouslySetInnerHTML={{__html: generatorReturn}}></div>
             <div><b>Recommended Name Check:</b></div>
-            <div dangerouslySetInnerHTML={{__html:checkResult + " with a score of " + confidenceLevel}}></div>
+            <div dangerouslySetInnerHTML={{__html:checkResult + confidenceLevelPhrase}}></div>
         </div>
         
     )

@@ -4,10 +4,11 @@ const { conditionTests } = require("../conditions/condition-tests.js");
 const { getSkuCallValue, prepareIndexableSkuContent, decimalToFraction, fractionToDecimal } = require("../utils/index.js");
 
 
-function builderEngine(sku, gen, config) {
+function builderEngine(sku, tokens, config) {
     let activeWindow = BrowserWindow.getFocusedWindow()
-    let genreport = {};
+    let runReport = {};
     let failureCount = 0;
+    // console.log(tokens)
     // the check is assumed true until proven false.
     // Logic dictates that an assumed false until proven true approach would be best, but
     // but how would result remain persistent across all calls without recording all calls.
@@ -36,10 +37,10 @@ function builderEngine(sku, gen, config) {
     
 
     activeWindow.webContents.send("console-log","Logging the generator prior to iterating...")
-    activeWindow.webContents.send("console-log", gen);
+    activeWindow.webContents.send("console-log", tokens);
 
     let name = "";
-    if (!gen) {
+    if (!tokens) {
         console.log(`Null generator error at the below sku`)
         console.log(sku)
         return {
@@ -57,38 +58,38 @@ function builderEngine(sku, gen, config) {
         }
     }
 
-    gen.forEach((value, index) => {
+    tokens.forEach((token, index) => {
         let perCallCheck = true;
         /* Below checks for function, then spec, and defaults to string. On check returning true, */
-        if (value.type == "function") {
-            activeWindow.webContents.send("console-log","Calling on " + value.forAttribute)
-            let functionData = value;
+        if (token.type == "conditionalAttribute") {
+            activeWindow.webContents.send("console-log","Calling on " + token.rootAttribute)
+            let conditionalAttributeData = token;
             //TODO: Add call value to function's return object. This would record the name
-            let funcname = functionData.forAttribute;
+            let conditionName = conditionalAttributeData.rootAttribute;
             
-            let functionOutput = evalConditions(functionData.conditions, sku, config)
+            let conditionOutput = evalConditions(conditionalAttributeData.conditions, sku, config)
             
-            activeWindow.webContents.send("console-log","The function output is: " + functionOutput)
+            activeWindow.webContents.send("console-log","The conditionalAttribute output is: " + conditionOutput)
 
-            if (!genreport.hasOwnProperty(funcname)) {genreport[funcname] = {attempts: 0, conn: 0}}
-            genreport[funcname].attempts += 1;
+            if (!runReport.hasOwnProperty(conditionName)) {runReport[conditionName] = {attempts: 0, conn: 0}}
+            runReport[conditionName].attempts += 1;
 
-            if (functionOutput || functionOutput === "") {
+            if (conditionOutput || conditionOutput === "") {
                 // Handle reporting and confidence checks
-                genreport[funcname].conn += 1
-                let [c, f] = confidenceCheck(functionOutput, contentIndex)
+                runReport[conditionName].conn += 1
+                let [c, f] = confidenceCheck(conditionOutput, contentIndex)
                 builderOutput.confidence.checks += c
                 builderOutput.confidence.finds += f
 
                 // Add values to output
-                if (value.commaLed) {
+                if (conditionalAttributeData.commaLed) {
                     name+= ", "
                 }
-                name += functionOutput;
+                name += conditionOutput;
             } else {
-                if (functionData.report) {
-                    activeWindow.webContents.send("console-log",`Sku failed report at ${funcname}`)
-                    builderOutput.log.push(`${skuId} failed at ${funcname} call`);
+                if (conditionalAttributeData.report) {
+                    activeWindow.webContents.send("console-log",`Sku failed report at ${conditionName}`)
+                    builderOutput.log.push(`${skuId} failed at ${conditionName} call`);
                     perCallCheck = false;
                     // We're going to weight mandatory attributes here quite a bit. The reason being
                     // that if a mandatory attribute is failed, then the SKU name is guaranteed to 
@@ -100,20 +101,20 @@ function builderEngine(sku, gen, config) {
                 // Confidence check should run regardless of mandatory-ness
                 builderOutput.confidence.checks += 1; // This is a pretty naive way to weight the confidence lower on failures. Maybe adjust later?
             }   
-        } else if (value.type == "spec") {
-            let generatorcall = value.spec;
+        } else if (token.type == "attribute") {
+            let attributeCall = token.attributeName;
 
             //Set values for the generator report if not already running
-            if (!genreport.hasOwnProperty(generatorcall)) {genreport[generatorcall] = {attempts: 0, conn: 0}}
+            if (!runReport.hasOwnProperty(attributeCall)) {runReport[attributeCall] = {attempts: 0, conn: 0}}
             
-            let specval = getSkuCallValue(sku, generatorcall, config);
+            let specval = getSkuCallValue(sku, attributeCall, config);
             
             //set our attempts
-            genreport[generatorcall].attempts += 1;
+            runReport[attributeCall].attempts += 1;
             
             //validate spec before continuing
             if (specval) {
-                genreport[generatorcall].conn += 1;
+                runReport[attributeCall].conn += 1;
 
                 //!There needs to be a better way to implement duplication check or move
                 //!the references into the config so that Series or Collection is not
@@ -122,7 +123,7 @@ function builderEngine(sku, gen, config) {
                 //that point might be best to store value in a lastVar
 
                 //test for brand duplicating in Series or Collection
-                if (generatorcall == "Series or Collection") {
+                if (attributeCall == "Series or Collection") {
                     let brand_to_test = sku[config["Excel Mapping"]["Brand"]];
                     if (specval.includes(brand_to_test)) {
                         activeWindow.webContents.send("console-log","Sku failed the report at Brand/Series or Collection duplication")
@@ -134,14 +135,14 @@ function builderEngine(sku, gen, config) {
                 }
 
                 let nameAddition = "";
-                if (value.commaLed) {
+                if (token.commaLed) {
                     nameAddition += ", "
                 }
 
                 // Putting together value to add --> have to check if leadString exists because it wasn't always in use.
-                nameAddition += value.leadString
-                    ? value.leadString + specval + value.endString
-                    : specval + value.endString;
+                nameAddition += token.leadString
+                    ? token.leadString + specval + token.endString
+                    : specval + token.endString;
 
                 // confidence check!
                 let [c, f] = confidenceCheck(nameAddition, contentIndex)
@@ -153,9 +154,9 @@ function builderEngine(sku, gen, config) {
                 name += nameAddition;
             } else {
                 //Series or Collection is being considered optional for individual level reporting
-                if (value.report) {
-                    activeWindow.webContents.send("console-log",`Sku failed the report at ${generatorcall}`);
-                    builderOutput.log.push(`${skuId} failed at ${generatorcall} call`)
+                if (token.report) {
+                    activeWindow.webContents.send("console-log",`Sku failed the report at ${attributeCall}`);
+                    builderOutput.log.push(`${skuId} failed at ${attributeCall} call`)
                     perCallCheck = false;
                     // Same as above: weighting the mandatory attributes.
                     builderOutput.confidence.weightedFails += 1;
@@ -165,12 +166,12 @@ function builderEngine(sku, gen, config) {
                 // Confidence checks should run regardless of reporting mandatory-ness.
                 builderOutput.confidence.checks += 1;
             }
-        } else if (value.type == "string") {
+        } else if (token.type == "string") {
             //This else statement handles strings
-            let [c, f] = confidenceCheck(value.string, contentIndex)
+            let [c, f] = confidenceCheck(token.string, contentIndex)
             builderOutput.confidence.checks += c
             builderOutput.confidence.finds += f
-            name += value.string;
+            name += token.string;
         } else {
             // This else statement handles errors
             name += "*Error*";
@@ -214,7 +215,7 @@ function builderEngine(sku, gen, config) {
         builderOutput.check = false;
     }
 
-    builderOutput.report = genreport;
+    builderOutput.report = runReport;
     builderOutput.name = name;
     builderOutput.confidenceGrade = calculateConfidenceScore(builderOutput.confidence)
     return builderOutput;
@@ -225,9 +226,9 @@ function evalConditions(conditions, thisSku, config) {
     
     // Implementation of return Specification builderOutput
     const returnSpec = (sku, call, leadString, endString) => {
-        let spec = getSkuCallValue(sku, call, config);
-        if (spec) {
-            return leadString ? leadString + spec + endString : spec + endString
+        let attributeValue = getSkuCallValue(sku, call, config);
+        if (attributeValue) {
+            return leadString ? leadString + attributeValue + endString : attributeValue + endString
         }
         return null
     };
@@ -235,12 +236,12 @@ function evalConditions(conditions, thisSku, config) {
     // Implementation of Replace and Return builderOutput
     const replaceAndReturn = (sku, call, leadString, endString, findValue, replaceValue) => {
         // TODO: CLEAN THIS UP lol
-        let spec = getSkuCallValue(sku, call, config);
+        let attributeValue = getSkuCallValue(sku, call, config);
         // NOTE: is it worth implementing the below as a regex???
-        if (spec) {
+        if (attributeValue) {
             return leadString 
-                ? leadString + spec.replace(findValue, replaceValue) + endString 
-                : spec.replace(findValue, replaceValue) + endString;
+                ? leadString + attributeValue.replace(findValue, replaceValue) + endString 
+                : attributeValue.replace(findValue, replaceValue) + endString;
         }
         return null
     }
@@ -250,7 +251,7 @@ function evalConditions(conditions, thisSku, config) {
         
         let evaluatedObject = evalNestedConditions(thisCondition, thisSku, config)
 
-        activeWindow.webContents.send("console-log",`I'm logging the returned evaluated object for condtion ${i}: ${thisCondition.call} `)
+        activeWindow.webContents.send("console-log",`I'm logging the returned evaluated object for condtion ${i}: ${thisCondition.attributename} `)
         activeWindow.webContents.send("console-display", JSON.stringify(evaluatedObject));
 
         //below needs to be altered for the new conditional statements
@@ -260,11 +261,11 @@ function evalConditions(conditions, thisSku, config) {
                 return evaluatedObject.string;
             }
             if (evaluatedObject.type == 'returnSpec') {
-                return returnSpec(thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString)
+                return returnSpec(thisSku, evaluatedObject.attributeName, evaluatedObject.leadString, evaluatedObject.endString)
             }
             //Card needed to be complete
             if (evaluatedObject.type == 'replaceAndReturn') {
-                return replaceAndReturn(thisSku, evaluatedObject.call, evaluatedObject.leadString, evaluatedObject.endString, evaluatedObject.find, evaluatedObject.replace)
+                return replaceAndReturn(thisSku, evaluatedObject.attributeName, evaluatedObject.leadString, evaluatedObject.endString, evaluatedObject.find, evaluatedObject.replace)
             }
             if (evaluatedObject.type == 'returnNull') {
                 return null
@@ -281,21 +282,21 @@ function evalNestedConditions(conditional, thisSku, config, passed=false) {
     let activeWindow = BrowserWindow.getFocusedWindow();
     let thisType = conditional.type;
 
-    let call = conditional.call;
-    let spec = getSkuCallValue(thisSku, call, config);
+    let call = conditional.attributeName;
+    let attributeValue = getSkuCallValue(thisSku, call, config);
 
     // Couple base cases: 
     //    - if a passed = true value exists from a previously passed OR clause, then return
-    //    - if an else type exists then, return a thenReturn or call nestedConditions
+    //    - if an else type exists then, return a conditionOutput or call nestedConditions
     //
     // This function returns null by default.
 
-    //handle passed variable if thenReturn is present
-    if (passed && conditional.thenReturn) {
-        return conditional.thenReturn
+    // handle passed variable if a return object is present
+    if (passed && conditional.conditionOutput) {
+        return conditional.conditionOutput
     }
 
-    const passedTest = conditionTests[thisType](spec, conditional.expectedValue, thisSku, config)
+    const passedTest = conditionTests[thisType](attributeValue, conditional.conditionTargets, thisSku, config)
 
     // first we check if the nestedType is OR since we do not care about the passedTest value result for OR
     if (conditional.nestedType == "OR") {
@@ -320,8 +321,8 @@ function evalNestedConditions(conditional, thisSku, config, passed=false) {
             }
         }
     } else if (passedTest) {
-        if (conditional.thenReturn) {
-            return conditional.thenReturn;
+        if (conditional.conditionOutput) {
+            return conditional.conditionOutput;
         }
     } else {
         activeWindow.webContents.send("console-log","Did not find a valid matching type")

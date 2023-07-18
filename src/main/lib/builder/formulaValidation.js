@@ -46,10 +46,10 @@ const validateBuilder = (unvalidatedBuilder) => {
 
     if (unvalidatedBuilder.type == "simple") {
         addValidationLog("Style Guide Type: Simple")
-        let returnGenerator = unvalidatedBuilder.returnGenerator;
-        if (returnGenerator.length == 1) {
+        let skuNameAst = unvalidatedBuilder.skuNameAst;
+        if (skuNameAst.length == 1) {
             addValidationLog("Return Generator has a confirmed length of 1")
-            let StyleGuideArray = returnGenerator[0].thenReturn
+            let StyleGuideArray = skuNameAst[0].tokens
             RunBuilderValidation(StyleGuideArray, "default");
             if (output.totalErrors > 0) {
                 addValidationLog(`There were ${output.totalErrors} errors found during validation. Please see error log`)
@@ -57,14 +57,14 @@ const validateBuilder = (unvalidatedBuilder) => {
                 addValidationLog("Validation Complete! No errors were found")
             }
         } else {
-            addErrorLog(`Abort Error: Simple Type ReturnGenerator has an unexpected length of ${returnGenerator.length}`);
+            addErrorLog(`Abort Error: Simple Type ReturnGenerator has an unexpected length of ${skuNameAst.length}`);
             addValidationLog("Validation aborted. Please see Error Log for more information.");
         }
     } else {
         addValidationLog("Style Guide Type: Complex")
         
-        const returnGenerators = unvalidatedBuilder.returnGenerator;
-        returnGenerators.forEach((value, index)=>{ 
+        const skuNameAst = unvalidatedBuilder.skuNameAst;
+        skuNameAst.forEach((value, index)=>{ 
             RunTopLevelValidation(value, 0, index, "");
         })
     }
@@ -79,13 +79,13 @@ const validateBuilder = (unvalidatedBuilder) => {
 
 //Below are the central validation functions
 
-const RunTopLevelValidation = (thisGenerator, parentLevel, incomingIndex, runningId) => {
+const RunTopLevelValidation = (thisAstCondition, parentLevel, incomingIndex, runningId) => {
     let thisLevel = parentLevel + 1;
     
     // We by default are checking the ifCalled value when creating the ID. So we should be able to
     // flag a warning on missing expected values. It should still be a warning since we do not know
     // if there will be edge cases.
-    let idValue = thisGenerator.type == "else" ? "default" : thisGenerator.ifCalled.join("&");
+    let idValue = thisAstCondition.type == "else" ? "default" : thisAstCondition.conditionTargets.join("&");
     let thisID = runningId + idValue
     
     if (idValue == "") {
@@ -94,25 +94,25 @@ const RunTopLevelValidation = (thisGenerator, parentLevel, incomingIndex, runnin
     }
 
     // Check the case for when no children are present
-    if (thisGenerator.nestedConditions.length == 0) {
+    if (thisAstCondition.nestedConditions.length == 0) {
         // check if our attribute has a value if there are children nested
-        if (thisGenerator.spec == "" && thisGenerator.type !== "else") {
+        if (thisAstCondition.attributeName == "" && thisAstCondition.type !== "else") {
             addErrorLog(`Fatal Error in generator selection: empty attribute call at level ${thisLevel} and index ${incomingIndex}`);
             incrementFatalError()
-        } else if (thisGenerator.spec == "" && thisGenerator.type === "else") {
+        } else if (thisAstCondition.attributeName == "" && thisAstCondition.type === "else") {
             addErrorLog(`WARNING! Attribute call value is recommended for clarity on else statements.`)
             incrementNonFatalError()
         } else {
             addValidationLog(`Valid attribute call found in top level condition at level ${thisLevel} and index ${incomingIndex}`)
         }
 
-        RunBuilderValidation(thisGenerator.thenReturn, thisID);
+        RunBuilderValidation(thisAstCondition.tokens, thisID);
         return
     }
 
-    // Check here if there is a thenReturn that exists when there is still children to traverse to.
+    // Check here if there is a tokens array that exists when there is still children to traverse to.
 
-    if (thisGenerator.thenReturn) {
+    if (thisAstCondition.tokens) {
         
         addErrorLog(`Fatal Error: Hidden builder found on element with children at ${thisID}`)
         incrementFatalError()
@@ -121,94 +121,94 @@ const RunTopLevelValidation = (thisGenerator, parentLevel, incomingIndex, runnin
     }
 
     // recursive nested values
-    if (thisGenerator.spec == "" && thisGenerator.type !== "else") {
+    if (thisAstCondition.attributeName == "" && thisAstCondition.type !== "else") {
         addErrorLog(`Fatal Error in drawer card: empty attribute call at ${thisID} with index ${incomingIndex}`);
         incrementFatalError()
-    } else if (thisGenerator.spec == "" && thisGenerator.type === "else") {
+    } else if (thisAstCondition.attributeName == "" && thisAstCondition.type === "else") {
         addErrorLog(`WARNING! Attribute call value is recommended for clarity on else statements.`)
         incrementNonFatalError()
     } else {
         addValidationLog(`Valid attribute call found in top level condition at level ${thisLevel} and index ${incomingIndex}`)
     }
 
-    let nestedConditions = thisGenerator.nestedConditions;
+    let nestedConditions = thisAstCondition.nestedConditions;
     nestedConditions.forEach((value, index)=>{
         RunTopLevelValidation(value, thisLevel, index, thisID + "/");
     })
 }
 
-const RunBuilderValidation = (StyleGuideArray, runningId) => {
+const RunBuilderValidation = (tokens, runningId) => {
 
-    if (!StyleGuideArray) {
+    if (!tokens) {
         addErrorLog(`Fatal Error in ${runningId} formula: No available Style Guide to validate`)
         incrementFatalError()
         return
     }
 
-    StyleGuideArray.forEach((value, index, arr)=>{
-        currentNode = value
+    tokens.forEach((token, index, arr)=>{
+        currentToken = token;
         previousNode = index !== 0 ? arr[index - 1] : null;
         nextNode = index !==  arr.length - 1 ? arr[index + 1] : null;
 
         // String type validation checks
-        if (value.type == "string") {
+        if (currentToken.type == "string") {
             addValidationLog(`In ${runningId} formula: Checking String component at index: ${index}`);
-            if (value.string == "") {
+            if (currentToken.string == "") {
                 addErrorLog(`WARNING! In ${runningId} formula: Blank string value for the component at index ${index}`);
                 incrementNonFatalError()
             } else {
                 addValidationLog("String value confirmed");
             }
         // Attribute type validation checks
-        } else if (value.type == "spec") {
-            addValidationLog(`In ${runningId} formula: Checking attribute component at index: ${value.spec}`)
-            if (value.spec == "") {
+        } else if (currentToken.type == "attribute") {
+            addValidationLog(`In ${runningId} formula: Checking attribute component at index: ${currentToken.attributeName}`)
+            if (currentToken.attributeName == "") {
                 addErrorLog(`Fatal Error in ${runningId} formula: Blank attribute value for the component at index ${index}`)
                 incrementFatalError()
             } else {
                 addValidationLog("Attribute value confirmed")
             }
             if (previousNode) {
-                if (!value.report && previousNode.type == "string") {
+                if (!currentToken.report && previousNode.type == "string") {
                     if (previousNode.string.includes(",")) {
-                        addErrorLog(`WARNING! In ${runningId} formula at ${value.spec}: Non-mandatory attribute does not own its preceeding comma`);
+                        addErrorLog(`WARNING! In ${runningId} formula at ${currentToken.attributeName}: Non-mandatory attribute does not own its preceeding comma`);
                         incrementNonFatalError()
                     }
                 }
-                if (previousNode.type == "function") {
-                    if (previousNode.forAttribute == value.spec) {
-                        addErrorLog(`WARNING! In ${runningId} formula at $${value.spec}: Double attribute conditions found`);
+                if (previousNode.type == "conditionalAttribute") {
+                    if (previousNode.rootAttribute == currentToken.attributeName) {
+                        addErrorLog(`WARNING! In ${runningId} formula at $${currentToken.attributeName}: Double attribute conditions found`);
                         incrementNonFatalError()
                     }
                 }
             }
             if (nextNode) {
-                if (value.endString.includes(",") && nextNode.type == "string") {
+                if (currentToken.endString.includes(",") && nextNode.type == "string") {
                     if (nextNode.string.includes(",")) {
-                        addErrorLog(`WARNING! in ${runningId} formula at ${value.spec}: Potential double comma found`)
+                        addErrorLog(`WARNING! in ${runningId} formula at ${currentToken.attributeName}: Potential double comma found`)
                         incrementNonFatalError()
                     }
                 }
-                if (nextNode.type == "function") {
-                    if (nextNode.forAttribute == value.spec) {
-                        addErrorLog(`WARNING! In ${runningId} formula at $${value.spec}: Double attribute conditions found`);
+                if (nextNode.type == "conditionalAttribute") {
+                    if (nextNode.rootAttribute == currentToken.attributeName) {
+                        addErrorLog(`WARNING! In ${runningId} formula at $${currentToken.attributeName}: Double attribute conditions found`);
                         incrementNonFatalError()
                     }
                 }
             }
-        } else if (value.type == "function") {
-            addValidationLog(`In ${runningId} formula: Checking functional component ${currentNode.forAttribute}`)
+        } else if (currentToken.type == "conditionalAttribute") {
+            addValidationLog(`In ${runningId} formula: Checking functional component ${currentToken.rootAttribute}`)
             //set nestedConditions array
-            if (value.forAttribute == "") {
-                addErrorLog(`Fatal Error in ${runningId} formula: Parent attribute not declared for functional attribute ${currentNode.forAttribute}`)
+            if (currentToken.rootAttribute == "") {
+                addErrorLog(`Fatal Error in ${runningId} formula: Parent attribute not declared for functional attribute ${currentToken.rootAttribute}`)
                 incrementFatalError()
             }
-            let functionConditions = value.conditions;
+            let attributeConditions = currentToken.conditions;
             //loop through nested conditions
             addValidationLog("Beginning validation of functional conditions...")
-            functionConditions.forEach((value, index, arr)=>{
+            attributeConditions.forEach((condition, index, arr)=>{
                 localNextNode = index !==  arr.length - 1 ? arr[index + 1] : null;
-                checkFunctionalComponentCondition(value, 0, index, runningId);
+                checkConditionalAttributeComponentCondition(condition, 0, index, runningId, currentToken, localNextNode, nextNode, previousNode);
             })
             addValidationLog("Finished functional conditions validation!")
         } else {
@@ -217,14 +217,14 @@ const RunBuilderValidation = (StyleGuideArray, runningId) => {
     })
 }
 
-const checkFunctionalComponentCondition = (conditionValue, parentLevel, incomingIndex, runningId) => {
+const checkConditionalAttributeComponentCondition = (conditionValue, parentLevel, incomingIndex, runningId, currentToken, localNextNode, nextNode, previousNode) => {
     let thisLevel = parentLevel + 1;
     addValidationLog(`Beginning validation for condition at level ${thisLevel} and index ${incomingIndex}`);
     //base case
     if (conditionValue.nestedConditions.length == 0) {
         //check basic values
         if (conditionValue.type !== "else") {
-            if (conditionValue.call == "") {
+            if (conditionValue.attributeName == "") {
                 addErrorLog(`Fatal Error in ${runningId} formula: null attribute call for condition at level ${thisLevel} and index ${incomingIndex}`);
                 incrementFatalError()
             } else {
@@ -239,21 +239,21 @@ const checkFunctionalComponentCondition = (conditionValue, parentLevel, incoming
 
         //insure that a return object exists
         addValidationLog("Checking for return object on end node")
-        if (conditionValue.thenReturn) {
+        if (conditionValue.conditionOutput) {
             addValidationLog("Return object was found!")
             //run return object validation -> only need to check spec call currently
-            let returnObject = conditionValue.thenReturn
+            let returnObject = conditionValue.conditionOutput
             if (returnObject.type == "returnSpec") {
-                // Validation Checks on returning a spec
-                if (returnObject.call == "") {
-                    addErrorLog(`Fatal Error in ${runningId} formula at ${currentNode.forAttribute}: return object has a null attribute call`);
+                // Validation Checks on returning an attribute
+                if (returnObject.attributeName == "") {
+                    addErrorLog(`Fatal Error in ${runningId} formula at ${currentToken.rootAttribute}: return object has a null attribute call`);
                     incrementFatalError()
                 }
                 
                 if (previousNode) {
-                    if (!currentNode.report && previousNode.type == "string") {
+                    if (!currentToken.report && previousNode.type == "string") {
                         if (previousNode.string.includes(",")) {
-                            addErrorLog(`WARNING! in ${runningId} formula at ${currentNode.forAttribute}: Potential hanging comma -> non-mandatory attribute does not own its preceeding comma`)
+                            addErrorLog(`WARNING! in ${runningId} formula at ${currentToken.rootAttribute}: Potential hanging comma -> non-mandatory attribute does not own its preceeding comma`)
                             incrementNonFatalError()
                         }
                     }
@@ -262,25 +262,25 @@ const checkFunctionalComponentCondition = (conditionValue, parentLevel, incoming
                 if (nextNode) {
                     if (returnObject.endString.includes(",") && nextNode.type == "string") {
                         if (nextNode.string.includes(",")) {
-                            addErrorLog(`WARNING! in ${runningId} formula at ${currentNode.forAttribute}: Potential double comma found`)
+                            addErrorLog(`WARNING! in ${runningId} formula at ${currentToken.rootAttribute}: Potential double comma found`)
                             incrementNonFatalError()
                         }
                     }
                 }
 
             } else if (returnObject.type == "replaceAndReturn") {
-                if (returnObject.call == "") {
-                    addErrorLog(`Fatal Error in ${runningId} formula at ${currentNode.forAttribute}: return object has a null attribute call`);
+                if (returnObject.attributeName == "") {
+                    addErrorLog(`Fatal Error in ${runningId} formula at ${currentToken.rootAttribute}: return object has a null attribute call`);
                     incrementFatalError()
                 }
                 if (returnObject.find == "") {
-                    addErrorLog(`Fatal Error in ${runningId} formula at ${currentNode.forAttribute}: return object has a null find call`);
+                    addErrorLog(`Fatal Error in ${runningId} formula at ${currentToken.rootAttribute}: return object has a null find call`);
                     incrementFatalError()
                 }
                 if (previousNode) {
-                    if (!currentNode.report && previousNode.type == "string") {
+                    if (!currentToken.report && previousNode.type == "string") {
                         if (previousNode.string.includes(",")) {
-                            addErrorLog(`WARNING! in ${runningId} formula at ${currentNode.forAttribute}: Potential hanging comma -> non-mandatory attribute does not own its preceeding comma`)
+                            addErrorLog(`WARNING! in ${runningId} formula at ${currentToken.rootAttribute}: Potential hanging comma -> non-mandatory attribute does not own its preceeding comma`)
                             incrementNonFatalError()
                         }
                     }
@@ -288,13 +288,13 @@ const checkFunctionalComponentCondition = (conditionValue, parentLevel, incoming
                 if (nextNode) {
                     if (returnObject.endString.includes(",") && nextNode.type == "string") {
                         if (nextNode.string.includes(",")) {
-                            addErrorLog(`WARNING! in ${runningId} formula at ${currentNode.forAttribute}: Potential double comma found`)
+                            addErrorLog(`WARNING! in ${runningId} formula at ${currentToken.rootAttribute}: Potential double comma found`)
                             incrementNonFatalError()
                         }
                     }
                 }
             } else {
-                addValidationLog(`In ${runningId} formula at ${currentNode.forAttribute}: Return object validated!`);
+                addValidationLog(`In ${runningId} formula at ${currentToken.rootAttribute}: Return object validated!`);
             }
         } else {
             addErrorLog(`Fatal Error in ${runningId} formula: No return value designated at level ${thisLevel} and index ${incomingIndex}`);
@@ -305,11 +305,11 @@ const checkFunctionalComponentCondition = (conditionValue, parentLevel, incoming
     //non-base case
     addValidationLog('Nested Conditions were found!')
     if (conditionValue.type !== "else") {
-        if (conditionValue.call == "") {
-            addErrorLog(`Fatal Error in ${runningId} formula at ${currentNode.forAttribute}: null attribute call for condition at level ${thisLevel} and index ${incomingIndex}`)
+        if (conditionValue.attributeName == "") {
+            addErrorLog(`Fatal Error in ${runningId} formula at ${currentToken.rootAttribute}: null attribute call for condition at level ${thisLevel} and index ${incomingIndex}`)
             incrementFatalError()
         } else {
-            addValidationLog(`Valid attribute call found for ${currentNode.forAttribute} condition at level ${thisLevel} and index ${incomingIndex}`)
+            addValidationLog(`Valid attribute call found for ${currentToken.rootAttribute} condition at level ${thisLevel} and index ${incomingIndex}`)
         }
     }
 
@@ -317,7 +317,7 @@ const checkFunctionalComponentCondition = (conditionValue, parentLevel, incoming
     addValidationLog('Beginning to validate nested conditions!')
     nestedArray.forEach((value, index, arr)=>{
         localNextNode = index !==  arr.length - 1 ? arr[index + 1] : null;
-        checkFunctionalComponentCondition(value, thisLevel, index, runningId);
+        checkConditionalAttributeComponentCondition(value, thisLevel, index, runningId, currentToken, localNextNode, nextNode, previousNode);
     })
 }
 

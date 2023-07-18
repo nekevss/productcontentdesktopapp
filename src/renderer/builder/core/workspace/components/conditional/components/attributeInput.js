@@ -3,16 +3,16 @@ import '../Conditional.scss';
 
 export default function AttributeInput(props) {
     const [thisCondition, setThisCondition] = React.useState(props.thisCondition);
-    const [thisAttribute, setThisAttribute] = React.useState(props.thisCondition.call);
+    const [thisAttribute, setThisAttribute] = React.useState(props.thisCondition.attributeName);
 
     React.useEffect(() => {
         setThisCondition(props.thisCondition);
-        setThisAttribute(props.thisCondition.call);
+        setThisAttribute(props.thisCondition.attributeName);
     }, [props.thisCondition])
 
     const handleSpecChange = (event) => {
         let _condition = thisCondition;
-        _condition.call = event.target.value;
+        _condition.attributeName = event.target.value;
         setThisAttribute(event.target.value);
         setThisCondition(_condition);
         props.updateValidationState("none");

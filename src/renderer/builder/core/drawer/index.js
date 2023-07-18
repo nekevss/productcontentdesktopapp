@@ -8,11 +8,11 @@ import DefaultGeneratorCard from './default.js';
 export default function WorkspaceDrawer(props) {
     const [styleGuideType, setStyleGuideType] = React.useState(props.StyleGuide.type);
     const [styleGuide, setStyleGuide] = React.useState(props.StyleGuide);
-    const [conditionAmount, setConditionAmount] = React.useState(props.StyleGuide.returnGenerator.length);
+    const [conditionAmount, setConditionAmount] = React.useState(props.StyleGuide.skuNameAst.length);
     const [styleRef, setStyleRef] = React.useState({});
     const [ComponentArray, setComponentArray] = React.useState([]);
     const [elseFlag, setElseFlag] = React.useState(()=>{
-        let builder = props.StyleGuide.returnGenerator;
+        let builder = props.StyleGuide.skuNameAst;
         return builder[builder.length - 1].type === "else" ? true : false
     });
 
@@ -27,21 +27,21 @@ export default function WorkspaceDrawer(props) {
 
         setStyleGuide(props.StyleGuide);
         setStyleGuideType(props.StyleGuide.type);
-        setConditionAmount(props.StyleGuide.returnGenerator.length);
+        setConditionAmount(props.StyleGuide.skuNameAst.length);
     }, [props.StyleGuide]);
 
     React.useEffect(()=>{
-        createDisplay(styleGuide.returnGenerator)
+        createDisplay(styleGuide.skuNameAst)
     }, [conditionAmount])
 
     React.useEffect(()=>{
-        createDisplay(styleGuide.returnGenerator)
+        createDisplay(styleGuide.skuNameAst)
     }, [styleGuideType])
 
     React.useEffect(()=>{
         console.log("Logging Style Guide after an else flag tripped");
         console.log(styleGuide)
-        createDisplay(styleGuide.returnGenerator)
+        createDisplay(styleGuide.skuNameAst)
     }, [elseFlag])
 
     const createDisplay = (conditions)=>{
@@ -75,8 +75,8 @@ export default function WorkspaceDrawer(props) {
         } else {
             console.log("Logging the conditions submitted for display")
             console.log(conditions);
-            console.log("Logging the current returnGenerator at time of display creation");
-            console.log(props.StyleGuide.returnGenerator);
+            console.log("Logging the current skuNameAst at time of display creation");
+            console.log(props.StyleGuide.skuNameAst);
             conditions.forEach((thisObject, index, arr)=>{
                 console.log(`Here's the object being mapped at index ${index}`)
                 console.log(thisObject);
@@ -92,11 +92,11 @@ export default function WorkspaceDrawer(props) {
                         let oldObject = thisObject
                         thisObject = {
                             type: oldObject.type,
-                            spec: "",
-                            ifCalled: [""],
+                            attributeName: "",
+                            conditionTargets: [""],
                             nestedType: "",
                             nestedConditions:[],
-                            thenReturn: oldObject.thenReturn
+                            tokens: oldObject.tokens
                         }
                     }
 
@@ -175,10 +175,10 @@ export default function WorkspaceDrawer(props) {
 
     const RemoveItem = (indexToRemove) => {
         let _styleGuide = styleGuide;
-        _styleGuide.returnGenerator = _styleGuide.returnGenerator.filter((value, index)=>{return index !== indexToRemove});
+        _styleGuide.skuNameAst = _styleGuide.skuNameAst.filter((value, index)=>{return index !== indexToRemove});
         console.log("Logging new Style Guide after condition removal");
         setStyleGuide(_styleGuide);
-        setConditionAmount(_styleGuide.returnGenerator.length);
+        setConditionAmount(_styleGuide.skuNameAst.length);
         props.updateValidationState("none");
     }
 
@@ -186,49 +186,49 @@ export default function WorkspaceDrawer(props) {
         console.log("I've recieved a request to update the return generators");
         console.log(incomingValues);
         let _styleGuide = styleGuide;
-        _styleGuide.returnGenerators[incomingIndex] = incomingUpdate;
+        _styleGuide.skuNameAsts[incomingIndex] = incomingUpdate;
         setStyleGuide(_styleGuide);
-        setConditionAmount(_styleGuide.returnGenerator.length)
+        setConditionAmount(_styleGuide.skuNameAst.length)
         props.updateValidationState("none");
     }
 
     const pushInputToStack = (typeValue, addIndex) => {
         console.log(`Recieved a request to add an input at index ${addIndex}`)
-        let newReturnGenerator = [];
+        let newAst = [];
         let _styleGuide = styleGuide;
 
         const newCondition = typeValue == 'conditional' 
             ? {
                 type : "if",
-                spec: "",
-                ifCalled: [""],
+                attributeName: "",
+                conditionTargets: [""],
                 nestedType: "",
                 nestedConditions: []
             }
             : {
                 type : "else",
                 spec: "",
-                ifCalled: [""],
+                conditionTargets: [""],
                 nestedType: "",
                 nestedConditions: []
             }
         
-        if (addIndex == _styleGuide.returnGenerator.length) {
-            newReturnGenerator = newReturnGenerator.concat(_styleGuide.returnGenerator);
-            newReturnGenerator.push(newCondition);
+        if (addIndex == _styleGuide.skuNameAst.length) {
+            newAst = newAst.concat(_styleGuide.skuNameAst);
+            newAst.push(newCondition);
         } else {
-            for (let i in _styleGuide.returnGenerator) {
+            for (let i in _styleGuide.skuNameAst) {
                 if (i == addIndex) {
-                    newReturnGenerator.push(newCondition);
+                    newAst.push(newCondition);
                 }
-                newReturnGenerator.push(_styleGuide.returnGenerator[i]);                        
+                newAst.push(_styleGuide.skuNameAst[i]);                        
             }   
         };
 
-        _styleGuide.returnGenerator = newReturnGenerator;
+        _styleGuide.skuNameAst = newAst;
 
         setStyleGuide(_styleGuide);
-        setConditionAmount(_styleGuide.returnGenerator.length);
+        setConditionAmount(_styleGuide.skuNameAst.length);
         console.log(`Finished pushing ${typeValue} to stack`)
     }
 

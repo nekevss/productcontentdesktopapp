@@ -102,7 +102,7 @@ ipcMain.handle('request-sku-and-state', async(event, arg) => {
 
 ipcMain.handle('request-class-details', async(event, arg) => {
     let activeWindow = BrowserWindow.fromId(1);
-    let found_generator;
+    let found_builder;
     let found_SG;
 
     const config = await fetchConfig()
@@ -119,7 +119,7 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     try {
         let builders = await fetchAstAssets()
         let buildersArray = builders.data;
-        found_generator = pleaseSirABuilder(config, buildersArray, determinedClass, querySku)
+        found_builder = pleaseSirABuilder(config, buildersArray, determinedClass, querySku)
     } catch (err) {
         let errOptions = {
             type: "none",
@@ -148,7 +148,7 @@ ipcMain.handle('request-class-details', async(event, arg) => {
     
     const payload = {
         styleGuide : found_SG, 
-        builder: found_generator, 
+        builder: found_builder, 
         attributes: attributes, 
         webClass: determinedClass 
     }
@@ -158,7 +158,7 @@ ipcMain.handle('request-class-details', async(event, arg) => {
 
 
 ipcMain.handle("request-name", (event, package)=>{
-    const output = builderEngine(package.sku, package.generator, package.config);
+    const output = builderEngine(package.sku, package.skuNameBuilder, package.config);
     return output
 })
 

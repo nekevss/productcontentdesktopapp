@@ -68,7 +68,7 @@ export default function MainBody(props) {
                 <DisplayPanel 
                     config ={ props.config}
                     styleGuide={ props.styleGuide} 
-                    gen={props.gen} 
+                    skuNameTokens={props.skuNameTokens} 
                     sku={currentSKU}
                     attributes={props.attributes}
                     contentReport={contentReport}
@@ -91,7 +91,7 @@ export default function MainBody(props) {
 function WrittenContent(props) {
 
     const extendedDesc = React.useRef() 
-    console.log(extendedDesc.current)
+    // console.log(extendedDesc.current)
     if (extendedDesc.current) {
         extendedDesc.current = extendedDesc.current.replace("/<lt\\/>/gi", "<");
         extendedDesc.current = extendedDesc.current.replace("/<gt\\/>/gi", ">");

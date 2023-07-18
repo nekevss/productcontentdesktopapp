@@ -28,7 +28,7 @@ export default function MainInterface(props) {
     const lengthRef = React.useRef(length);
     const sku = React.useRef({});
     const config = React.useRef({});
-    const builder = localStorage.getItem('classGenerator') ? React.useRef([{}]) : React.useRef(JSON.parse(localStorage.getItem('classGenerator')));
+    const builder = localStorage.getItem('skuNameTokens') ? React.useRef([{}]) : React.useRef(JSON.parse(localStorage.getItem('skuNameTokens')));
     const styleGuide = React.useRef(localStorage.getItem('styleGuide'));
     const attributes = React.useRef(null);
     const source = "https://www.staples-3p.com/s7/is/image/Staples/";
@@ -110,9 +110,11 @@ export default function MainInterface(props) {
 
         attributes.current = classDetails.attributes;
         styleGuide.current = classDetails.styleGuide;
-        localStorage.setItem("styleGuide", classDetails.styleGuide)
+        localStorage.setItem("styleGuide", classDetails.styleGuide);
         builder.current = classDetails.builder;
-        localStorage.setItem("classGenerator", JSON.stringify(classDetails.builder))
+        localStorage.setItem("skuNameTokens", JSON.stringify(classDetails.builder))
+        console.log("Builder is:")
+        console.log(classDetails.builder);
 
         console.log('Package receieved!');
         return responseState;
@@ -215,7 +217,7 @@ export default function MainInterface(props) {
                         primaryImage ={primaryImage}
                         config= {config.current}
                         sku={sku.current}
-                        gen={builder.current}
+                        skuNameTokens={builder.current}
                         attributes={attributes.current}
                         styleGuide={styleGuide.current}
                         source = {source}

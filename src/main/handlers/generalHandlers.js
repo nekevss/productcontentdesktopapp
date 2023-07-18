@@ -8,6 +8,7 @@ const { StreamData, fetchStateAndData, fetchConfig, cleanResourceFiles } = requi
 const { pleaseSirABuilder, builderEngine, basicContentSearch, recommendedContentSearch, cleanSpec, determineWebClass } = require('../lib/index.js');
 const { fetchAstAssets, fetchStyleGuideAsset } = require("../fetch.js");
 const { cachePath, configurationFileName, configurationPath, styleGuideFileName, styleGuidePath, astDataFileName, astDataPath, statePath } = require("../applicationPaths.js");
+const { mapBuilderObject } = require("../lib/builder/conversion.js");
 
 // Table of Contents
 // ------------------
@@ -83,12 +84,13 @@ ipcMain.handle("update-local", async(event, package)=>{
             dialog.showMessageBox(activeWindow, errOptions)
         })
     }
-    if (updateType == "sng" || updateType == "all") {
+    if (updateType == "tokens" || updateType == "all") {
         let builderPath = path.join(fullPath, astDataFileName);
         let localPath = astDataPath;
-        //update later
+        // update later
+        // LOL this is super hacky, but whatever
         StreamData(builderPath, localPath, "import").then(()=>{
-            console.log(`Stream initialized from ${builderPath} to ${localPath}`)
+            console.log(`Stream between remote and local has completed successfully.`)
         }).catch((err)=>{
             let errOptions = {
                 type: "none",
@@ -97,6 +99,40 @@ ipcMain.handle("update-local", async(event, package)=>{
                 message: `There was an error while initializing the stream: ${err}`
             }
             dialog.showMessageBox(activeWindow, errOptions)
+        }).then(()=>{
+            console.log("Beginning to run conversion.")
+            // NOTE: This can be removed once all v2 registered builder are 
+            // transferred over to the new api.
+            //
+            // We need to double check run a conversion on the data just read in.
+            fetchAstAssets().then((unconvertedBuilders)=>{
+                const newDataArray = unconvertedBuilders.data.map((builderObject)=>{
+                    return builderObject.hasOwnProperty("returnGenerator") 
+                        ? mapBuilderObject(builderObject)
+                        : builderObject 
+                })
+                
+                const newTokensObject = {
+                    metadata: unconvertedBuilders.metadata,
+                    data: newDataArray
+                }
+
+                fs.writeFileSync(astDataPath, JSON.stringify(newTokensObject), "utf-8", (err)=>{
+                    if (err) {
+                        let errorOptions = {
+                            type: "none",
+                            buttons: ["Okay"],
+                            title: "Converted Builder Write Error",
+                            message: `Error while writing the new tokens file after conversion: ${err}`
+                        }
+                        dialog.showMessageBox(activeWindow, errorOptions)
+                    }
+                })
+                console.log("Conversion is complete.")
+            }).catch((err)=>{
+                console.log("Well this is awkward...")
+                console.log(err)
+            })
         })
     }
 })
@@ -155,7 +191,7 @@ ipcMain.handle("post-local", async(event, package)=>{
                 dialog.showMessageBox(activeWindow, errOptions)
             })
         }
-        if (updateType == "sng" || updateType == "all") {
+        if (updateType == "tokens" || updateType == "all") {
             let remoteBuilderPath = path.join(fullPath, astDataFileName);
             let localPath = astDataPath;
     
@@ -475,7 +511,7 @@ ipcMain.handle("run-attribute-search", async(event, arg)=>{
     const contentFields = config["Functional Data"]["Reporting Fields"];
     const classAttributes = arg.attributes;
     const skuData = arg.sku;
-    const specs = skuData.Specs;
+    const specs = skuData.skuAttributes;
 
     //need to handle null attributes value before moving forward
     if (!classAttributes) {return []}

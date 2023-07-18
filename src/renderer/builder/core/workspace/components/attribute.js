@@ -3,24 +3,25 @@ import '../buildspace.scss';
 
 export default function AttributeCard(props) {
     const [StyleGuide, setStyleGuide] = React.useState(props.styleGuide);
-    const [specValue, setSpecValue] = React.useState(props.styleGuide.spec);
+    const [attribute, setAttribute] = React.useState(props.styleGuide.attributeName);
     const [endString, setEndString] = React.useState(props.styleGuide.endString);
     const [leadString, setLeadString] = React.useState(props.styleGuide.leadString);
     const [report, setReport] = React.useState(props.styleGuide.report)
-    const [commaLed, setCommaLed] = React.useState(props.styleGuide.postType);
+    const [commaLed, setCommaLed] = React.useState(props.styleGuide.commaLed);
 
     React.useEffect(()=>{
         setStyleGuide(props.styleGuide);
-        setSpecValue(props.styleGuide.spec)
+        setAttribute(props.styleGuide.attributeName)
         setLeadString(props.styleGuide.leadString);
         setEndString(props.styleGuide.endString)
         setReport(props.styleGuide.report)
+        setCommaLed(props.styleGuide.commaLed)
     }, [props.styleGuide])
 
     const handleSpec = (event) => {
         let _styleGuide = StyleGuide;
-        _styleGuide["spec"] = event.target.value;
-        setSpecValue(event.target.value);
+        _styleGuide["attributeName"] = event.target.value;
+        setAttribute(event.target.value);
         props.updateValidationState("none")
     }
 
@@ -59,7 +60,7 @@ export default function AttributeCard(props) {
             <div className="inputs-section">
                 <div className="input-row">
                     <div className="input-title">Attribute:</div>
-                    <input onChange={handleSpec} value={specValue} type="text" placeholder="Enter attribute here" />
+                    <input onChange={handleSpec} value={attribute} type="text" placeholder="Enter attribute here" />
                 </div>
                 <div className="input-row">
                     <div className="string-title">Lead String:</div>

@@ -11,7 +11,7 @@ const cachePath = path.join(resourcesPath, "/cache");
 // Relevant Application File Names
 const configurationFileName = "config.json";
 const styleGuideFileName = "StyleGuide.json";
-const astDataFileName = "Builders.json";
+const astDataFileName = "tokens.json";
 
 // Relevant Application File Paths
 const currentDataPath = path.join(resourcesPath, "current.json");

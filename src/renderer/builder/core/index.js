@@ -18,9 +18,9 @@ export default function BuilderWorkspace(props) {
         // Below is actually handles the auto update of legacy else statements.
 
         /*-----------------------Beginning of Handle Block-----------------------------------------*/
-        if (incomingStyleGuide.returnGenerator) {
+        if (incomingStyleGuide.skuNameAst) {
             let updateStyleGuide = false;
-            let incomingTopLevelArray = incomingStyleGuide.returnGenerator;
+            let incomingTopLevelArray = incomingStyleGuide.skuNameAst;
             let adjustedTopLevelArray = incomingTopLevelArray.map((condition)=>{
                 if (condition.type === "else" && incomingStyleGuide.type === "complex") {
                     console.log("Else condition found. Logging input else condition");
@@ -30,11 +30,11 @@ export default function BuilderWorkspace(props) {
                         updateStyleGuide = true;
                         return {
                             type: condition.type,
-                            spec: "",
-                            ifCalled:[""],
+                            attributeName: "",
+                            conditionTargets:[""],
                             nestedType: "",
                             nestedConditions: [],
-                            thenReturn: condition.thenReturn
+                            tokens: condition.tokens
                         }
                     } else {
                         return condition
@@ -50,7 +50,7 @@ export default function BuilderWorkspace(props) {
                 const newStyleGuide = {
                     class: props.StyleGuide.class,
                     type: props.StyleGuide.type,
-                    returnGenerator: adjustedTopLevelArray
+                    skuNameAst: adjustedTopLevelArray
                 }
         
                 props.updateStyleGuide(newStyleGuide);
@@ -81,16 +81,16 @@ function ActiveWorkspace(props) {
     const [activeSGIndex, setActiveSGIndex] = React.useState(0)
     const [displaySG, setDisplaySG] = React.useState(false);
     const [displayDrawer, setDisplayDrawer] = React.useState(true);
-    const [currentGenerator, setCurrentGenerator] = React.useState({});
+    const [currentBuilder, setCurrentBuilder] = React.useState({});
     
     React.useEffect(()=>{
         console.log("Logging the new Drawer Stack")
         drawerStack.length > 0 ? console.log(drawerStack) : console.log("The drawer stack still has no entries");
     }, [drawerStack])
 
-    const OpenInDisplay = (incomingGenerator, level, index) => {
+    const OpenInDisplay = (incomingBuilder, level, index) => {
         console.log(`Recieved a request to open style guide at level ${level} index ${index} in display`)
-        setCurrentGenerator(incomingGenerator);
+        setCurrentBuilder(incomingBuilder);
         setDisplaySG(true);
     }
 
@@ -113,7 +113,7 @@ function ActiveWorkspace(props) {
             : <HiddenDrawer toggle={()=>{toggleDrawer()}} />}
             {displaySG 
             ? <ActiveBuilder {...props}
-                activeGenerator={currentGenerator}
+                activeBuilder={currentBuilder}
                 activeIndex={activeSGIndex}
                 displayDrawer={displayDrawer} />
             : null}

@@ -33,7 +33,7 @@ function getSkuCallValue (sku, generatorCall, config) {
         }
     } else {
         // Return value of call. Always clean the spec coming from the Specs object of sku.
-        return sku.hasOwnProperty(call) ? sku[call] : cleanSpec(sku.Specs[call]);
+        return sku.hasOwnProperty(call) ? sku[call] : cleanSpec(sku.skuAttributes[call]);
         // Really the above works, but it might be best to check the value and insure that
         // null is being returned rather than undefined. But Fijis vs. Granny Smiths
     }

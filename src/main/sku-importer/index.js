@@ -120,10 +120,10 @@ function ImportExcelData(importPath, config) {
                 if (activeField == config["Import Mapping"]["Attribute Entry Point"]) {
                     console.log('Found an entry point for importing.')
                     mapped_sku[activeField] = sku[activeField];
-                    mapped_sku.Specs = new Object();
+                    mapped_sku.skuAttributes = new Object();
                     for (j = i + 1; j <= fields.length - 2; j++) {
                         activeField = fields[j]
-                        mapped_sku.Specs[activeField] = sku[activeField] ? sku[activeField] : null;
+                        mapped_sku.skuAttributes[activeField] = sku[activeField] ? sku[activeField] : null;
                         // Proprietary Code should be in config file as Attribution Exit Point
                         if (fields[j+1] == config["Import Mapping"]["Attribute Exit Point"]) {
                             i = j;

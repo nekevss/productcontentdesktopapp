@@ -12,39 +12,39 @@ export default function OutputHandler(props) {
 
     React.useEffect(()=>{
         setThisCondition(props.thisCondition);
-        setThisType(props.thisCondition.thenReturn.type);
+        setThisType(props.thisCondition.conditionOutput.type);
     }, [props.thisCondition])
 
     const updateType = (incomingType) => {
         setThisType(incomingType);
         let _condition = thisCondition;
         if (incomingType == "returnString") {
-            _condition.thenReturn = {
+            _condition.conditionOutput = {
                 type: incomingType,
                 string: ""
             }
         } else if (incomingType == "returnSpec") {
-            _condition.thenReturn = {
+            _condition.conditionOutput = {
                 type: incomingType,
-                call: "",
+                attributeName: "",
                 leadString:"",
                 endString: ""
             }
         } else if (incomingType == "returnNull") {
-            _condition.thenReturn = {
+            _condition.conditionOutput = {
                 type: incomingType,
             }
         } else if (incomingType == "replaceAndReturn") {
-            _condition.thenReturn = {
+            _condition.conditionOutput = {
                 type: incomingType,
-                call: "",
+                attributeName: "",
                 find: "",
                 replace: "",
                 leadString:"",
                 endString: ""
             }
         } else {
-            _condition.thenReturn = {
+            _condition.conditionOutput = {
                 type: "",
             }
         }
@@ -54,7 +54,7 @@ export default function OutputHandler(props) {
     const resetType = () => {
         setThisType("")
         let _condition = thisCondition;
-        _condition.thenReturn = {type:""}
+        _condition.conditionOutput = {type:""}
         setThisCondition(_condition);
         props.updateValidationState("none");
     }
@@ -85,7 +85,7 @@ export default function OutputHandler(props) {
                 updateValidationState={(v)=>props.updateValidationState(v)}
                 reset={()=>{resetType()}}
                 />
-            :thisType == "returnNull"
+            : thisType == "returnNull"
             ? <NullOutput
                 reset={()=>{resetType()}}
                 />

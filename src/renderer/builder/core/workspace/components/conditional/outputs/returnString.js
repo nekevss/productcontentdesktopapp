@@ -4,17 +4,17 @@ import '../Conditional.scss';
 
 export default function StringOutput(props) {
     const [thisCondition, setThisCondition] = React.useState(props.condition);
-    const [stringValue, setStringValue] = React.useState(props.condition.thenReturn.string);
+    const [stringValue, setStringValue] = React.useState(props.condition.conditionOutput.string);
 
     React.useEffect(()=>{
         setThisCondition(props.condition);
-        setStringValue(props.condition.thenReturn.string);
+        setStringValue(props.condition.conditionOutput.string);
     }, [props.condition])
 
     const handleStringValue = (event) => {
         let _condition = thisCondition;
         setStringValue(event.target.value);
-        _condition.thenReturn.string = event.target.value;
+        _condition.conditionOutput.string = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }

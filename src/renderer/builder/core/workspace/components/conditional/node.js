@@ -55,11 +55,11 @@ export default function RecursiveConditionNode(props) {
                 )
             })
         }
-        if (_condition.thenReturn) {
+        if (_condition.conditionOutput) {
             setHasReturn(true);
             //adding the below to account if leadString is not existing. Can be removed Dec 2021
-            if (_condition.thenReturn.type == "returnSpec" || _condition.thenReturn.type == "replaceAndReturn") {
-                if (!_condition.thenReturn.leadString) {_condition.thenReturn["leadString"] = "";}
+            if (_condition.conditionOutput.type == "returnSpec" || _condition.conditionOutput.type == "replaceAndReturn") {
+                if (!_condition.conditionOutput.leadString) {_condition.conditionOutput["leadString"] = "";}
             }
             display.push(
                 <OutputHandler 
@@ -80,8 +80,8 @@ export default function RecursiveConditionNode(props) {
         let _condition = thisCondition;
         const newNestedCondition = {
             type: "if",
-            call: "",
-            expectedValue : [],
+            attributeName: "",
+            conditionTargets : [],
             nestedType: "",
             nestedConditions: []
         }
@@ -94,7 +94,7 @@ export default function RecursiveConditionNode(props) {
 
     const addReturn = () => {
         let _condition = thisCondition;
-        _condition["thenReturn"] = {type:""};
+        _condition["conditionOutput"] = {type:""};
         setThisCondition(_condition);
         setHasReturn(true);
         props.updateValidationState("none");
@@ -112,7 +112,8 @@ export default function RecursiveConditionNode(props) {
 
     const RemoveReturn = () => {
         let _condition = thisCondition;
-        delete thisCondition["thenReturn"]
+        // sketchy delete usage.
+        delete thisCondition["conditionOutput"]
         setThisCondition(_condition);
         setHasReturn(false);
         props.updateValidationState("none");

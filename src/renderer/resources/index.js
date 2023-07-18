@@ -91,8 +91,8 @@ function ResourceInterface(props) {
             </div>
             <div className="resource-block">
                 <div className="title">Sku Name Builders</div>
-                <div className="btn fetch" onClick={()=>{updateLocal("sng")}}><p>Update Local</p></div>
-                <div className="btn post" onClick={()=>{postLocal("sng")}}><p>Export to Remote</p></div>
+                <div className="btn fetch" onClick={()=>{updateLocal("tokens")}}><p>Update Local</p></div>
+                <div className="btn post" onClick={()=>{postLocal("tokens")}}><p>Export to Remote</p></div>
             </div>
             <div className="resource-block">
                 <div className="title">All Local Resources</div>

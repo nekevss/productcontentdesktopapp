@@ -3,17 +3,17 @@ import '../Conditional.scss';
 
 export default function OutputSelection(props) {
     const [thisCondition, setThisCondition] = React.useState(props.condition);
-    const [thisType, setThisType] = React.useState(props.condition.thenReturn.type);
+    const [thisType, setThisType] = React.useState(props.condition.conditionOutput.type);
 
     React.useEffect(()=>{
         setThisCondition(props.condition);
-        setThisType(props.condition.thenReturn.type);
+        setThisType(props.condition.conditionOutput.type);
     }, [props.condition])
 
     const handleTypeChange = (event) => {
         let _condition = thisCondition;
         setThisType(event.target.value);
-        _condition.thenReturn.type = event.target.value;
+        _condition.conditionOutput.type = event.target.value;
         setThisCondition(_condition);
         props.updateValidationState("none");
     }

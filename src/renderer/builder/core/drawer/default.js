@@ -8,10 +8,10 @@ export default function DefaultGeneratorCard(props) {
 
     const OpenSG = () => {
         let _Condition = thisCondition;
-        if (thisCondition.hasOwnProperty("thenReturn")) {
+        if (thisCondition.hasOwnProperty("tokens")) {
             props.OpenStyleGuide(thisCondition, 1, props.index);
         } else {
-            _Condition["thenReturn"] = [];
+            _Condition["tokens"] = [];
             setThisCondition(_Condition);
             props.OpenStyleGuide(_Condition, 1, props.index)
         }   

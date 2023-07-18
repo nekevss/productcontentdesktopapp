@@ -3,21 +3,21 @@ import { StaticString, Attribute, ConditionalAttributeRoot } from './components/
 import './buildspace.scss';
 
 export default function ActiveBuilder(props) {
-    const [currentGenerator, setCurrentGenerator] = React.useState(props.activeGenerator);
-    const [styleGuide, setStyleGuide] = React.useState(props.activeGenerator.thenReturn);
+    const [currentBuilder, setCurrentBuilder] = React.useState(props.activeBuilder);
+    const [styleGuide, setStyleGuide] = React.useState(props.activeBuilder.tokens);
     const [sgLength, setLength] = React.useState(()=>{
-        return props.activeGenerator.thenReturn ? props.activeGenerator.thenReturn.length : 0;
+        return props.activeBuilder.tokens ? props.activeBuilder.tokens.length : 0;
     });
     const [thisStyle, setThisStyle] = React.useState();
     const [displayStack, setDisplayStack] = React.useState([]);
 
     React.useEffect(()=>{
         //set values upon props activeGenerator change
-        setCurrentGenerator(props.activeGenerator);
-        let incomingStyleGuide = props.activeGenerator.thenReturn;
+        setCurrentBuilder(props.activeBuilder);
+        let incomingStyleGuide = props.activeBuilder.tokens;
         setStyleGuide(incomingStyleGuide);
         setLength(incomingStyleGuide.length);
-    }, [props.activeGenerator])
+    }, [props.activeBuilder])
 
     React.useEffect(()=> {
         //Should run a Element.offsetWidth to for setting margin
@@ -54,7 +54,7 @@ export default function ActiveBuilder(props) {
                         remove={(i)=>{RemoveItem(i)}}
                         index={index} />
                     )
-                } else if (sgPart["type"] == "spec") {
+                } else if (sgPart["type"] == "attribute") {
                     //adding line to check for leadString exists and add it if not (can be removed after a December 2021).
                     if (!sgPart.leadString) {sgPart["leadString"]="";}
                     newDisplayStack.push(<Attribute key={sgPart.type + index} 
@@ -109,7 +109,7 @@ export default function ActiveBuilder(props) {
 
     const updateStyleGuide  = (callType, addIndex) => {
         console.log("Entering for StyleGuide Update Function")
-        let _generator = currentGenerator;
+        let _builder = currentBuilder;
         let newStyleGuide = [];
 
         if (styleGuide.length == 0) {
@@ -133,11 +133,11 @@ export default function ActiveBuilder(props) {
 
         console.log("Pushing new Style Guide");
         console.log(newStyleGuide);
-        _generator.thenReturn = newStyleGuide;
+        _builder.tokens = newStyleGuide;
         //update StyleGuide and Length
-        setCurrentGenerator(_generator);
-        setStyleGuide(_generator.thenReturn);
-        setLength(_generator.thenReturn.length);
+        setCurrentBuilder(_builder);
+        setStyleGuide(_builder.tokens);
+        setLength(_builder.tokens.length);
 
         console.log("Exiting StyleGuide Update Function");
     }
@@ -148,12 +148,12 @@ export default function ActiveBuilder(props) {
                 type : callType,
                 string : ""
             }
-        } else if (callType == "spec") {
+        } else if (callType == "attribute") {
             return {
                 type: callType,
                 report: true,
                 commaLed: false,
-                spec : "",
+                attributeName : "",
                 leadString:"",
                 endString : ""
             }
@@ -162,7 +162,7 @@ export default function ActiveBuilder(props) {
                 type: callType,
                 report : true,
                 commaLed: false,
-                forAttribute : "",
+                rootAttribute : "",
                 conditions: []
             }
         }
@@ -173,7 +173,7 @@ export default function ActiveBuilder(props) {
         console.log(props.StyleGuide);
         let newStyleGuide = styleGuide.filter((value, index)=> index !== index_to_remove);
         //below probably shouldn't be done. For some reason, removing an item would lock the StyleGuide
-        props.activeGenerator.thenReturn = newStyleGuide;
+        props.activeBuilder.tokens = newStyleGuide;
         setStyleGuide(newStyleGuide)
         setLength(newStyleGuide.length);
         console.log(props.StyleGuide);
@@ -265,8 +265,8 @@ function AddCall(props) {
                     <div>Select new type:</div>
                     <select value={addType} onChange={handleSelectChange}>
                         <option value="string">Static String</option>
-                        <option value="spec">Attribute Call</option>
-                        <option value="function">Conditional Call</option>
+                        <option value="attribute">Attribute Call</option>
+                        <option value="conditionalAttribute">Conditional Call</option>
                     </select>
                 </div>
                 <div className="add-call-buttons">

@@ -76,8 +76,8 @@ export default function RecursiveInputNode(props) {
         let _thisCondition = thisCondition;
         _thisCondition.nestedConditions.push({
             type : "if",
-            spec: "",
-            ifCalled: [""],
+            attributeName: "",
+            conditionTargets: [""],
             nestedType: "",
             nestedConditions: []
         })
@@ -107,15 +107,15 @@ export default function RecursiveInputNode(props) {
     const OpenSG = () => {
         console.log("Receieved a request to open the below condition");
         console.log(thisCondition);
-        if (thisCondition.hasOwnProperty("thenReturn")) {
+        if (thisCondition.hasOwnProperty("tokens")) {
             props.OpenStyleGuide(thisCondition, thisLevel, thisIndex);
         } else {
             let _Condition = thisCondition;
-            _Condition["thenReturn"] = [{
-                "type": "spec",
+            _Condition["tokens"] = [{
+                "type": "attribute",
                 "report": true,
                 "endString": "",
-                "spec": "Brand",
+                "attributeName": "Brand",
                 "leadString": ""
             },
             {
@@ -123,10 +123,10 @@ export default function RecursiveInputNode(props) {
                 "string": " "
             },
             {
-                "type": "spec",
+                "type": "attribute",
                 "report": false,
                 "endString": "",
-                "spec": "Series or Collection",
+                "attributeName": "Series or Collection",
                 "leadString": ""
             }];
             setThisCondition(_Condition);
@@ -251,17 +251,17 @@ function NestedTypeSelection(props) {
 
 function AttributeInput(props) {
     const [thisCondition, setThisCondition] = React.useState(props.thisCondition)
-    const [thisAttribute, setThisAttribute] = React.useState(props.thisCondition.spec)
+    const [thisAttribute, setThisAttribute] = React.useState(props.thisCondition.attributeName)
 
     React.useEffect(()=>{
         setThisCondition(props.thisCondition)
-        setThisAttribute(props.thisCondition.spec);
+        setThisAttribute(props.thisCondition.attributeName);
     }, [props.thisCondition])
 
     const handleSpecChange = (event) => {
         let _Condition = thisCondition;
         let _thisAttribute = event.target.value;
-        _Condition.spec = event.target.value;
+        _Condition.attributeName = event.target.value;
         setThisAttribute(_thisAttribute);
         setThisCondition(_Condition);
     }
@@ -269,20 +269,20 @@ function AttributeInput(props) {
     return (
         <div className="input-form-column">
             <div className="row-title">Spec:</div>
-            <input value={thisAttribute} onChange={handleSpecChange} placeholder="Enter Spec Here" />
+            <input value={thisAttribute} onChange={handleSpecChange} placeholder="Enter Attribute Name Here" />
         </div>
     )
 }
 
 function ValuesInput(props) {
     const [thisCondition, setThisCondition] = React.useState(props.thisCondition)
-    const [ifCalledString, setIfCalledString] = React.useState("")
+    const [conditionTargetsString, setConditionTargetsString] = React.useState("")
 
     React.useEffect(()=>{
         setThisCondition(props.thisCondition);
-        const ifCalled = props.thisCondition.ifCalled;
-        let ifCalledString = ifCalled.join("&&")
-        setIfCalledString(ifCalledString)
+        const ifCalled = props.thisCondition.conditionTargets;
+        let targetString = ifCalled.join("&&")
+        setConditionTargetsString(targetString)
     }, [props.thisCondition])
 
     const handleValuesChange = (event) => {
@@ -290,16 +290,16 @@ function ValuesInput(props) {
         const regex = /\s\&\&\s/g;
         const regex2 = /\&\&/g;
         let val = event.target.value;
-        let _ifCalled = regex.test(val) ? val.split(regex) : regex2.test(val) ? val.split(regex2) : [event.target.value];
-        _Condition.ifCalled = _ifCalled;
-        setIfCalledString(event.target.value);
+        let _targets = regex.test(val) ? val.split(regex) : regex2.test(val) ? val.split(regex2) : [event.target.value];
+        _Condition.conditionTargets = _targets;
+        setConditionTargetsString(event.target.value);
         setThisCondition(_Condition);
     }
 
     return (
         <div className="input-form-column">
             <div className="row-title">Value(s):</div>
-            <input value={ifCalledString} onChange={handleValuesChange} placeholder="Enter Values Here" />
+            <input value={conditionTargetsString} onChange={handleValuesChange} placeholder="Enter Values Here" />
         </div>
     )
 }

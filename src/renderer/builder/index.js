@@ -156,15 +156,15 @@ export default class StyleGuideBuilder extends React.Component {
         console.log(`Submitting values ${thisClass} and ${thisType}`)
         if (thisType == "simple") {
             this.updateStyleGuide({
-                "class": thisClass,
-                "type": thisType,
-                "returnGenerator" : [{
+                class: thisClass,
+                type: thisType,
+                skuNameAst : [{
                     type : "else",
-                    thenReturn: [{
-                        "type": "spec",
+                    tokens: [{
+                        "type": "attribute",
                         "report": true,
                         "endString": "",
-                        "spec": "Brand",
+                        "attributeName": "Brand",
                         "leadString": ""
                     },
                     {
@@ -172,10 +172,10 @@ export default class StyleGuideBuilder extends React.Component {
                         "string": " "
                     },
                     {
-                        "type": "spec",
+                        "type": "attribute",
                         "report": false,
                         "endString": "",
-                        "spec": "Series or Collection",
+                        "attributeName": "Series or Collection",
                         "leadString": ""
                     }]
                 }]
@@ -184,10 +184,10 @@ export default class StyleGuideBuilder extends React.Component {
             this.updateStyleGuide({
                 "class": thisClass,
                 "type": thisType,
-                "returnGenerator" : [{
+                "skuNameAst" : [{
                     type : "if",
-                    spec: "",
-                    ifCalled: [""],
+                    attributeName: "",
+                    conditionTargets: [""],
                     nestedType: "",
                     nestedConditions: []
                 }]
@@ -267,20 +267,20 @@ export default class StyleGuideBuilder extends React.Component {
         let _currentStyleGuide = this.state.StyleGuide;
         if (_currentStyleGuide.type == "simple") {
             // We don't really need to validate a simple style guide...just YOLO it
-            let _builder = _currentStyleGuide.returnGenerator;
-            let _thenReturn = _builder[0].thenReturn ? _builder[0].thenReturn : [];
+            let _builder = _currentStyleGuide.skuNameAst;
+            let _tokens = _builder[0].tokens ? _builder[0].tokens : [];
             let newBuilder = [{
                 type: "else",
-                spec: "",
-                ifCalled: [""],
+                attributeName: "",
+                conditionTargets: [""],
                 nestedType: "",
                 nestedConditions: [],
-                thenReturn: _thenReturn
+                tokens: _tokens
             }]
             let newStyleGuide = {
                 class: _currentStyleGuide.class,
                 type: "complex",
-                returnGenerator: newBuilder
+                skuNameAst: newBuilder
             }
 
             this.setState((prevState)=>{
@@ -297,19 +297,19 @@ export default class StyleGuideBuilder extends React.Component {
         } else {
             // Complex to simple is a bit more...complex (no pun intended)
             // Need to validate that there is only one formula and that the statement is else
-            let builder = _currentStyleGuide.returnGenerator;
+            let builder = _currentStyleGuide.skuNameAst;
             let expectedElse = builder[0].type;
             if (builder.length === 1 && expectedElse === "else") {
-                let _thenReturn = builder[0].thenReturn ? builder[0].thenReturn : [];
+                let _tokens = builder[0].tokens ? builder[0].tokens : [];
                 let newBuilder = [{
                     type : "else",
-                    thenReturn: _thenReturn
+                    tokens: _tokens
                 }];
 
                 let newStyleGuide = {
                     class: _currentStyleGuide.class,
                     type: "simple",
-                    returnGenerator: newBuilder
+                    skuNameAst: newBuilder
                 }
     
                 this.setState((prevState)=>{

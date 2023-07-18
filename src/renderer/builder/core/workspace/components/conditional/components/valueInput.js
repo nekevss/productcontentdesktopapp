@@ -7,8 +7,7 @@ export default function ValueInput(props) {
 
     React.useEffect(()=>{
         setThisCondition(props.thisCondition);
-        //const
-        const expected = props.thisCondition.expectedValue
+        const expected = props.thisCondition.conditionTargets
         let expectedJoined = expected.join("&&");
         setExpectedValuesString(expectedJoined);
     }, [props.thisCondition])
@@ -19,7 +18,7 @@ export default function ValueInput(props) {
         const regex2 = /\&\&/g;
         let val = event.target.value;
         let expectedSplit = regex.test(val) ? val.split(regex) : regex2.test(val) ? val.split(regex2) : [event.target.value];
-        _condition.expectedValue = expectedSplit
+        _condition.conditionTargets = expectedSplit
         setExpectedValuesString(event.target.value);
         setThisCondition(_condition);
         props.updateValidationState("none");

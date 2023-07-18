@@ -32,30 +32,31 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
             if (!isOwnBrand && builder.class.includes("Own Brand")) {continue}
 
             const activeOwnBrandSearch = isOwnBrand && builder.class.includes("Own Brand");
-            activeWindow.webContents.send("console-log", "I found a matching class!")
+            activeWindow.webContents.send("console-log", "A matching class was found!")
             //name should change to generatorQueries
-            const queryStack = builder.returnGenerator;
+            // console.log(builder);
+            const ast = builder.skuNameAst;
             
-            if (queryStack.length == 1) {
-                if (queryStack[0].type == "Error") {
-                    builderOutput = [{"string" : queryStack[0].errorMessage}]  
+            if (ast.length == 1) {
+                if (ast[0].type == "Error") {
+                    builderOutput = [{"string" : ast[0].errorMessage}]  
                 } else {
-                    builderOutput = queryStack[0].thenReturn
+                    builderOutput = ast[0].tokens
                 }
                 if (!isOwnBrand || activeOwnBrandSearch) {break}
             } else {
-                for (let i = 0 ; i <= queryStack.length - 1; i++) {
-                    let foundGen = queryBuilder(config, incomingSku, queryStack[i]);
-                    if (foundGen) {
-                        console.log("Found the Generator!")
+                for (let i = 0 ; i <= ast.length - 1; i++) {
+                    let foundTokens = queryBuilder(config, incomingSku, ast[i]);
+                    if (foundTokens) {
+                        // console.log("Found the Tokens!")
                         //console.log(foundGen)
-                        builderOutput = foundGen;
+                        builderOutput = foundTokens;
                         break;
                     };
                 }
                 // If we made it to this point, then we assume that a null value was returned for the determining attribute
                 if (builderOutput === null) {
-                    builderOutput = [{"type": "string", "string" : "Error: Null value returned for determining attribute."}];
+                    builderOutput = [{"type": "string", "string" : "Error: No value provided for determining attribute."}];
                     
                     if (!isOwnBrand || activeOwnBrandSearch) {break}
                 }
@@ -69,10 +70,11 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
     return builderOutput
 }
 
-// FML why did I call the one value ifCalled and spec
+// FML why did I call the one value ifCalled and spec -> Fixed :)
+// And I'm leaving this comment because it was true hell, so pay respects.
 
 function queryBuilder(config, sku, condition, passed=false) {
-    const specValue = getSkuCallValue(sku, condition.spec, config);
+    const attributeValue = getSkuCallValue(sku, condition.attributeName, config);
     // handle error types
     if (condition.type == "error") {
         const error = [{ "string" : condition.errorMessage}]
@@ -82,16 +84,16 @@ function queryBuilder(config, sku, condition, passed=false) {
     // Here we are checking if the type is else and there is no spec call and whether 
     // the returnGenerator is present. These should all only occur when there is a simple
     // Style Guide Builder
-    if (condition.type === "else" && !condition.spec && condition.thenReturn) {
-        return condition.thenReturn
+    if (condition.type === "else" && !condition.attributeName && condition.tokens) {
+        return condition.tokens
     }
 
     // check if passed has already been evaluated as true and if there is a return
-    if (passed && condition.thenReturn) {
-        return condition.thenReturn
+    if (passed && condition.tokens) {
+        return condition.tokens
     }
 
-    const passedTest = conditionTests[condition.type](specValue, condition.ifCalled, sku, config);
+    const passedTest = conditionTests[condition.type](attributeValue, condition.conditionTargets, sku, config);
 
     if (condition.nestedType == "OR") {
         let consolidatedPassedValue = passedTest === true || passed === true ? true : false;
@@ -118,8 +120,8 @@ function queryBuilder(config, sku, condition, passed=false) {
     } 
     
     if (passedTest) {
-        if (condition.thenReturn) {
-            return condition.thenReturn
+        if (condition.tokens) {
+            return condition.tokens
         }
     }
 
