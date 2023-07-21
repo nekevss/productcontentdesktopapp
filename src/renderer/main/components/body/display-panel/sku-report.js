@@ -95,7 +95,7 @@ function AttributeRecommender(props) {
                 feedbackString += "Recommendations unavailable.";
             }
         } else {
-            feedbackString = "Attribute is null. ";
+            feedbackString = "Attribute is empty. ";
             //run through recommendations
             if (value.rec) {
                 let recommendations = value.rec;

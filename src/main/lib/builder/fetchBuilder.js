@@ -32,7 +32,7 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
             if (!isOwnBrand && builder.class.includes("Own Brand")) {continue}
 
             const activeOwnBrandSearch = isOwnBrand && builder.class.includes("Own Brand");
-            activeWindow.webContents.send("console-log", "A matching class was found!")
+            activeWindow?.webContents.send("console-log", "A matching class was found!")
             //name should change to generatorQueries
             // console.log(builder);
             const ast = builder.skuNameAst;

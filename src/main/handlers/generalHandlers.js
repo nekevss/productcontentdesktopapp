@@ -233,7 +233,6 @@ ipcMain.handle('run-sku-namer', async(event, args)=>{
     try {
         let builders = await Promise.resolve(fetchAstAssets());
         buildersArray = builders.data
-        //console.log(SngArray)
     } catch(err) {
         let errorOptions = {
             type: "none",

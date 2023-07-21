@@ -37,11 +37,10 @@ ipcMain.handle('request-sku-and-state', async(event, arg) => {
     const state = frame.state;
     const current = frame.json;
 
-    console.log("Logging state!")
-    console.log(state)
-
-    console.log("Logging Current metadata")
-    console.log(current.metadata)
+    // console.log("Logging state!")
+    // console.log(state)
+    // console.log("Logging Current metadata")
+    // console.log(current.metadata)
 
     if (state.type === "history") {
         return {

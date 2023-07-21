@@ -36,8 +36,8 @@ function builderEngine(sku, tokens, config) {
     const skuId = sku[PyramidId];
     
 
-    activeWindow.webContents.send("console-log","Logging the generator prior to iterating...")
-    activeWindow.webContents.send("console-log", tokens);
+    activeWindow?.webContents.send("console-log","Logging the generator prior to iterating...")
+    activeWindow?.webContents.send("console-log", tokens);
 
     let name = "";
     if (!tokens) {
@@ -88,7 +88,7 @@ function builderEngine(sku, tokens, config) {
                 name += conditionOutput;
             } else {
                 if (conditionalAttributeData.report) {
-                    activeWindow.webContents.send("console-log",`Sku failed report at ${conditionName}`)
+                    activeWindow?.webContents.send("console-log",`Sku failed report at ${conditionName}`)
                     builderOutput.log.push(`${skuId} failed at ${conditionName} call`);
                     perCallCheck = false;
                     // We're going to weight mandatory attributes here quite a bit. The reason being
@@ -126,7 +126,7 @@ function builderEngine(sku, tokens, config) {
                 if (attributeCall == "Series or Collection") {
                     let brand_to_test = sku[config["Excel Mapping"]["Brand"]];
                     if (specval.includes(brand_to_test)) {
-                        activeWindow.webContents.send("console-log","Sku failed the report at Brand/Series or Collection duplication")
+                        activeWindow?.webContents.send("console-log","Sku failed the report at Brand/Series or Collection duplication")
                         builderOutput.log.push(`${skuId} failed due to duplicate value in brand and series or collection`)
                         builderOutput.confidence.checks += 1;
                         builderOutput.confidence.fails += 1;
@@ -155,7 +155,7 @@ function builderEngine(sku, tokens, config) {
             } else {
                 //Series or Collection is being considered optional for individual level reporting
                 if (token.report) {
-                    activeWindow.webContents.send("console-log",`Sku failed the report at ${attributeCall}`);
+                    activeWindow?.webContents.send("console-log",`Sku failed the report at ${attributeCall}`);
                     builderOutput.log.push(`${skuId} failed at ${attributeCall} call`)
                     perCallCheck = false;
                     // Same as above: weighting the mandatory attributes.
@@ -251,8 +251,8 @@ function evalConditions(conditions, thisSku, config) {
         
         let evaluatedObject = evalNestedConditions(thisCondition, thisSku, config)
 
-        activeWindow.webContents.send("console-log",`I'm logging the returned evaluated object for condtion ${i}: ${thisCondition.attributename} `)
-        activeWindow.webContents.send("console-display", JSON.stringify(evaluatedObject));
+        activeWindow?.webContents.send("console-log",`I'm logging the returned evaluated object for condtion ${i}: ${thisCondition.attributename} `)
+        activeWindow?.webContents.send("console-display", JSON.stringify(evaluatedObject));
 
         //below needs to be altered for the new conditional statements
         //should create a test class
@@ -325,7 +325,7 @@ function evalNestedConditions(conditional, thisSku, config, passed=false) {
             return conditional.conditionOutput;
         }
     } else {
-        activeWindow.webContents.send("console-log","Did not find a valid matching type")
+        activeWindow?.webContents.send("console-log","Did not find a valid matching type")
         return null
     }
 }
