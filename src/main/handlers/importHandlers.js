@@ -6,8 +6,6 @@ const { fetchConfig } = require('../index.js');
 //const { runAttributeImport } = require('../lib/attribute-mapper.js');
 const { runSkuDataImport } = require('../sku-importer/index.js');
 const { runAttributeImport } = require('../attribute-importer/index.js');
-const { resourcesPath } = require("../applicationPaths.js");
-
 
 // the below handler takes an incoming package:
 // 
@@ -24,7 +22,7 @@ ipcMain.handle("run-import", async(event, importPackage)=>{
         // SKU data is going a more involved import.
         console.log("Recieved a request to import SKUs.")
         try {
-            let result = runSkuDataImport(activeWindow, resourcesPath, importPackage.filePath, config);
+            let result = runSkuDataImport(activeWindow, importPackage.filePath, config);
             return result
         } catch (err) {
             let errOptions = {
@@ -34,13 +32,14 @@ ipcMain.handle("run-import", async(event, importPackage)=>{
                 message: `There was an issue importing SKU data: ${err}`
             }
             dialog.showMessageBox(activeWindow, errOptions)
+            return "error"
         }
     }
 
     if (importPackage.type === "attribute") {
         // This import is pretty stripped down. We need the file path and then we
         // plug and chug.
-        runAttributeImport(activeWindow, resourcesPath, importPackage.filePath, config).then(()=>{
+        runAttributeImport(activeWindow, importPackage.filePath, config).then(()=>{
             return "finished";
         }).catch((err)=>{
             console.log(err)

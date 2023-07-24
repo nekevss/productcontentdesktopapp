@@ -20,9 +20,7 @@ export default function ImportOverlay(props) {
             filePath: "default"
         }
         window.api.invoke("run-import", importPackage).then((data)=>{
-            if (data !== "finished") {
-                window.api.alert("send-alert", "There was an issue when importing the sheeet. Please try again")
-            } else {
+            if (data === "finished") {
                 let updateValue = {
                     overlay: "",
                     reload: true

@@ -437,7 +437,8 @@ ipcMain.handle("fetch-class-index", async(event, args)=>{
 })
 
 // TODO: Rename to "request-builder-data"
-// The below is only called when importing data into the Style Guide Builder in the ImportOverlay
+// The below is only called when importing data into the
+// Style Guide Builder in the ImportOverlay and the MainInterface
 
 ipcMain.handle('request-class-data', async(event, arg)=>{
     let activeWindow = BrowserWindow.getFocusedWindow()
@@ -448,7 +449,7 @@ ipcMain.handle('request-class-data', async(event, arg)=>{
         let options = {
             type: "none",
             buttons: ["Okay"],
-            title: "Read File Error",
+            title: "Class Data Request Error",
             message: err
         }
         dialog.showMessageBox(activeWindow, options)

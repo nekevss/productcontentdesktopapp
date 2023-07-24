@@ -5,8 +5,9 @@ const { app, dialog } = electron;
 const xlsx = require("xlsx");
 const fs = require("fs");
 const path = require('path');
+const { resourcesPath } = require("../applicationPaths.js");
 
-async function runAttributeImport(activeWindow, resourcesPath, filePath, config) {
+async function runAttributeImport(activeWindow, filePath, config) {
     activeWindow.webContents.send("import-status", "Beginning Attribute Import");
     console.log("Beginning Attribute Import")
     const attributesPath = path.join(resourcesPath, "attributes")
@@ -21,7 +22,7 @@ async function runAttributeImport(activeWindow, resourcesPath, filePath, config)
        // -object
        // -null
 
-       const SomeimportedReport = importSpecAttributeReport(activeWindow,filePath, config);
+       const SomeimportedReport = importSpecAttributeReport(activeWindow, filePath, config);
            
         if (SomeimportedReport.result === "success") {
             const importedReport = SomeimportedReport.output;

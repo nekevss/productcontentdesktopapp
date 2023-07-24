@@ -156,8 +156,8 @@ async function fetchStateAndData() {
         let options = {
             type: "none",
             buttons: ["Okay"],
-            title: "Read File Error",
-            message: "Read file error:" + err
+            title: "Request State Error",
+            message: err
         }
         dialog.showMessageBox(activeWindow, options)
     }

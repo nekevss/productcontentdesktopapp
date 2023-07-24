@@ -4,8 +4,9 @@ const xlsx = require("xlsx");
 const fs = require("fs");
 const path = require('path');
 const { constructDate, constructTime } = require("../index.js");
+const { currentDataPath } = require("../applicationPaths.js");
 
-function runSkuDataImport(activeWindow, resourcesPath, filePath, config) {
+function runSkuDataImport(activeWindow, filePath, config) {
     // 1. Determine the real file path.
     let importPath = "";
     let mostRecentFile = ""
@@ -35,56 +36,53 @@ function runSkuDataImport(activeWindow, resourcesPath, filePath, config) {
     
     if (!importPath.match(fileTypeRegex)) {
         // 3.1 We have determined that the file is not an .xlsm file, so we throw an error
-        let errOptions = {
-            type: "none",
-            buttons: ["Okay"],
-            title: "SKU Data Import Error",
-            message: `File selected for import is not a .xlsm file`
-        }
-        dialog.showMessageBox(activeWindow, errOptions)
-        return "error"
-    } else {
-        // 3. Run excel file import
-        const skuData = ImportExcelData(importPath, config);
-
-        // 4. We need to create the storage object for SKU data (displayed below)
-        // -metadata
-        // --name
-        // --time
-        // -data
-        // --skuData
-
-        // Get metadata fields
-        const importPathArray = importPath.split("\\");
-        const fileName = importPathArray[importPathArray.length - 1].replace(fileTypeRegex, "");
-        //console.log(fileName)
-        // lol
-        const currentDate = constructDate();
-        const currentTime = constructTime()
-
-        // clean the file name 
-
-        // Create the metadata object
-        const metadataObject = {
-            name: fileName,
-            time: currentTime,
-            date: currentDate
-        }
-
-        // Finally, create the storage object
-        const importObject = {
-            metadata: metadataObject,
-            data: skuData
-        }
-
-        // 5. Write import data object to current.json file in resources folder
-        fs.writeFile(resourcesPath + "/current.json", JSON.stringify(importObject, null, 4), "utf8", (err)=>{
-            if(err){
-                console.log(err)
-            }
-        })
+        throw Error("File selected for import is not a .xlsm smartsheet file.")
     }
-    return "finished"
+
+    // 3. Run excel file import
+    const skuData = ImportExcelData(importPath, config);
+
+    // 4. We need to create the storage object for SKU data (displayed below)
+    // { 
+    //    metadata : {
+    //        name: nameValue<String>
+    //        time: timeValue<String>
+    //        date: dateValue<String>
+    //    },
+    //    data: skuData <object[]>
+    // }
+
+    // Get metadata fields
+    const importPathArray = importPath.split("\\");
+    const fileName = importPathArray[importPathArray.length - 1].replace(fileTypeRegex, "");
+    //console.log(fileName)
+    // lol
+    const currentDate = constructDate();
+    const currentTime = constructTime()
+
+    // clean the file name 
+
+    // Create the metadata object
+    const metadataObject = {
+        name: fileName,
+        time: currentTime,
+        date: currentDate
+    }
+
+    // Finally, create the storage object
+    const importObject = {
+        metadata: metadataObject,
+        data: skuData
+    }
+
+    // 5. Write import data object to current.json file in resources folder
+    try {
+        fs.writeFileSync(currentDataPath, JSON.stringify(importObject, null, 4), "utf8")
+        return "finished"
+    } catch (err) {
+        // Swallow the error I guess. Idk, not the best approach but whatever.
+        throw err
+    }
 }
 
 function ImportExcelData(importPath, config) {
