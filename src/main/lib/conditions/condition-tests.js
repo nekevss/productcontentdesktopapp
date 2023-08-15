@@ -12,6 +12,9 @@ const { getSkuCallValue } = require('../utils/index.js');
 // else - implemented and live
 // ifNull - implemented and live
 
+// Potential tests
+// ifPlural -> check for regex"s$". If true, remove the regex"s$"
+
 // run test -> return bool of test result
 const conditionTests = {
     "if" : (specValue, expectedArray, thisSku={}, config={}) => {
@@ -23,7 +26,8 @@ const conditionTests = {
     "includes" : (specValue, expectedArray, thisSku={}, config={}) => {
         if (specValue) {
             for (let value of expectedArray) {
-                if (specValue.includes(value)) {
+                let regexedValue = RegExp(value, "g");
+                if (regexedValue.test(specValue)) {
                     return true
                 }
             }
