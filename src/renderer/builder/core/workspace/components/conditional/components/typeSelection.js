@@ -23,9 +23,7 @@ export default function TypeSelection(props) {
             <div className="type-title">Type:</div>
             <select className="type-input" value={thisType} onChange={handleTypeChange}>
                 <option value={"if"}>If</option>
-                {props.thisIndex > 0
-                ? <option value={"else"}>Else</option>
-                :null}
+                <option value={"else"}>Else</option>
                 <option value={"ifNot"}>If Not</option>
                 <option value={"ifNull"}>If Blank</option>
                 <option value={"includes"}>Includes</option>

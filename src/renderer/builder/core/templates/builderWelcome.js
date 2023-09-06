@@ -13,14 +13,14 @@ export default function BuilderWelcome(props) {
                 different interface.</p>
                 <p>Button Overview:</p>
                 <ul>
-                    <li><b>Import Asset: </b>Loads asset from locally stored JSON</li>
+                    <li><b>Stage Asset: </b>Loads asset from locally stored JSON</li>
                     <li><b>New Style Guide: </b>Creates blank template Style Guide</li>
                     <li><b>Clear Builder: </b>Resets Style Guide Builder (Should be done prior to importing an asset or creating blank asset)</li>
                     <li><b>Run Validation: </b>Validates whether current asset contains errors</li>
                     <li><b>Expose Assets: </b>Exposes the Style Guide Formula and the Sku Name Generator Assets for external use</li>
-                    <li><b>Export Formula: </b>Exports Style Guide Formula to local storage</li>
-                    <li><b>Export Builder: </b>Exports Sku Name Builder to local storage</li>
-                    <li><b>Export Assets: </b>Exports both assets to local storage</li>
+                    <li><b>Commit Formula: </b>Writes the Style Guide Formula to the application's local assets</li>
+                    <li><b>Commit Builder: </b>Writes the Sku Name Builder to the application's local assets</li>
+                    <li><b>Commit Assets: </b>Writes both assets to the application's local assets</li>
                     <li><b>Delete Current Style Guide: </b>Deletes assets for loaded class</li>
                 </ul>
                 <p>Formula Card Overview:</p>

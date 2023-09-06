@@ -188,7 +188,7 @@ const evaluateBuilder = (context, incomingBuilder, pre) => {
             thisValue += lexicalValues["Call Open Separator"] + value.rootAttribute + " " + lexicalValues["Condition Open Separator"]
             let conditions = value.conditions;
             conditions.forEach((condition, index)=>{
-                let conditionString = evaluateCondition(context, condition, value.rootAttribute, true, "");
+                let conditionString = evaluateCondition(context, condition, index, value.rootAttribute, true, "");
                 thisValue += conditionString
             })
 
@@ -204,7 +204,7 @@ const evaluateBuilder = (context, incomingBuilder, pre) => {
 }
 
 // Need a setup that allows us to pass conditional strings down and return values we expect
-const evaluateCondition = (context, condition, rootAttribute, isFirstLevel, pre) => {
+const evaluateCondition = (context, condition, conditionIndex, rootAttribute, isFirstLevel, pre) => {
     let conditionString = pre;
     let tempString = "";
     const formulaTypes = context.formulaTypes;
@@ -242,15 +242,18 @@ const evaluateCondition = (context, condition, rootAttribute, isFirstLevel, pre)
                     nestedTemp = condition.nestedType == "AND" 
                         ? tempString + lexicalValues["Nested AND Phrase"] 
                         : tempString + lexicalValues["Nested OR Phrase"];
-                    conditionString += evaluateCondition(context, value, rootAttribute, false, nestedTemp);
+                    conditionString += evaluateCondition(context, value, index, rootAttribute, false, nestedTemp);
                 })
             } else {
                 tempString += parseReturnObject(context, condition.conditionOutput, rootAttribute)
                 conditionString += tempString;
             }
         } else {
-            //if condition.type is else
-            tempString = rootAttribute == condition.attributeName && lexicalValues["Assumptive Formula Flag"]
+            // if condition.type is else
+            // FIrst check involves checking a contiditional attribute with an immediate else statement.
+            tempString = conditionIndex === 0
+                ? lexicalValues["Present Attribute Phrase"]
+                : rootAttribute == condition.attributeName && lexicalValues["Assumptive Formula Flag"]
                     ? lexicalValues["Conditional Statement Keyword"] + operationValues.assumptiveOperator + lexicalValues["Else Phrase"]
                     : isFirstLevel 
                         ? lexicalValues["Conditional Statement Keyword"] + " " + lexicalValues["Call Open Separator"] + condition.attributeName + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Return All Phrase"]
@@ -262,7 +265,7 @@ const evaluateCondition = (context, condition, rootAttribute, isFirstLevel, pre)
                     nestedTemp = condition.nestedType == "AND" 
                         ? tempString + lexicalValues["Nested AND Phrase"] 
                         : tempString + lexicalValues["Nested OR Phrase"];
-                    conditionString += evaluateCondition(context, value, rootAttribute, false, nestedTemp);
+                    conditionString += evaluateCondition(context, value, index, rootAttribute, false, nestedTemp);
                 })
             } else {
                 if (condition.conditionOutput.type == "returnSpec" && condition.conditionOutput.attributeName == rootAttribute && isFirstLevel) {

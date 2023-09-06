@@ -77,7 +77,7 @@ export default function BuilderControls(props) {
         <div className="controls-container">
             <div className="workspace-controls">
                 <div className="state-controls">
-                    <div className="import-sg" onClick={()=>{assetImport()}}><p>Import Asset</p></div>
+                    <div className="import-sg" onClick={()=>{assetImport()}}><p>Stage Asset</p></div>
                     <div className="create-new" onClick={()=>{createBlank()}}><p>New Style Guide</p></div>
                     <div className="reset" onClick={()=>{props.reset()}}><p>Clear Builder</p></div>
                 </div>
@@ -86,9 +86,9 @@ export default function BuilderControls(props) {
                     <div className="" onClick={()=>{exposeAssets()}}><p>Expose Assets</p></div>
                 </div>
                 <div className='sandbox-export-controls'>
-                    <div className="" onClick={()=>{runExport("builder")}}><p>Export Builder</p></div>
-                    <div className="" onClick={()=>{runExport("formula")}}><p>Export Formula</p></div>
-                    <div className="" onClick={()=>{runExport("all")}}><p>Export Assets</p></div>
+                    <div className="" onClick={()=>{runExport("builder")}}><p>Commit Builder</p></div>
+                    <div className="" onClick={()=>{runExport("formula")}}><p>Commit Formula</p></div>
+                    <div className="" onClick={()=>{runExport("all")}}><p>Commit Assets</p></div>
                 </div>
                 <div className="high-level-controls">
                     <div className="convert" onClick={()=>{props.convertStyleGuideType()}}><p>Convert Type</p></div>

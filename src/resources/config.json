@@ -19,7 +19,7 @@
             "Intent to Sell in SA",
             "Intent to Sell in Quill",
             "Intent to Sell in Retail- eComm",
-            "Intent to Sell HiTouch Pillar 2&3"
+            "Intent to Sell Marketplace(s)"
         ],
         "PPH Path": "Primary Path",
         "Brand": "Brand Name",
@@ -72,7 +72,7 @@
             "Secondary Image 7",
             "Secondary Image 8"
         ],
-        "Attributes Object Name": "Specs"
+        "Attributes Object Name": "skuAttributes"
     },
     "Exempted Brands": {
         "Trademark Brands": [
@@ -87,10 +87,10 @@
             ""
         ],
         "Registered Brands": [
-            "Post-It",
-            "3M",
-            "Scotch",
-            "Keurig"
+            "Staples",
+            "Keurig",
+            "Post-it",
+            "Velcro"
         ]
     },
     "Functional Data": {
@@ -190,61 +190,62 @@
             "Manufacturer Model #": "Vendor Model Number_NAD",
             "Pack Qty": "Selling UOM"
         },
-        "Assumptive Formula": true,
-        "Assumptive Return": false,
-        "Conditional SG Open": "[IF",
-        "Conditional SG Close": "]:",
+        "Assumptive Formula Flag": true,
+        "Assumptive Return Flag": false,
+        "Conditional Guide Open Separator": "[IF",
+        "Conditional Guide Close Separator": "]:",
         "Present Attribute Phrase": "If Applicable ",
-        "Conditional String Keyword": "include",
+        "Conditional String Keyword": "Include",
         "Leading String Keyword": "before",
         "Subsequent String Keyword": "after",
         "Conditional Statement Keyword": "If",
-        "Conditional Clause Separator": " => ",
+        "Conditional Clause Separator": "=>",
         "Statement Separator": ".",
-        "Call Open": "&lt;",
-        "Call Close": "&gt;",
-        "Condition Phrase Open": "(",
-        "Conditional Phrase Close": ")",
+        "Call Open Separator": "&lt;",
+        "Call Close Separator": "&gt;",
+        "Condition Open Separator": "(",
+        "Condition Close Separator": ")",
         "Nested AND Phrase": " AND ",
         "Nested OR Phrase": " OR ",
-        "Return Call Keyword": "return",
+        "Return Attribute Call Keyword": "Include",
         "Return Blank Keyword": "Leave Blank",
         "Return Find Phrase": " find and replace ",
         "Return Replace Phrase": " with ",
         "Return Assumptive Phrase": " return parent",
-        "Return Error Phrase": "return error"
+        "Return Error Phrase": "As Stated By Manufacturer",
+        "Else Phrase": "All other values"
     },
     "Formula Types": {
-        "if operator": " == ",
-        "if parentOp": " ",
+        "if operator": " = ",
+        "if assumptiveOperator": " ",
         "if conditionJoinClause": " || ",
         "if returnGenJoinClause": ", ",
-        "ifNull operator": " is null",
-        "ifNull parentOp": " null ",
+        "ifNull operator": " is Blank",
+        "ifNull assumptiveOperator": " Blank ",
         "ifNull conditionJoinClause": " || ",
         "ifNull returnGenJoinClause": ", ",
         "ifNot operator": " != ",
-        "ifNot parentOp": " not ",
+        "ifNot assumptiveOperator": " not ",
         "ifNot conditionJoinClause": " || ",
         "ifNot returnGenJoinClause": ", ",
         "includes operator": " includes ",
-        "includes parentOp": " includes ",
+        "includes assumptiveOperator": " includes ",
         "includes conditionJoinClause": " || ",
         "includes returnGenJoinClause": ", ",
         "equals operator": " = ",
-        "equals parentOp": " equal to ",
+        "equals assumptiveOperator": " equal to ",
         "equals conditionJoinClause": " or ",
         "equals returnGenJoinClause": ", ",
         "notEquals operator": " != ",
-        "notEquals parentOp": " not equal to ",
+        "notEquals assumptiveOperator": " not equal to ",
         "notEquals conditionJoinClause": " or ",
         "notEquals returnGenJoinClause": ", ",
         "contains operator": " contains ",
-        "contains parentOp": " contains ",
+        "contains assumptiveOperator": " contains ",
         "contains conditionJoinClause": " or ",
         "contains returnGenJoinClause": " or ",
-        "else operator": " == All other values",
-        "else parentOp": "All other values"
+        "else operator": " = ",
+        "else assumptiveOperator": " "
     },
     "Attribution Mapping": {
         "Directory Structure": [
