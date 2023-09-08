@@ -41,7 +41,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        //add listeners here
+        // Add listeners here
         window.api.receive("change-interface", (data) => {
             console.log(data);
             let oldView = this.state.view;

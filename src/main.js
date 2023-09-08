@@ -249,7 +249,6 @@ const menuTemplate = [
                 mainWindow.webContents.send("change-interface", "configure")
             }
         },
-        
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' }
       ]
@@ -438,6 +437,8 @@ const menuTemplate = [
 //The below declarations should be the last lines of code on this file
 //Last note: this app has the bare minimum basis for Mac. But I cannot
 // claim with any certainty that this will function cross platform.
+
+app.commandLine.appendSwitch ("disable-http-cache");
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
