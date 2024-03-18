@@ -16,10 +16,10 @@ require('./main/handlers/spellcheckHandler.js');
 //1. Server Setup
 
 //TODO list
-//1. Add attribute reporting and recommending
-//2. Bring style guide parser and registry into application
-//3. Get this thing on a server???
-//4. Add 30 day auto delete to history
+// 1. Add attribute reporting and recommending (basic build out complete)
+// 2. Bring style guide parser and registry into application (would need institutional support)
+// 3. Get this thing on a server??? (would need institutional support)
+// 4. Add 30 day auto delete to history (Never really got to it)
 
 
 //globals

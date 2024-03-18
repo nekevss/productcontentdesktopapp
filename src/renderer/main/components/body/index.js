@@ -91,11 +91,9 @@ export default function MainBody(props) {
 function WrittenContent(props) {
 
     const extendedDesc = React.useRef() 
-    // console.log(extendedDesc.current)
     if (extendedDesc.current) {
-        extendedDesc.current = extendedDesc.current.replace("/<lt\\/>/gi", "<");
-        extendedDesc.current = extendedDesc.current.replace("/<gt\\/>/gi", ">");
-        console.log(extendedDesc.current)
+        extendedDesc.current = extendedDesc.current.replace("/<lt\/*>/gi", "<");
+        extendedDesc.current = extendedDesc.current.replace("/<gt\/*>/gi", ">");
     }
 
     return (

@@ -256,7 +256,7 @@ const evaluateCondition = (context, condition, conditionIndex, rootAttribute, is
                 : rootAttribute == condition.attributeName && lexicalValues["Assumptive Formula Flag"]
                     ? lexicalValues["Conditional Statement Keyword"] + operationValues.assumptiveOperator + lexicalValues["Else Phrase"]
                     : isFirstLevel 
-                        ? lexicalValues["Conditional Statement Keyword"] + " " + lexicalValues["Call Open Separator"] + condition.attributeName + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Return All Phrase"]
+                        ? lexicalValues["Conditional Statement Keyword"] + " " + lexicalValues["Call Open Separator"] + condition.attributeName + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Else Phrase"]
                         : lexicalValues["Call Open Separator"] + condition.attributeName + lexicalValues["Call Close Separator"] + operationValues.operator + lexicalValues["Else Phrase"]
             if (condition.nestedType == "AND" || condition.nestedType == "OR") {
                 let nestedConditions = condition.nestedConditions;

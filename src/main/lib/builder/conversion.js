@@ -9,6 +9,7 @@
 // but whatever.
 
 function mapBuilderObject(oldObject) {
+    console.log("Running a conversion on an old builder object.");
     
     // First, let's bring over the stable fields
     let newItem = {

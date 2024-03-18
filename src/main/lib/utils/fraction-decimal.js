@@ -1,6 +1,8 @@
 // I want to note from the jump: this is an absolutely horrible idea...
 // ...
 // ... but I'm lazy, and it will work
+//
+// TODO: Use an external library to handle fraction <-> decimal conversion
 
 const fractionToDecimal = {
     " 1/2" : ".5",
@@ -17,10 +19,12 @@ const fractionToDecimal = {
     " 5/8" : ".63",
     " 7/8" : ".88",
     " 1/10" : ".1",
-    " 9/10" : ".9"
+    " 9/10" : ".9",
+    " 1/12" : ".08"
 }
 
 const decimalToFraction = {
+    ".08": " 1/12",
     ".1" : " 1/10",
     ".125" : " 1/8",
     ".13" : " 1/8",
@@ -30,6 +34,7 @@ const decimalToFraction = {
     ".375" : " 3/8",
     ".38" : " 3/8",
     ".4" : " 2/5",
+    ".42": " 1/12",
     ".5": " 1/2",
     ".6" : " 3/5",
     ".625" : " 5/8",

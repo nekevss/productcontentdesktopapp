@@ -5,12 +5,9 @@ const { app, BrowserWindow, dialog } = electron;
 const fsp = require('fs').promises;
 const fs = require('fs');
 const path = require('path');
+const { cachePath, resourcesPath } = require("./applicationPaths")
 const { fetchStyleGuideAsset, fetchStateAsset, fetchSpecificCachedData, fetchCurrentData, fetchConfigAsset } = require("./fetch");
 
-//the below isn't in use. Just practice/test.
-//would need to manage passing the reference to the mainWindow and import dialog
-const userDataPath = app.getPath('userData'); //C:\Users\<username>\AppData\Roaming\Product Content App
-const resourcesPath = userDataPath + "/Resources";
 
 //a super simple function for running post requests
 function post(url, data) {
@@ -63,7 +60,6 @@ async function StreamData(readPath, writePath, type) {
                     message: "Import of assets has completed succesfully"
                 }
                 dialog.showMessageBox(activeWindow, options)
-                cleanResourceFiles("all")
             }
             resolve()
         })
@@ -88,7 +84,6 @@ async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku)
     const isOwnBrand = ownBrands.includes(thisBrand);
     const ownBrandClass = "Own Brands " + incomingClass
     if (isOwnBrand) {console.log("Found an Own Brand SKU")}
-    // console.log(ownBrandClass)
 
     let SGArray = styleGuides.data;
     let foundStyleGuide = null;
@@ -100,7 +95,6 @@ async function findStyleGuide(config, resourcesPath, incomingClass, incomingSku)
 
             foundStyleGuide = thisSG.styleGuide
             if ((!isOwnBrand || activeOwnBrandSearch) && foundStyleGuide) {
-                //console.log(`Style Guide was found with isOwnBrand:${isOwnBrand}  activeOwnBrand:${activeOwnBrandSearch}  Class:${thisSG.class}`)
                 break
             }
         }
@@ -147,7 +141,6 @@ async function fetchStateAndData() {
     //Gotta be honest, this should be BrowserWindow.activeWindow()...but the active window 
     //is always going to be ID 1, so it feels better to be declarative here
     const activeWindow = BrowserWindow.fromId(1);
-    const cachePath = resourcesPath + "/cache";
     let state;
 
     try {
@@ -261,6 +254,7 @@ async function fetchConfig() {
     }
 }
 
+// No longer in use: candidate for deletion.
 async function cleanResourceFiles(fileSelection) {
     let activeWindow = BrowserWindow.fromId(1);
 
