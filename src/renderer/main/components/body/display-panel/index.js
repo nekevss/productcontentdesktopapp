@@ -115,7 +115,7 @@ function ViewLivePanel(props) {
 
     // NOTE: minHeight and width is overriding the default min height in "sd-btn-container"
     return (
-        <div className='sd-btn-container' style={{padding: "0.5rem", minHeight:"0", width: "98%"}}>
+        <div className='sd-btn-container' style={{padding: "0.5rem", minHeight:"0", width: "96%"}}>
             <div className='sd-btn-active' style={{textAlign: "center", height: '1rem', padding: "0.75rem", margin: "0 0.25rem", borderRadius: "0.25rem"}} onClick={()=>handleClick(false)}>View on Dotcom</div>
             <div className='sd-btn-active' style={{textAlign: "center", height: '1rem', padding: "0.75rem", margin: "0 0.25rem", borderRadius: "0.25rem"}} onClick={()=>handleClick(true)}>View on SA</div>
         </div>
