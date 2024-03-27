@@ -109,8 +109,11 @@ function ViewLivePanel(props) {
         if (isStaplesAdvantage) {
             siteURL = "https://www.staplesadvantage.com/product_"
         }
-        console.log("Sending the url to open:", siteURL + props.sku[props.config["Excel Mapping"]["Sku Number"]]);
-        window.api.message("open-in-browser", siteURL + props.sku[props.config["Excel Mapping"]["Sku Number"]]);
+        let itemId = props.sku[props.config["Excel Mapping"]["Sku Number"]] 
+            ? props.sku[props.config["Excel Mapping"]["Sku Number"]] 
+            : props.sku[props.config["Excel Mapping"]["Wholesaler Number"]];
+        console.log("Sending the url to open:", siteURL + itemId);
+        window.api.message("open-in-browser", siteURL + itemId);
     }
 
     // NOTE: minHeight and width is overriding the default min height in "sd-btn-container"
