@@ -52,26 +52,37 @@ async function reportRunner(sku, config) {
 
                 // c. Run valid character checks
                 const validCharsTest = new RegExp(validChars, "gi");
-                const invalidChars = content.replace(validCharsTest, "");
+                let invalidChars = content.replace(validCharsTest, "");
 
-                for (let i = 0; i < invalidChars.length; i++) {
-                    while (content.includes(invalidChars[i])) {
-                        const locationIndex = content.indexOf(invalidChars[i])
-                        const locationSlice = content.slice(locationIndex - 3, locationIndex + 5);
+                // Chars searched exists because Im not filtering out repeat characters in invalidChars.
+                [...invalidChars].filter((char, index, array)=> {
+                    return array.indexOf(char) === index
+                }).forEach((char)=> {
+                    let searchStart = 0;
+                    invalidCheck: while (searchStart < content.length) {
+                        let locationIndex = content.indexOf(char, searchStart + 1);
+                        if (locationIndex === -1) {
+                            break invalidCheck;
+                        }
+                        let locationSlice = content.slice(locationIndex - 3, locationIndex + 5);
+
+                        // Compute the utf-16 hex of codepoint
+                        let codeHex = char.codePointAt(0).toString(16).toUpperCase();
+                        while(codeHex.length < 4 || codeHex.length % 2 === 1) {
+                            codeHex = "0" + codeHex;
+                        }
                         report.push({
-                            test: "Invalid Character",
+                            test: "Character Check",
                             field: fieldKey,
-                            message: `Unexpected Character "${invalidChars[i]}" in field ${fieldKey} in section "${locationSlice}"`
+                            message: `Unexpected Unicode Character "${char}" (hex: 0x${codeHex}) in field ${fieldKey} in section "${locationSlice}"`
                         })
 
                         // We will basically remove the characters from the content so that we can test again,
                         // whether the value still exists...might not be the best approach, but it's the one
                         // that comes to mind now
-                        let contentArray = [...content];
-                        contentArray[locationIndex] = " ";
-                        content = contentArray.join("");
+                        searchStart = locationIndex + char.length;
                     }
-                }
+                });
             } catch(err) {
                 report.push({
                     test: "Test Error",

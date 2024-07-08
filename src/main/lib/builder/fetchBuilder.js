@@ -9,11 +9,14 @@ const { getSkuCallValue } = require('../utils/index.js');
 function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
     let activeWindow = BrowserWindow.getFocusedWindow();
 
-    //console.log("Beginning to search for generator\n")
+    // Setup some of the context variables
     const ownBrands = config["Functional Data"]["Staples Brands"];
     const thisBrand = incomingSku[config["Excel Mapping"]["Brand"]];
     const isOwnBrand = ownBrands.includes(thisBrand);
-    if (isOwnBrand) {activeWindow.send("console.log", `SKU is an Own Brands SKU`)}
+
+    if (isOwnBrand) {
+        activeWindow.send("console.log", `SKU is an Own Brands SKU`)
+    }
     const ownBrandsClass = "Own Brands " + incomingClass
     // YIKES
     // TODO: update this
@@ -30,6 +33,9 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
         if (builder.class === incomingClass || builder.class === ownBrandsClass) {
             // We can prevent non-own brand SKUs from storing an own brand generator here
             if (!isOwnBrand && builder.class.includes("Own Brand")) {continue}
+            // Guard clause to prevent Own Brand SKUs from storing a non Own Brands builder.
+            if (isOwnBrand && !builder.class.includes("Own Brand")) {continue}
+            console.log(`Moving forward with ${builder.class}`)
 
             const activeOwnBrandSearch = isOwnBrand && builder.class.includes("Own Brand");
             activeWindow?.webContents.send("console-log", "A matching class was found!")
