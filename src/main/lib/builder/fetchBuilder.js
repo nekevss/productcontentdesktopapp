@@ -33,9 +33,6 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
         if (builder.class === incomingClass || builder.class === ownBrandsClass) {
             // We can prevent non-own brand SKUs from storing an own brand generator here
             if (!isOwnBrand && builder.class.includes("Own Brand")) {continue}
-            // Guard clause to prevent Own Brand SKUs from storing a non Own Brands builder.
-            if (isOwnBrand && !builder.class.includes("Own Brand")) {continue}
-            console.log(`Moving forward with ${builder.class}`)
 
             const activeOwnBrandSearch = isOwnBrand && builder.class.includes("Own Brand");
             activeWindow?.webContents.send("console-log", "A matching class was found!")
@@ -43,6 +40,7 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
             // console.log(builder);
             const ast = builder.skuNameAst;
             
+            // First if is for any simple style guides or errors.
             if (ast.length == 1) {
                 if (ast[0].type == "Error") {
                     builderOutput = [{"string" : ast[0].errorMessage}]  
@@ -51,11 +49,16 @@ function pleaseSirABuilder(config, buildersArray, incomingClass, incomingSku) {
                 }
                 if (!isOwnBrand || activeOwnBrandSearch) {break}
             } else {
+                // This else means that we've hit a complex ownBrands
+                
+                // We are going to have a little bit of an oddity here. builderOutput is set to zero
+                // in the case of a complex style guide. This is fine because if there is a second
+                // loop, we don't want the style guide to default to the normal guide, it is better
+                // for it to be with the Own Brand guide. 
+                builderOutput = null;
                 for (let i = 0 ; i <= ast.length - 1; i++) {
                     let foundTokens = queryBuilder(config, incomingSku, ast[i]);
                     if (foundTokens) {
-                        // console.log("Found the Tokens!")
-                        //console.log(foundGen)
                         builderOutput = foundTokens;
                         break;
                     };
