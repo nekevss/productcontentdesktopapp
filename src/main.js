@@ -12,14 +12,19 @@ require('./main/handlers/requestHandlers.js');
 require('./main/handlers/importHandlers.js');
 require('./main/handlers/spellcheckHandler.js');
 
-//Roadmap to Stable Environment
-//1. Server Setup
+// Technical Updates needed:
+// 1. Update to TypeScript
+// 2. Consolidate stylesheets (maybe switch to TypeScript)
+// 3. Fix state management.
 
-//TODO list
+// Roadmap to Stable Environment
+// 1. Server Setup
+// 2. Complete technical updates.
+
+// TODO list
 // 1. Add attribute reporting and recommending (basic build out complete)
 // 2. Bring style guide parser and registry into application (would need institutional support)
 // 3. Get this thing on a server??? (would need institutional support)
-// 4. Add 30 day auto delete to history (Never really got to it)
 
 
 //globals

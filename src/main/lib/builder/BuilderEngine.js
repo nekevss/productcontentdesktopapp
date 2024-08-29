@@ -4,6 +4,7 @@ const { conditionTests } = require("../conditions/condition-tests.js");
 const { getSkuCallValue, prepareIndexableSkuContent, decimalToFraction, fractionToDecimal } = require("../utils/index.js");
 
 
+// TODO: Change output to object -> engineResult
 function builderEngine(sku, tokens, config) {
     let activeWindow = BrowserWindow.getFocusedWindow()
     let runReport = {};
